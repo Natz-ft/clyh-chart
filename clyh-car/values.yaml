@@ -1,0 +1,254 @@
+# The base budget image to use for all components.
+imageRegistry:  #仓库地址值
+dockerTag: 1.0.0
+environment: "formal"
+hostManager:
+  volumes:
+    hostPath: /app
+
+cltransportuserdataservice:
+  networkManager:
+     tomcat:
+       port:
+     thrift:
+       port:
+     command:
+       url:
+  resourceManager:
+    resources:
+      custom: false
+    #      requests:
+    #        memory: 128Mi
+    #        cpu: 200m
+    #      limits:
+    #        memory: 1Gi
+    #        cpu: '1'
+    jvm: '-server -Xms128m -Xmx512m'
+  nodeManager:
+    tag: 1.0.0
+#    replicas: 2
+
+cltransportbilldataservice:
+  networkManager:
+    tomcat:
+      port:
+    thrift:
+      port:
+    command:
+      url:
+  resourceManager:
+    resources:
+      custom: false
+    jvm: '-server -Xms128m -Xmx512m'
+  nodeManager:
+    tag: 1.0.0
+
+cltransportbusinessdataservice:
+  networkManager:
+    tomcat:
+      port:
+    thrift:
+      port:
+    command:
+      url:
+  resourceManager:
+    resources:
+      custom: false
+    jvm: '-server -Xms128m -Xmx1024m'
+  nodeManager:
+    tag: 1.0.0
+
+cltransportconfigdataservice:
+  networkManager:
+    tomcat:
+      port:
+    thrift:
+      port:
+    command:
+      url:
+  resourceManager:
+    resources:
+      custom: false
+    jvm: '-server -Xms128m -Xmx512m'
+  nodeManager:
+    tag: 1.0.0
+
+cltransportconfigbussservice:
+  networkManager:
+    tomcat:
+      port:
+    thrift:
+      port:
+    command:
+      url:
+  resourceManager:
+    resources:
+      custom: false
+    jvm: '-server -Xms128m -Xmx512m'
+  nodeManager:
+    tag: 1.0.0
+
+cltransportpayservice:
+  networkManager:
+    tomcat:
+      port:
+    thrift:
+      port:
+    command:
+      url:
+  resourceManager:
+    resources:
+      custom: false
+    jvm: '-server -Xms128m -Xmx512m'
+  nodeManager:
+    tag: 1.0.0
+
+cltransportscanconsumerservice:
+  networkManager:
+    tomcat:
+      port:
+    thrift:
+      port:
+    command:
+      url:
+  resourceManager:
+    resources:
+      custom: false
+    jvm: '-server -Xms128m -Xmx512m'
+  nodeManager:
+    tag: 1.0.0
+
+cltransportyihaopurchaseservice:
+  networkManager:
+    tomcat:
+      port:
+    thrift:
+      port:
+    command:
+      url:
+  resourceManager:
+    resources:
+      custom: false
+    jvm: '-server -Xms128m -Xmx1024m'
+  nodeManager:
+    tag: 1.0.0
+
+claddressdataservice:
+  networkManager:
+    tomcat:
+      port:
+    thrift:
+      port:
+    command:
+      url:
+  resourceManager:
+    resources:
+      custom: false
+    jvm: '-server -Xms128m -Xmx1024m'
+  nodeManager:
+    tag: 1.0.0
+
+claddressservice:
+  networkManager:
+    tomcat:
+      port:
+    thrift:
+      port:
+    command:
+      url:
+  resourceManager:
+    resources:
+      custom: false
+    jvm: '-server -Xms128m -Xmx1024m'
+  nodeManager:
+    tag: 1.0.0
+
+cltransportuserservice:
+  networkManager:
+    tomcat:
+      port:
+    thrift:
+      port:
+    command:
+      url:
+  resourceManager:
+    resources:
+      custom: false
+    jvm: '-server -Xms128m -Xmx1024m'
+  nodeManager:
+    tag: 1.0.0
+
+cltransportorderservice:
+  networkManager:
+    tomcat:
+      port:
+    thrift:
+      port:
+    command:
+      url:
+  resourceManager:
+    resources:
+      custom: false
+    jvm: '-server -Xms128m -Xmx1024m'
+  nodeManager:
+    tag: 1.0.0
+
+cltransporttradeintegration:
+  networkManager:
+    tomcat:
+      port:
+    thrift:
+      port:
+    command:
+      url:
+  resourceManager:
+    resources:
+      custom: false
+    jvm: '-server -Xms256m -Xmx512m'
+  nodeManager:
+    tag: 1.0.0
+
+cltransportpaynotifywebsite:
+  networkManager:
+    tomcat:
+      port:
+    thrift:
+      port:
+    command:
+      url:
+  resourceManager:
+    resources:
+      custom: false
+    jvm: '-server -Xms128m -Xmx1024m'
+  nodeManager:
+    tag: 1.0.0
+
+cltransportthirdnotifywebsite:
+  networkManager:
+    tomcat:
+      port:
+    thrift:
+      port:
+    command:
+      url:
+  resourceManager:
+    resources:
+      custom: false
+    jvm: '-server -Xms128m -Xmx1024m'
+  nodeManager:
+    tag: 1.0.0
+
+clbusscarh5:
+  networkManager:
+    tomcat:
+      port:
+    thrift:
+      port:
+    command:
+      url:
+  resourceManager:
+    resources:
+      custom: false
+    jvm: '-server -Xms128m -Xmx512m'
+  nodeManager:
+    tag: 1.0.0

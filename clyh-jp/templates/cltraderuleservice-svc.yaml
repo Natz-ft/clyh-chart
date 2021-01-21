@@ -1,0 +1,19 @@
+apiVersion: v1
+kind: Service
+metadata:
+  name: cltraderuleservice-svc
+  namespace: jp
+spec:
+  ports:
+    - name: http
+      port: {{ .Values.cltraderuleservice.service.port }}
+      protocol: TCP
+      targetPort: {{ .Values.cltraderuleservice.service.port }}
+    - name: thrift
+      port: {{ .Values.cltraderuleservice.service.thriftport }}
+      protocol: TCP
+      targetPort: {{ .Values.cltraderuleservice.service.thriftport }}
+  selector:
+    app: cltraderuleservice
+  sessionAffinity: None
+  type: ClusterIP

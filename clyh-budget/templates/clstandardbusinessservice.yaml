@@ -1,0 +1,182 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: clstandardbusinessservice
+  namespace: budget
+spec:
+  progressDeadlineSeconds: 600
+  {{- if .Values.clstandardbusinessservice.nodeManager.replicas }}
+  replicas: {{ .Values.clstandardbusinessservice.nodeManager.replicas }}
+  {{- else if eq .Values.environment "test" }}
+  replicas: 1
+  {{- else if eq .Values.environment "formal" }}
+  replicas: 2
+  {{- end }}
+  revisionHistoryLimit: 10
+  selector:
+    matchLabels:
+      app: clstandardbusinessservice
+  strategy:
+    rollingUpdate:
+      maxSurge: 25%
+      maxUnavailable: 1
+    type: RollingUpdate
+  template:
+    metadata:
+      annotations:
+        cattle.io/timestamp: "2020-11-16T09:25:17Z"
+        field.cattle.io/ports: '[[{"containerPort":12560,"dnsName":"clstandardbusinessservice-hostport","kind":"HostPort","name":"12560tcp125600","protocol":"TCP","sourcePort":12560},{"containerPort":12562,"dnsName":"clstandardbusinessservice-hostport","kind":"HostPort","name":"12562tcp125620","protocol":"TCP","sourcePort":12562}]]'
+      creationTimestamp: null
+      labels:
+        app: clstandardbusinessservice
+    spec:
+      affinity:
+        nodeAffinity:
+          requiredDuringSchedulingIgnoredDuringExecution:
+            nodeSelectorTerms:
+              - matchExpressions:
+                  - key: env3
+                    operator: In
+                    values:
+                      - budget
+      containers:
+        - env:
+            - name: JAVA_OPTS
+              value: {{ .Values.clstandardbusinessservice.resourceManager.jvm }}
+            - name: MYENV_TOMCATPORT
+              {{- if .Values.clstandardbusinessservice.networkManager.tomcat.port }}
+              value: {{ .Values.clstandardbusinessservice.networkManager.tomcat.port | quote }}
+              {{- else }}
+              value: "12560"
+              {{- end }}
+          {{- if .Values.clstandardbusinessservice.nodeManager.tag }}
+          image: {{ .Values.imageRegistry }}/clstandardbusinessservice:{{ .Values.clstandardbusinessservice.nodeManager.tag }}
+          {{- else }}
+          image: {{ .Values.imageRegistry }}/clstandardbusinessservice:{{ .Values.dockerTag }}
+          {{- end }}
+          imagePullPolicy: IfNotPresent
+          livenessProbe:
+            failureThreshold: 3
+            initialDelaySeconds: 100
+            periodSeconds: 10
+            successThreshold: 1
+            tcpSocket:
+              {{- if .Values.clstandardbusinessservice.networkManager.thrift.port }}
+              port: {{ .Values.clstandardbusinessservice.networkManager.thrift.port }}
+              {{- else }}
+              port: 12562
+              {{- end }}
+            timeoutSeconds: 10
+          name: clstandardbusinessservice
+          ports:
+            {{- if .Values.clstandardbusinessservice.networkManager.tomcat.port }}
+            - containerPort: {{ .Values.clstandardbusinessservice.networkManager.tomcat.port }}
+              hostPort: {{ .Values.clstandardbusinessservice.networkManager.tomcat.port }}
+              name: {{ .Values.clstandardbusinessservice.networkManager.tomcat.name }}
+              protocol: TCP
+            {{- else }}
+            - containerPort: 12560
+              hostPort: 12560
+              protocol: TCP
+              name: 12560tcp125600
+            {{- end }}
+            {{- if .Values.clstandardbusinessservice.networkManager.thrift.port }}
+            - containerPort: {{ .Values.clstandardbusinessservice.networkManager.thrift.port }}
+              hostPort: {{ .Values.clstandardbusinessservice.networkManager.thrift.port }}
+              protocol: TCP
+            {{- else }}
+            - containerPort: 12562
+              hostPort: 12562
+              protocol: TCP
+              name: 12562tcp125620
+            {{- end }}
+          readinessProbe:
+            failureThreshold: 3
+            initialDelaySeconds: 10
+            periodSeconds: 5
+            successThreshold: 1
+            tcpSocket:
+              {{- if .Values.clstandardbusinessservice.networkManager.tomcat.port }}
+              port: {{ .Values.clstandardbusinessservice.networkManager.tomcat.port }}
+              {{- else }}
+              port: 12562
+              {{- end }}
+            timeoutSeconds: 10
+          {{- if .Values.clstandardbusinessservice.resourceManager.resources.custom -}}
+          resources:
+            limits:
+              cpu: {{ .Values.clstandardbusinessservice.resourceManager.resources.limits.cpu }}
+              memory: {{ .Values.clstandardbusinessservice.resourceManager.resources.limits.memory }}
+            requests:
+              cpu: {{ .Values.clstandardbusinessservice.resourceManager.resources.requests.cpu }}
+              memory: {{ .Values.clstandardbusinessservice.resourceManager.resources.requests.memory }}
+          {{- else }}
+          resources:
+            limits:
+              cpu: '1'
+              memory: 1Gi
+            requests:
+              cpu: 100m
+              memory: 128Mi
+          {{- end }}
+          securityContext:
+            capabilities: {}
+          terminationMessagePath: /dev/termination-log
+          terminationMessagePolicy: File
+          volumeMounts:
+            - mountPath: /var/log/cllog
+              name: cllog
+            - mountPath: /var/log/java
+              name: logjava
+            - mountPath: /usr/local/soft/tomcat/webapps/ROOT/WEB-INF/classes/application.properties
+              name: config
+              subPath: application.properties
+            - mountPath: /home/nacfg.ini
+              name: base
+              subPath: nacfg.ini
+      dnsPolicy: ClusterFirstWithHostNet
+      imagePullSecrets:
+        - name: regcred
+      nodeSelector:
+        env3: budget
+      restartPolicy: Always
+      schedulerName: default-scheduler
+      securityContext: {}
+      terminationGracePeriodSeconds: 15
+      {{- if .Values.hostManager.volumes.hostPath }}
+      volumes:
+        - hostPath:
+            path: {{ .Values.hostManager.volumes.hostPath }}/log/cllog
+            type: ''
+          name: cllog
+        - hostPath:
+            path: {{ .Values.hostManager.volumes.hostPath }}/log/java
+            type: ''
+          name: logjava
+        - configMap:
+            defaultMode: 420
+            name: base-config
+          name: base
+        - configMap:
+            defaultMode: 420
+            name: clstandardbusinessservice-config
+          name: config
+      {{- else }}
+      volumes:
+        - hostPath:
+            path: /app/log/cllog
+            type: ''
+          name: cllog
+        - hostPath:
+            path: /app/log/java
+            type: ''
+          name: logjava
+        - configMap:
+            defaultMode: 420
+            name: base-config
+          name: base
+        - configMap:
+            defaultMode: 420
+            name: clstandardbusinessservice-config
+          name: config
+      {{- end }}

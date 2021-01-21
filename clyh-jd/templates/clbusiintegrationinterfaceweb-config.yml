@@ -1,0 +1,311 @@
+apiVersion: v1
+data:
+  DBRoute.properties: |-
+    driver=com.mysql.jdbc.Driver
+    #############read#############
+    readurl={{ .Values.configMapManger.db.databaserouteR.url }}
+    readusername={{ .Values.configMapManger.db.databaserouteR.username }}
+    readpassword={{ .Values.configMapManger.db.databaserouteR.username }}
+    ############write#############
+    writeurl={{ .Values.configMapManger.db.databaserouteW.url }}
+    writeusername={{ .Values.configMapManger.db.databaserouteW.username }}
+    writepassword={{ .Values.configMapManger.db.databaserouteW.username }}
+  ServiceRoute.properties: >-
+    uniqueSign=Jav-CLYPG-481
+
+    ########## JDBC ##########################
+
+    driver=com.mysql.jdbc.Driver
+
+    url={{ .Values.configMapManger.db.serviceroute.url }}
+
+    username={{ .Values.configMapManger.db.serviceroute.username }}
+
+    password={{ .Values.configMapManger.db.serviceroute.password }}
+
+    ###########cxf timeOut###########################
+
+    cxf.connectionTimeout = 20000
+
+    cxf.readtimeout = 600000
+
+    ##################1、debug模式  2、release模式##################
+
+    debug.model = 1
+
+    ###################acc日志记录总控 1、默认值，记录acc日志
+    2、不记录acc日志(包括客户端和服务端)##################################
+
+    acclog.switch = 1
+
+    ###################################记录acc日志的方法名，逗号分隔开。在acclog.switch =
+    2(只要不等于1) 时起效###########################################
+
+    acclog.method.writelog = a,b
+
+    ###################################不记录acc日志的方法名，逗号分隔开。在acclog.switch = 1
+    时起效###########################################
+
+    acclog.method.nolog = c,d
+
+    thrift.connectionPool.conTimeOut = 300000
+
+    thrift.connectionPool.maxIdle=0
+
+    thrift.connectionPool.maxWait=1000000
+
+    ###################调用失败重试次数 默认2次#######################
+
+    retrynum =2
+
+    ###################thrift路由暴露端口##########################
+
+    csflag = _PAL
+  jdbc.properties: >-
+    ########## JDBC ##########################
+
+    applicationName = default
+
+    databaseName = CLReverseTicketOrderDB
+
+    isRead = true
+
+    bizTime = 2014-12-19
+
+    dataSourceTimeout=3600
+
+    showSql=true
+
+    #\u8FDE\u63A5\u5728\u6C60\u4E2D\u4FDD\u6301\u7A7A\u95F2\u800C\u4E0D\u88AB\u7A7A\u95F2\u8FDE\u63A5\u56DE\u6536\u5668\u7EBF\u7A0B(\u5982\u679C\u6709)\u56DE\u6536\u7684\u6700\u5C0F\u65F6\u95F4\u503C\uFF0C
+    \u5355\u4F4D\u6BEB\u79D2  \u9ED8\u8BA4\u503C:1000 * 60 * 30
+
+    routeTimeout= 0
+
+    #############################################
+
+    keyIdConfigPath=/home/nacfg.ini
+
+    tmcNoSaveTime=60000
+
+    ###################thrift路由暴露端口##########################
+
+    cLAddressBusinessDomin=http://ycaddress.517la.com
+
+    cLTransportUserServiceDomin=http://ycuser.517la.com
+
+    cLTransportOrderServiceDomin=http://ycorder.517la.com
+
+    airTicketStandardServiceURL=http://172.26.0.195:13589
+
+    trainTradeIntegrateServiceDomain=http://traintrade.517la.com
+
+
+    uniquesign=PAL
+
+    envsign=PAL
+  log4j.properties: >-
+    ### 设置Logger输出级别和输出目的地 ###
+
+    #log4j.rootLogger=debug,stdout,logfile
+     
+     
+    ### 把日志信息输出到控制台 ###
+
+    log4j.appender.stdout=org.apache.log4j.ConsoleAppender
+
+    #log4j.appender.stdout.Target=System.err
+
+    #log4j.appender.stdout=org.apache.log4j
+
+    log4j.appender.stdout.layout=org.apache.log4j.PatternLayout
+     
+     
+    ### 把日志信息输出到文件：jbit.log ###
+
+    #log4j.appender.logfile=org.apache.log4j.FileAppender
+
+    log4j.appender.logfile=org.apache.log4j.DailyRollingFileAppender
+
+    log4j.appender.logfile.DatePattern='_'yyyy-MM-dd'.log'
+
+    log4j.appender.logfile.File=${catalina.home}/webapps/517Log/CLBusiIntegrationInterFaceWeb.log
+
+    log4j.appender.logfile.layout=org.apache.log4j.PatternLayout
+
+    log4j.appender.logfile.layout.ConversionPattern=%d{yyyy-MM-dd HH:mm:ss} %F
+    %p %m%n
+     
+     
+    ###显示SQL语句部分 正式环境注释以下部分
+
+    log4j.logger.com.ibatis=DEBUG 
+
+    log4j.logger.com.ibatis.common.jdbc.SimpleDataSource=DEBUG 
+
+    log4j.logger.com.ibatis.common.jdbc.ScriptRunner=DEBUG 
+
+    log4j.logger.com.ibatis.sqlmap.engine.impl.SqlMapClientDelegate=DEBUG 
+
+    log4j.logger.java.sql.Connection=DEBUG 
+
+    log4j.logger.java.sql.Statement=DEBUG 
+
+    log4j.logger.java.sql.PreparedStatement=DEBUG
+  log_config.properties: >-
+    #####################   日志组件配置文件        ###########################
+
+    ##################################################################
+
+    #说明：所有属性均采用? key = value 的方式，只有value的值可以修改，现有的key不可修改；密码域账户均加密不是乱码?
+
+    #AppName 应用程序名??
+
+    log.AppName = CLBusiInterafceWeb-PAL
+
+
+    #AppRecord App日志记录开关 true：开     false：关
+
+    log.AppRecord = true
+
+
+    #DebugRecord Debug日志记录开关 true：开     false：关
+
+    log.DebugRecord = false
+
+
+    #Driver 数据库驱动
+
+    log.jdbc.driver = com.mysql.jdbc.Driver
+
+
+    #Url 数据库链接  jdbc:mysql://ip：port/数据库名称
+
+    log.acc.jdbc.url =
+    jdbc:mysql://BJLogDBALL003-W.BJ01.517na.com:3306/LogAccJKCL
+
+    log.acc.jdbc.username=vxSs4i7BS58@
+
+    log.acc.jdbc.password=6BPzhGiVwAPCW1LhtdUvCblGokvcMGesrY1wV/coEWg@
+
+
+    log.app.jdbc.url =
+    jdbc:mysql://BJLogDBALL003-W.BJ01.517na.com:3306/LogAppJKCL
+
+    log.app.jdbc.username=vxSs4i7BS58@
+
+    log.app.jdbc.password=6BPzhGiVwAPCW1LhtdUvCblGokvcMGesrY1wV/coEWg@
+
+
+    log.cachehit.jdbc.url =
+    jdbc:mysql://BJLogDBALL003-W.BJ01.517na.com:3306/LogCacheHitJKCL
+
+    log.cachehit.jdbc.username=vxSs4i7BS58@
+
+    log.cachehit.jdbc.password=6BPzhGiVwAPCW1LhtdUvCblGokvcMGesrY1wV/coEWg@
+
+
+    log.debug.jdbc.url =
+    jdbc:mysql://BJLogDBALL003-W.BJ01.517na.com:3306/LogDebugJKCL
+
+    log.debug.jdbc.username=vxSs4i7BS58@
+
+    log.debug.jdbc.password=6BPzhGiVwAPCW1LhtdUvCblGokvcMGesrY1wV/coEWg@
+
+
+    log.exception.jdbc.url =
+    jdbc:mysql://BJLogDBALL003-W.BJ01.517na.com:3306/LogExceptionJKCL
+
+    log.exception.jdbc.username=vxSs4i7BS58@
+
+    log.exception.jdbc.password=6BPzhGiVwAPCW1LhtdUvCblGokvcMGesrY1wV/coEWg@
+
+
+    log.interaction.jdbc.url =
+    jdbc:mysql://BJLogDBALL003-W.BJ01.517na.com:3306/LogInteractionJKCL
+
+    log.interaction.jdbc.username=vxSs4i7BS58@
+
+    log.interaction.jdbc.password=6BPzhGiVwAPCW1LhtdUvCblGokvcMGesrY1wV/coEWg@
+
+
+    log.slowcall.jdbc.url =
+    jdbc:mysql://BJLogDBALL003-W.BJ01.517na.com:3306/LogSlowCallJKCL
+
+    log.slowcall.jdbc.username=vxSs4i7BS58@
+
+    log.slowcall.jdbc.password=6BPzhGiVwAPCW1LhtdUvCblGokvcMGesrY1wV/coEWg@
+
+
+    log.uiacc.jdbc.url =
+    jdbc:mysql://BJLogDBALL003-W.BJ01.517na.com:3306/LogUiaccJKCL
+
+    log.uiacc.jdbc.username=vxSs4i7BS58@
+
+    log.uiacc.jdbc.password=6BPzhGiVwAPCW1LhtdUvCblGokvcMGesrY1wV/coEWg@
+
+
+    #Directory linux下日志记录路径?
+
+    log.Directory = /var/log/cllog
+
+
+    #DivisionFileSize （单位：兆） 日志在某一时间段内超过文件大小已2M划分
+
+    log.DivisionFileSize = 2
+
+
+    #DivisionFileTime （单位：分钟） 日志在某一时间段内不足2M文件按2min划分
+
+    log.DivisionFileTime = 1
+
+
+    #windows下载文件目录,windows服务的配置成Logs，linux服务一般配置成 JavaLogs
+
+    log.download.Directory=JavaLogs
+
+
+    log.kafka.iswritetokafka=1
+
+    log.kafka.addresses=kafkalog1.517la.com:9092,kafkalog2.517la.com:9092,kafkalog3.517la.com:9092
+  param-jdbc.properties: >-
+    ########## JDBC ##########################
+
+    param.applicationName = CLBussUserWeb
+
+    param.databaseName = SysParamDB
+
+    param.isRead = true
+
+    param.bizTime = 2014-12-19
+
+
+    pool.initialSize=5
+
+    pool.maxActive=100
+
+    pool.maxIdle=2
+
+    pool.maxWait=100000000
+
+    pool.poolPreparedStatements=true
+
+    pool.defaultAutoCommit=false
+
+
+    #################\u4E3B\u952E\u751F\u6210\u7B56\u7565\u6587\u4EF6############################
+
+
+    param.DictionaryTimeOut=43200
+
+
+    param.SysParamTimeOut=43200
+
+
+    param.UserParamTimeOut=43200
+
+
+    param.AppName=test
+kind: ConfigMap
+metadata:
+  name: clbusiintegrationinterfaceweb-config
+  namespace: common

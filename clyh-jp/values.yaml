@@ -1,0 +1,900 @@
+# The base budget image to use for all components.
+imageRegistry: registry.cn-beijing.aliyuncs.com/cnhtcerp_product
+dockerTag: 1.0.0 //
+environment: "formal"
+hostManager:
+  volumes:
+    hostPath: /app
+
+
+configMapManger:
+  db:
+    serviceroute:
+      url: jdbc:mysql://dbsql.517na.com:3306/ServiceRouteDB2
+      username: JmllLBwCJN7P5a0VXvvHkg@@
+      password: qyE6xqtFcq74Bkl7gH5V4g@@
+    dbroute:
+      readurl: jdbc:mysql://dbsql.517na.com:3306/DataBaseRoute
+      readusername: JmllLBwCJN7P5a0VXvvHkg@@
+      readpassword: qyE6xqtFcq74Bkl7gH5V4g@@
+      writeurl: jdbc:mysql://dbsql.517na.com:3306/DataBaseRoute
+      writeusername: JmllLBwCJN7P5a0VXvvHkg@@
+      writepassword: qyE6xqtFcq74Bkl7gH5V4g@@
+  redis:
+    url: jdbc:mysql://DataBaseRoute-W.BJ01.517na.com:3306/DataBaseRoute
+    userName: kSRw85/S628Jd6cTkHmEgA@@
+    password: 6BPzhGiVwAPCW1LhtdUvCblGokvcMGesrY1wV/coEWg@
+
+
+aggregationpayservice:
+  networkManager:
+    tomcat:
+      port:
+    thrift:
+      port:
+    command:
+      url:
+  resourceManager:
+    resources:
+      custom: false
+    jvm: >-
+      -server -Xms512m -Xmx1g
+      -javaagent:/usr/local/soft/skywalking/agent65/skywalking-agent.jar
+      -DSW_AGENT_COLLECTOR_BACKEND_SERVICES=10.10.80.240:31101
+      -DSW_AGENT_NAME=AggregationPayService -DSW_LOGGING_LEVEL=ERROR
+  nodeManager:
+    tag: 2020-12-29-14-08-34
+  service:
+    port: 12375
+
+clairpurchasinginterface:
+  networkManager:
+    tomcat:
+      port:
+    thrift:
+      port:
+    command:
+      url:
+  resourceManager:
+    resources:
+      custom: false
+    jvm: >-
+      -server -Xms256m -Xmx1g
+      -javaagent:/usr/local/soft/skywalking/agent65/skywalking-agent.jar
+      -DSW_AGENT_COLLECTOR_BACKEND_SERVICES=10.10.80.240:31101
+      -DSW_AGENT_NAME=CLAirPurchasingInterface -DSW_LOGGING_LEVEL=ERROR
+  nodeManager:
+    tag: 2020-12-24-10-47-52
+  service:
+    port: 12650
+
+clairticketapi:
+  networkManager:
+    tomcat:
+      port:
+    thrift:
+      port:
+    command:
+      url:
+  resourceManager:
+    resources:
+      custom: false
+    jvm: >-
+      -server -Xms128m -Xmx1g
+      -javaagent:/usr/local/soft/skywalking/agent65/skywalking-agent.jar
+      -DSW_AGENT_COLLECTOR_BACKEND_SERVICES=10.10.80.240:31101
+      -DSW_AGENT_NAME=CLAirTicketAPI -DSW_LOGGING_LEVEL=ERROR
+  nodeManager:
+    tag: 2020-12-31-10-06-29
+
+clairticketbuydataservice:
+  networkManager:
+    tomcat:
+      port:
+    thrift:
+      port:
+    command:
+      url:
+  resourceManager:
+    resources:
+      custom: false
+    jvm: >-
+      -server -Xms512m -Xmx1g
+      -javaagent:/usr/local/soft/skywalking/agent65/skywalking-agent.jar
+      -DSW_AGENT_COLLECTOR_BACKEND_SERVICES=10.10.80.240:31101
+      -DSW_AGENT_NAME=CLAirTicketBuyDataService -DSW_LOGGING_LEVEL=ERROR
+  nodeManager:
+    tag: 2020-12-25-16-47-44
+
+clairticketbuytradeintegration:
+  networkManager:
+    tomcat:
+      port:
+    thrift:
+      port:
+    command:
+      url:
+  resourceManager:
+    resources:
+      custom: false
+    jvm: >-
+      -server -Xms128m -Xmx1g
+      -javaagent:/usr/local/soft/skywalking/agent65/skywalking-agent.jar
+      -DSW_AGENT_COLLECTOR_BACKEND_SERVICES=10.10.80.240:31101
+      -DSW_AGENT_NAME=CLAirTicketBuyTradeIntegration -DSW_LOGGING_LEVEL=ERROR
+  nodeManager:
+    tag: 2021-01-08-17-06-58
+
+clairticketdataservice:
+  networkManager:
+    tomcat:
+      port:
+    thrift:
+      port:
+    command:
+      url:
+  resourceManager:
+    resources:
+      custom: false
+    jvm: >-
+      -server -Xms128m -Xmx3g
+      -javaagent:/usr/local/soft/skywalking/agent65/skywalking-agent.jar
+      -DSW_AGENT_COLLECTOR_BACKEND_SERVICES=10.10.80.240:31101
+      -DSW_AGENT_NAME=CLAirTicketDataService -DSW_LOGGING_LEVEL=ERROR
+  nodeManager:
+    tag: 2021-01-06-09-24-16
+  service:
+    port: 12938
+    thriftport: 13157
+
+clairticketexternalinteractionservice:
+  networkManager:
+    tomcat:
+      port:
+    thrift:
+      port:
+    command:
+      url:
+  resourceManager:
+    resources:
+      custom: false
+    jvm: >-
+      -server -Xms128m -Xmx1g
+      -javaagent:/usr/local/soft/skywalking/agent65/skywalking-agent.jar
+      -DSW_AGENT_COLLECTOR_BACKEND_SERVICES=10.10.80.240:31101
+      -DSW_AGENT_NAME=CLAirTicketExternalInteractionService -DSW_LOGGING_LEVEL=ERROR
+  nodeManager:
+    tag: 2020-11-11-15-39-12
+
+clairticketnotifytaskconsumer:
+  networkManager:
+    tomcat:
+      port:
+    thrift:
+      port:
+    command:
+      url:
+  resourceManager:
+    resources:
+      custom: false
+    jvm: >-
+      -server -Xms1g -Xmx2g
+      -javaagent:/usr/local/soft/skywalking/agent65/skywalking-agent.jar
+      -DSW_AGENT_COLLECTOR_BACKEND_SERVICES=10.10.80.240:31101
+      -DSW_AGENT_NAME=CLAirTicketNotifyTaskConsumer -DSW_LOGGING_LEVEL=ERROR
+  nodeManager:
+    tag: 2021-01-14-20-07-50
+  service:
+    port: 8957
+
+clairticketproductqueryservice:
+  networkManager:
+    tomcat:
+      port:
+    thrift:
+      port:
+    command:
+      url:
+  resourceManager:
+    resources:
+      custom: false
+    jvm: >-
+      -server -Xms1g -Xmx2g
+      -javaagent:/usr/local/soft/skywalking/agent65/skywalking-agent.jar
+      -DSW_AGENT_COLLECTOR_BACKEND_SERVICES=10.10.80.240:31101
+      -DSW_AGENT_NAME=CLAirTicketProductQueryService -DSW_LOGGING_LEVEL=ERROR
+  nodeManager:
+    tag: 2021-01-13-18-54-43
+  service:
+    port: 13844
+
+clairticketruledataservice:
+  networkManager:
+    tomcat:
+      port:
+    thrift:
+      port:
+    command:
+      url:
+  resourceManager:
+    resources:
+      custom: false
+    jvm: >-
+      -server -Xms1g -Xmx2g
+      -javaagent:/usr/local/soft/skywalking/agent65/skywalking-agent.jar
+      -DSW_AGENT_COLLECTOR_BACKEND_SERVICES=10.10.80.240:31101
+      -DSW_AGENT_NAME=CLAirTicketRuleDataService -DSW_LOGGING_LEVEL=ERROR
+  nodeManager:
+    tag: 8279.old7.20200426171015
+  configMap:
+    networkManager:
+        thriftport: 16664
+  service:
+    thriftport: 16664
+
+clairticketservice:
+  networkManager:
+    tomcat:
+      port:
+    thrift:
+      port:
+    command:
+      url:
+  resourceManager:
+    resources:
+      custom: false
+    jvm: >-
+      -server -Xms128m -Xmx1024m
+      -javaagent:/usr/local/soft/skywalking/agent65/skywalking-agent.jar
+      -DSW_AGENT_COLLECTOR_BACKEND_SERVICES=10.10.80.240:31101
+      -DSW_AGENT_NAME=CLAirTicketService -DSW_LOGGING_LEVEL=ERROR
+  nodeManager:
+    tag: 8279.old7.20200426171327
+  configMap:
+    networkManager:
+        QSRequestUrl: http://injk.yc.517na.com/LedgerInterfaceUnCheck.do
+        thriftport: 27782
+  service:
+    thriftport: 27782
+
+clairticketservicefeeprocess:
+  networkManager:
+    tomcat:
+      port:
+    thrift:
+      port:
+    command:
+      url:
+  resourceManager:
+    resources:
+      custom: false
+    jvm: >-
+      -server -Xms128m -Xmx1024m
+      -javaagent:/usr/local/soft/skywalking/agent65/skywalking-agent.jar
+      -DSW_AGENT_COLLECTOR_BACKEND_SERVICES=10.10.80.240:31101
+      -DSW_AGENT_NAME=CLAirTicketServiceFeeProcess -DSW_LOGGING_LEVEL=ERROR
+  nodeManager:
+    tag: 2020-12-24-16-41-29
+
+clairticketstandardservice:
+  networkManager:
+    tomcat:
+      port:
+    thrift:
+      port:
+    command:
+      url:
+  resourceManager:
+    resources:
+      custom: false
+    jvm: >-
+      -server -Xms128m -Xmx1024m
+      -javaagent:/usr/local/soft/skywalking/agent65/skywalking-agent.jar
+      -DSW_AGENT_COLLECTOR_BACKEND_SERVICES=10.10.80.240:31101
+      -DSW_AGENT_NAME=CLAirTicketStandardService -DSW_LOGGING_LEVEL=ERROR
+  nodeManager:
+    tag: 2021-01-15-11-20-56
+  service:
+    port: 13589
+
+clbussairticketh5:
+  networkManager:
+    replicas: 1
+    tomcat:
+      port:
+    thrift:
+      port:
+    command:
+      url:
+  resourceManager:
+    resources:
+      custom: false
+    jvm: >-
+      -server -Xms128m -Xmx1024m
+      -javaagent:/usr/local/soft/skywalking/agent65/skywalking-agent.jar
+      -DSW_AGENT_COLLECTOR_BACKEND_SERVICES=10.10.80.240:31101
+      -DSW_AGENT_NAME=CLBussAirTicketH5 -DSW_LOGGING_LEVEL=ERROR
+  nodeManager:
+    tag: 2021-01-14-19-15-19
+  service:
+    port: 12185
+
+clbussairticketh52:
+  networkManager:
+    replicas: 1
+    tomcat:
+      port:
+    thrift:
+      port:
+    command:
+      url:
+  resourceManager:
+    resources:
+      custom: false
+    jvm: >-
+      -server -Xms128m -Xmx1024m
+      -javaagent:/usr/local/soft/skywalking/agent65/skywalking-agent.jar
+      -DSW_AGENT_COLLECTOR_BACKEND_SERVICES=10.10.80.240:31101
+      -DSW_AGENT_NAME=clbussairticketh52 -DSW_LOGGING_LEVEL=ERROR
+  nodeManager:
+    tag: 2021-01-14-19-15-19
+  service:
+    port: 12185
+
+clcostcentermessageconsumer:
+  networkManager:
+    tomcat:
+      port:
+    thrift:
+      port:
+    command:
+      url:
+  resourceManager:
+    resources:
+      custom: false
+    jvm: >-
+      -server -Xms128m -Xmx1024m
+      -javaagent:/usr/local/soft/skywalking/agent65/skywalking-agent.jar
+      -DSW_AGENT_COLLECTOR_BACKEND_SERVICES=10.10.80.240:31101
+      -DSW_AGENT_NAME=CLCostCenterMessageConsumer -DSW_LOGGING_LEVEL=ERROR
+  nodeManager:
+    tag: 2020-11-30-20-13-58
+
+clnotifytaskrecorddataservice:
+  networkManager:
+    tomcat:
+      port:
+    thrift:
+      port:
+    command:
+      url:
+  resourceManager:
+    resources:
+      custom: false
+    jvm: >-
+      -server -Xms128m -Xmx1024m
+      -javaagent:/usr/local/soft/skywalking/agent65/skywalking-agent.jar
+      -DSW_AGENT_COLLECTOR_BACKEND_SERVICES=10.10.80.240:31101
+      -DSW_AGENT_NAME=CLNotifyTaskRecordDataService -DSW_LOGGING_LEVEL=ERROR
+  nodeManager:
+    tag: 2021-01-02-02-42-52
+
+clonetnbuymessageconsumer:
+  networkManager:
+    tomcat:
+      port:
+    thrift:
+      port:
+    command:
+      url:
+  resourceManager:
+    resources:
+      custom: false
+    jvm: >-
+      -server -Xms128m -Xmx1024m
+      -javaagent:/usr/local/soft/skywalking/agent65/skywalking-agent.jar
+      -DSW_AGENT_COLLECTOR_BACKEND_SERVICES=10.10.80.240:31101
+      -DSW_AGENT_NAME=CLOneTNBuyMessageConsumer -DSW_LOGGING_LEVEL=ERROR
+  nodeManager:
+    tag: 2020-11-04-20-54-07
+
+clonetnsellmessgeconsumer:
+  networkManager:
+    tomcat:
+      port:
+    thrift:
+      port:
+    command:
+      url:
+  resourceManager:
+    resources:
+      custom: false
+    jvm: >-
+      -server -Xms128m -Xmx1024m
+      -javaagent:/usr/local/soft/skywalking/agent65/skywalking-agent.jar
+      -DSW_AGENT_COLLECTOR_BACKEND_SERVICES=10.10.80.240:31101
+      -DSW_AGENT_NAME=CLOneTNSellMessgeConsumer -DSW_LOGGING_LEVEL=ERROR
+  nodeManager:
+    tag: 2021-01-08-16-30-15
+
+clonetonexceptionbusiscan:
+  networkManager:
+    tomcat:
+      port:
+    thrift:
+      port:
+    command:
+      url:
+  resourceManager:
+    resources:
+      custom: false
+    jvm: >-
+      -server -Xms128m -Xmx1024m
+      -javaagent:/usr/local/soft/skywalking/agent65/skywalking-agent.jar
+      -DSW_AGENT_COLLECTOR_BACKEND_SERVICES=10.10.80.240:31101
+      -DSW_AGENT_NAME=CLOneToNExceptionBusiScan -DSW_LOGGING_LEVEL=ERROR
+  nodeManager:
+    tag: 2020-11-18-16-25-00
+
+clorderoperlogservice:
+  networkManager:
+    tomcat:
+      port:
+    thrift:
+      port:
+    command:
+      url:
+  resourceManager:
+    resources:
+      custom: false
+    jvm: >-
+      -server -Xms128m -Xmx1024m
+      -javaagent:/usr/local/soft/skywalking/agent65/skywalking-agent.jar
+      -DSW_AGENT_COLLECTOR_BACKEND_SERVICES=10.10.80.240:31101
+      -DSW_AGENT_NAME=CLOrderOperLogService -DSW_LOGGING_LEVEL=ERROR
+  nodeManager:
+    tag: 2020-10-14-09-18-06
+  service:
+    port: 12942
+
+clproductcenterservice:
+  networkManager:
+    tomcat:
+      port:
+    thrift:
+      port:
+    command:
+      url:
+  resourceManager:
+    resources:
+      custom: false
+    jvm: >-
+      -server -Xms128m -Xmx1024m
+      -javaagent:/usr/local/soft/skywalking/agent65/skywalking-agent.jar
+      -DSW_AGENT_COLLECTOR_BACKEND_SERVICES=10.10.80.240:31101
+      -DSW_AGENT_NAME=clproductcenterservice -DSW_LOGGING_LEVEL=ERROR
+  nodeManager:
+    tag: 2021-01-13-18-27-40
+  service:
+    port: 13890
+
+clrefundticketbusiservice:
+  networkManager:
+    tomcat:
+      port:
+    thrift:
+      port:
+    command:
+      url:
+  resourceManager:
+    resources:
+      custom: false
+    jvm: >-
+      -server -Xms512m -Xmx1024m
+      -javaagent:/usr/local/soft/skywalking/agent65/skywalking-agent.jar
+      -DSW_AGENT_COLLECTOR_BACKEND_SERVICES=10.10.80.240:31101
+      -DSW_AGENT_NAME=CLRefundTicketBusiService -DSW_LOGGING_LEVEL=ERROR
+  nodeManager:
+    tag: 2021-01-08-15-27-02
+  service:
+    port: 9383
+
+clticketchangeservice:
+  networkManager:
+    tomcat:
+      port:
+    thrift:
+      port:
+    command:
+      url:
+  resourceManager:
+    resources:
+      custom: false
+    jvm: >-
+      -server -Xms128m -Xmx1024m
+      -javaagent:/usr/local/soft/skywalking/agent65/skywalking-agent.jar
+      -DSW_AGENT_COLLECTOR_BACKEND_SERVICES=10.10.80.240:31101
+      -DSW_AGENT_NAME=CLTicketChangeService -DSW_LOGGING_LEVEL=ERROR
+  nodeManager:
+    tag: 2020-12-31-10-26-31
+  service:
+    port: 12946
+
+clticketnotifywebsite:
+  networkManager:
+    tomcat:
+      port:
+    thrift:
+      port:
+    command:
+      url:
+  resourceManager:
+    resources:
+      custom: false
+    jvm: >-
+      -server -Xms128m -Xmx1024m
+      -javaagent:/usr/local/soft/skywalking/agent65/skywalking-agent.jar
+      -DSW_AGENT_COLLECTOR_BACKEND_SERVICES=10.10.80.240:31101
+      -DSW_AGENT_NAME=CLTicketNotifyWebSite -DSW_LOGGING_LEVEL=ERROR
+  nodeManager:
+    tag: 2020-12-25-16-49-14
+  service:
+    port: 12467
+
+clticketsalecreateorderservice:
+  networkManager:
+    tomcat:
+      port:
+    thrift:
+      port:
+    command:
+      url:
+  resourceManager:
+    resources:
+      custom: false
+    jvm: >-
+      -server -Xms128m -Xmx1024m
+      -javaagent:/usr/local/soft/skywalking/agent65/skywalking-agent.jar
+      -DSW_AGENT_COLLECTOR_BACKEND_SERVICES=10.10.80.240:31101
+      -DSW_AGENT_NAME=CLTicketSaleCreateOrderService -DSW_LOGGING_LEVEL=ERROR
+  nodeManager:
+    tag: 2020-12-31-10-09-25
+
+clticketsalepayservice:
+  networkManager:
+    tomcat:
+      port:
+    thrift:
+      port:
+    command:
+      url:
+  resourceManager:
+    resources:
+      custom: false
+    jvm: >-
+      -server -Xms128m -Xmx1024m
+      -javaagent:/usr/local/soft/skywalking/agent65/skywalking-agent.jar
+      -DSW_AGENT_COLLECTOR_BACKEND_SERVICES=10.10.80.240:31101
+      -DSW_AGENT_NAME=CLTicketSalePayService -DSW_LOGGING_LEVEL=ERROR
+  nodeManager:
+    tag: 2020-12-17-15-26-53
+
+cltraderuleservice:
+  networkManager:
+    tomcat:
+      port:
+    thrift:
+      port:
+    command:
+      url:
+  resourceManager:
+    resources:
+      custom: false
+    jvm: >-
+      -server -Xms128m -Xmx1024m
+      -javaagent:/usr/local/soft/skywalking/agent65/skywalking-agent.jar
+      -DSW_AGENT_COLLECTOR_BACKEND_SERVICES=10.10.80.240:31101
+      -DSW_AGENT_NAME=cltraderuleservice -DSW_LOGGING_LEVEL=ERROR
+  nodeManager:
+    tag: 8236tag.20200121152037
+  service:
+    port: 10354
+    thriftport: 8089
+
+clusercommonmessageconsumer:
+  networkManager:
+    tomcat:
+      port:
+    thrift:
+      port:
+    command:
+      url:
+  resourceManager:
+    resources:
+      custom: false
+    jvm: >-
+      -server -Xms128m -Xmx1024m
+      -javaagent:/usr/local/soft/skywalking/agent65/skywalking-agent.jar
+      -DSW_AGENT_COLLECTOR_BACKEND_SERVICES=10.10.80.240:31101
+      -DSW_AGENT_NAME=CLUserCommonMessageConsumer -DSW_LOGGING_LEVEL=ERROR
+  nodeManager:
+    tag: 8138tag.20200601163118
+
+clusercommonservice:
+  networkManager:
+    tomcat:
+      port:
+    thrift:
+      port:
+    command:
+      url:
+  resourceManager:
+    resources:
+      custom: false
+    jvm: >-
+      -server -Xms128m -Xmx1024m
+      -javaagent:/usr/local/soft/skywalking/agent65/skywalking-agent.jar
+      -DSW_AGENT_COLLECTOR_BACKEND_SERVICES=10.10.80.240:31101
+      -DSW_AGENT_NAME=CLUserCommonService -DSW_LOGGING_LEVEL=ERROR
+  nodeManager:
+    tag: 2020-09-04-21-59-50
+
+ticketsaletradeintegration:
+  networkManager:
+    tomcat:
+      port:
+    thrift:
+      port:
+    command:
+      url:
+  resourceManager:
+    resources:
+      custom: false
+    jvm: >-
+      -server -Xms128m -Xmx1024m
+      -javaagent:/usr/local/soft/skywalking/agent65/skywalking-agent.jar
+      -DSW_AGENT_COLLECTOR_BACKEND_SERVICES=10.10.80.240:31101
+      -DSW_AGENT_NAME=TicketSaleTradeIntegration -DSW_LOGGING_LEVEL=ERROR
+  nodeManager:
+    tag: 2021-01-05-10-40-07
+  service:
+    port: 12641
+
+clticketrulesdasedataservice:
+  networkManager:
+    tomcat:
+      port:
+    thrift:
+      port:
+    command:
+      url:
+  resourceManager:
+    resources:
+      custom: false
+    jvm: >-
+      -server -Xms128m -Xmx1024m
+      -javaagent:/usr/local/soft/skywalking/agent65/skywalking-agent.jar
+      -DSW_AGENT_COLLECTOR_BACKEND_SERVICES=10.10.80.240:31101
+      -DSW_AGENT_NAME=CLTicketRulesDaseDataService -DSW_LOGGING_LEVEL=ERROR
+  nodeManager:
+    tag: 2020-12-30-10-06-11
+
+clairticketrulesyn:
+  networkManager:
+    tomcat:
+      port:
+    thrift:
+      port:
+    command:
+      url:
+  resourceManager:
+    resources:
+      custom: false
+    jvm: >-
+      -server -Xms128m -Xmx1024m
+      -javaagent:/usr/local/soft/skywalking/agent65/skywalking-agent.jar
+      -DSW_AGENT_COLLECTOR_BACKEND_SERVICES=10.10.80.240:31101
+      -DSW_AGENT_NAME=CLAirTicketRuleSyn -DSW_LOGGING_LEVEL=ERROR
+  nodeManager:
+    tag: 2020-12-29-19-21-43
+
+jbusinessbasedataservice:
+  networkManager:
+    tomcat:
+      port:
+    thrift:
+      port:
+    command:
+      url:
+  resourceManager:
+    resources:
+      custom: false
+    jvm: >-
+      -server -Xms128m -Xmx1024m
+      -javaagent:/usr/local/soft/skywalking/agent65/skywalking-agent.jar
+      -DSW_AGENT_COLLECTOR_BACKEND_SERVICES=10.10.80.240:31101
+      -DSW_AGENT_NAME=jbusinessbasedataservice -DSW_LOGGING_LEVEL=ERROR
+  nodeManager:
+    tag: 8279.old7.20200628182918
+
+clstaticresinfoservice:
+  networkManager:
+    tomcat:
+      port:
+    thrift:
+      port:
+    command:
+      url:
+  resourceManager:
+    resources:
+      custom: false
+    jvm: >-
+      -server -Xms128m -Xmx512m
+      -javaagent:/usr/local/soft/skywalking/agent65/skywalking-agent.jar
+      -DSW_AGENT_COLLECTOR_BACKEND_SERVICES=10.10.80.240:31101
+      -DSW_AGENT_NAME=clstaticresinfoservice -DSW_LOGGING_LEVEL=ERROR
+  nodeManager:
+    tag: 8279.old7.20200426182113
+  configMap:
+    networkManager:
+      openapi:
+        url: http://cl.agentapi.jk.517na.com/openapi
+        pid: 0008600281603302993
+        secret: 519ce362bcb04cbeae113fe5f83a2b31
+        version: 2.0
+      notify_url: http://172.16.6.54:4451/Better517Na.YWWebServicesNotify.WebService/YWWebServiceNotify.asmx?WSDL
+      thriftport: 13553
+
+clappsystemdataservice:
+  networkManager:
+    tomcat:
+      port:
+    thrift:
+      port:
+    command:
+      url:
+  resourceManager:
+    resources:
+      custom: false
+    jvm: >-
+      -server -Xms128m -Xmx512m
+      -javaagent:/usr/local/soft/skywalking/agent65/skywalking-agent.jar
+      -DSW_AGENT_COLLECTOR_BACKEND_SERVICES=10.10.80.240:31101
+      -DSW_AGENT_NAME=clappsystemdataservice -DSW_LOGGING_LEVEL=ERROR
+  nodeManager:
+    tag: 8209.old7.20200102152258
+  configMap:
+    networkManager:
+      thriftport: 12687
+  service:
+    thriftport: 12687
+
+clconfiguredataservice:
+  networkManager:
+    tomcat:
+      port:
+    thrift:
+      port:
+    command:
+      url:
+  resourceManager:
+    resources:
+      custom: false
+    jvm: >-
+      -server -Xms128m -Xmx1024m
+      -javaagent:/usr/local/soft/skywalking/agent65/skywalking-agent.jar
+      -DSW_AGENT_COLLECTOR_BACKEND_SERVICES=10.10.80.240:31101
+      -DSW_AGENT_NAME=clconfiguredataservice -DSW_LOGGING_LEVEL=ERROR
+  nodeManager:
+    tag: 8279.old7.20200426190813
+  configMap:
+    networkManager:
+      thriftport: 13678
+  service:
+    thriftport: 13678
+
+clformvalidatedataservice:
+  networkManager:
+    tomcat:
+      port:
+    thrift:
+      port:
+    command:
+      url:
+  resourceManager:
+    resources:
+      custom: false
+    jvm: >-
+      -server -Xms128m -Xmx1024m
+      -javaagent:/usr/local/soft/skywalking/agent65/skywalking-agent.jar
+      -DSW_AGENT_COLLECTOR_BACKEND_SERVICES=10.10.80.240:31101
+      -DSW_AGENT_NAME=clformvalidatedataservice -DSW_LOGGING_LEVEL=ERROR
+  nodeManager:
+    tag: 8279.old7.20200426192747
+  configMap:
+    networkManager:
+      thriftport: 11345
+  service:
+    thriftport: 11345
+
+clanalysereportservice:
+  networkManager:
+    tomcat:
+      port:
+    thrift:
+      port:
+    command:
+      url:
+  resourceManager:
+    resources:
+      custom: false
+    jvm: >-
+      -server -Xms512m -Xmx2g
+      -javaagent:/usr/local/soft/skywalking/agent65/skywalking-agent.jar
+      -DSW_AGENT_COLLECTOR_BACKEND_SERVICES=10.10.80.240:31101
+      -DSW_AGENT_NAME=CLAnalyseReportService -DSW_LOGGING_LEVEL=ERROR
+  nodeManager:
+    tag: 2020-09-23-18-31-36
+
+clanalysereportservicedts:
+  networkManager:
+    tomcat:
+      port:
+    thrift:
+      port:
+    command:
+      url:
+  resourceManager:
+    resources:
+      custom: false
+    jvm: >-
+      -server -Xms512m -Xmx2g
+      -javaagent:/usr/local/soft/skywalking/agent65/skywalking-agent.jar
+      -DSW_AGENT_COLLECTOR_BACKEND_SERVICES=10.10.80.240:31101
+      -DSW_AGENT_NAME=CLAnalyseReportServicedts -DSW_LOGGING_LEVEL=ERROR
+  nodeManager:
+    tag: 8286tag.20200521180329
+
+clairticketplatmanageweb:
+  networkManager:
+    replicas: 1
+    tomcat:
+      port:
+    thrift:
+      port:
+    command:
+      url:
+  resourceManager:
+    resources:
+      custom: false
+    jvm: >-
+      -server -Xms128m -Xmx512m
+      -javaagent:/usr/local/soft/skywalking/agent65/skywalking-agent.jar
+      -DSW_AGENT_COLLECTOR_BACKEND_SERVICES=10.10.80.240:31101
+      -DSW_AGENT_NAME=clairticketplatmanageweb -DSW_LOGGING_LEVEL=ERROR
+  nodeManager:
+    tag: 2021-01-07-21-36-59
+  service:
+    thriftport: 12689
+
+clairticketplatmanageweb2:
+  networkManager:
+    replicas: 1
+    tomcat:
+      port:
+    thrift:
+      port:
+    command:
+      url:
+  resourceManager:
+    resources:
+      custom: false
+    jvm: >-
+      -server -Xms128m -Xmx512m
+      -javaagent:/usr/local/soft/skywalking/agent65/skywalking-agent.jar
+      -DSW_AGENT_COLLECTOR_BACKEND_SERVICES=10.10.80.240:31101
+      -DSW_AGENT_NAME=clairticketplatmanageweb2 -DSW_LOGGING_LEVEL=ERROR
+  nodeManager:
+    tag: 2021-01-07-21-36-59
+  service:
+    thriftport: 12689

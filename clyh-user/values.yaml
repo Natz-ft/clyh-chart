@@ -1,0 +1,137 @@
+# The base budget image to use for all components.
+imageRegistry: //仓库地址值
+dockerTag: 1.0.0 //
+environment: "formal"
+hostManager:
+  volumes:
+    hostPath: /app
+clbussinfoadminservice:
+  networkManager:
+    tomcat:
+      port:
+    thrift:
+      port:
+    command:
+      url:
+  resourceManager:
+    resources:
+      custom: false
+    jvm: >-
+      -server -Xms128m -Xmx1500m
+      -javaagent:/usr/local/soft/skywalking/agent65/skywalking-agent.jar
+      -DSW_AGENT_COLLECTOR_BACKEND_SERVICES=10.10.80.240:31101
+      -DSW_AGENT_NAME=clbussinfoadminservice -DSW_LOGGING_LEVEL=ERROR
+  nodeManager:
+    tag: 1.0.0
+clbussinfodbservice:
+  networkManager:
+    tomcat:
+      port:
+    thrift:
+      port:
+    command:
+      url:
+  resourceManager:
+    resources:
+      custom: false
+    jvm: '-server -Xms128m -Xmx1024m'
+  nodeManager:
+    tag: 1.0.0
+clcpysynxxljobexecutor:
+  networkManager:
+    tomcat:
+      port:
+    thrift:
+      port:
+    command:
+      url:
+  resourceManager:
+    resources:
+      custom: false
+    jvm: '-server -Xms128m -Xmx1024m'
+  nodeManager:
+    tag: 1.0.0
+clloginbussinfoadminservice:
+  networkManager:
+    tomcat:
+      port:
+    thrift:
+      port:
+    command:
+      url:
+  resourceManager:
+    resources:
+      custom: false
+    jvm: '-server -Xms128m -Xmx1024m'
+  nodeManager:
+    tag: 1.0.0
+clopenapi:
+  networkManager:
+    tomcat:
+      port:
+    thrift:
+      port:
+    command:
+      url:
+  resourceManager:
+    resources:
+      custom: false
+    jvm: '-server -Xms128m -Xmx1024m'
+  nodeManager:
+    tag: 1.0.0
+clopenapidataservice:
+  networkManager:
+    tomcat:
+      port:
+    thrift:
+      port:
+    command:
+      url:
+  resourceManager:
+    resources:
+      custom: false
+    jvm: '-server -Xms128m -Xmx1024m'
+  nodeManager:
+    tag: 1.0.0
+clthirdssoweb:
+  networkManager:
+    tomcat:
+      port:
+    thrift:
+      port:
+    command:
+      url:
+  resourceManager:
+    resources:
+      custom: false
+    jvm: '-server -Xms128m -Xmx512m'
+  nodeManager:
+    tag: 1.0.0
+cluniversalpermissionservice:
+  networkManager:
+    tomcat:
+      port:
+    thrift:
+      port:
+    command:
+      url:
+  resourceManager:
+    resources:
+      custom: false
+    jvm: '-server -Xms128m -Xmx1024m'
+  nodeManager:
+    tag: 1.0.0
+unifieduserjavadataservice:
+  networkManager:
+    tomcat:
+      port:
+    thrift:
+      port:
+    command:
+      url:
+  resourceManager:
+    resources:
+      custom: false
+    jvm: '-server -Xms128m -Xmx1024m'
+  nodeManager:
+    tag: 1.0.0

@@ -1,0 +1,771 @@
+apiVersion: v1
+data:
+  DBRoute.properties: >-
+    driver=com.mysql.jdbc.Driver
+    readurl={{ .Values.configMapManger.db.databaserouteR.url }}
+    readusername={{ .Values.configMapManger.db.databaserouteR.username }}
+    readpassword={{ .Values.configMapManger.db.databaserouteR.username }}
+    writeurl={{ .Values.configMapManger.db.databaserouteW.url }}
+    writeusername={{ .Values.configMapManger.db.databaserouteW.username }}
+    writepassword={{ .Values.configMapManger.db.databaserouteW.username }}
+
+
+    dbroute.driver=com.mysql.jdbc.Driver
+
+    #############read#############
+
+    dbroute.readurl={{ .Values.configMapManger.db.databaserouteR.url }}
+
+    dbroute.readusername={{ .Values.configMapManger.db.databaserouteR.username }}
+
+    dbroute.readpassword={{ .Values.configMapManger.db.databaserouteR.username }}
+
+    ############write#############
+
+    dbroute.writeurl={{ .Values.configMapManger.db.databaserouteW.url }}
+
+    dbroute.writeusername={{ .Values.configMapManger.db.databaserouteW.username }}
+
+    dbroute.writepassword={{ .Values.configMapManger.db.databaserouteW.username }}
+  MessageQueueHelper.properties: >-
+    ######### 应用程序名称 ##########################################
+
+    appId=HotelSupplierSysWeb-ALY-CS
+
+    ################# 需要连接的主机地址及端口,多台主机时，以分号隔开
+    192.168.1.117:15672;192.168.1.120:15672##############################
+
+    host=10.10.80.187:5672
+
+    #host=syq1.mq.517na.com
+
+    #host=172.17.41.110:5672
+
+    ################## 虚拟主机 ##############################################
+
+    vhost=jdNotice-putting
+
+    ####################  用户名  #############################################
+
+    username=admin
+
+    ##################### 密    码 #############################################
+
+    password=admin
+
+    ##################### 超时时间 ############################################
+
+    timeout=600000
+
+    ##################### 心跳    ########################################
+
+    requestedHeartbeat=300
+
+
+
+    mq.exchange=ContractHotelOrderMS
+
+    mq.routeKey=ContractHotelOrderSendQue-key
+
+    mq.queueName=ContractHotelOrderSendQue
+  ServiceRoute.properties: >-
+    uniqueSign=WEB-JD-33
+
+    ########## JDBC ##########################
+
+    driver=com.mysql.jdbc.Driver
+
+    url={{ .Values.configMapManger.db.serviceroute.url }}
+
+    username={{ .Values.configMapManger.db.serviceroute.username }}
+
+    password={{ .Values.configMapManger.db.serviceroute.password }}
+
+    ###########cxf timeOut###########################
+
+    cxf.connectionTimeout = 300000
+
+    cxf.readtimeout = 300000
+
+    debug.model = 1
+
+    retrynum = 0
+
+
+    serviceroute.uniqueSign=WEB-JD-33
+
+    ########## JDBC ##########################
+
+    serviceroute.driver=com.mysql.jdbc.Driver
+
+    serviceroute.url=jdbc:mysql://ServiceRouteDB-R.BJ01.517na.com/ServiceRouteDB
+
+    serviceroute.username=JmllLBwCJN7P5a0VXvvHkg@@
+
+    serviceroute.password=6BPzhGiVwAPCW1LhtdUvCblGokvcMGesrY1wV/coEWg@
+
+    ###########cxf timeOut###########################
+
+    serviceroute.cxf.connectionTimeout = 300000
+
+    serviceroute.cxf.readtimeout = 300000
+
+    serviceroute.debug.model = 1
+
+    serviceroute.acclog.switch = 1
+
+    serviceroute.acclog.method.writelog = a,b
+
+    serviceroute.acclog.method.nolog = c,d
+
+    serviceroute.retrynum = 0
+
+
+    # thrift-config
+
+    thrift.connectionPool.conTimeOut=1200000
+
+    #
+    \u7F13\u5B58\u6C60\u4E2D\u6700\u5927\u7A7A\u95F2\u5BF9\u8C61\u6570\u91CF\uFF0C\u9ED8\u8BA48
+
+    thrift.connectionPool.maxActive=8
+
+    thrift.connectionPool.maxIdle=8
+
+    thrift.connectionPool.minIdle=0
+
+    thrift.connectionPool.maxWait=-1
+
+    thrift.connectionPool.testOnBorrow=true
+
+    thrift.connectionPool.testOnReturn=false
+
+    thrift.connectionPool.testWhileIdle=false
+  application.properties: |-
+    #
+    spring.application.name=HotelPlatWeb
+  catalina.properties: >-
+    # Licensed to the Apache Software Foundation (ASF) under one or more
+
+    # contributor license agreements.  See the NOTICE file distributed with
+
+    # this work for additional information regarding copyright ownership.
+
+    # The ASF licenses this file to You under the Apache License, Version 2.0
+
+    # (the "License"); you may not use this file except in compliance with
+
+    # the License.  You may obtain a copy of the License at
+
+    #
+
+    #     http://www.apache.org/licenses/LICENSE-2.0
+
+    #
+
+    # Unless required by applicable law or agreed to in writing, software
+
+    # distributed under the License is distributed on an "AS IS" BASIS,
+
+    # WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+
+    # See the License for the specific language governing permissions and
+
+    # limitations under the License.
+
+
+    #
+
+    # List of comma-separated packages that start with or equal this string
+
+    # will cause a security exception to be thrown when
+
+    # passed to checkPackageAccess unless the
+
+    # corresponding RuntimePermission ("accessClassInPackage."+package) has
+
+    # been granted.
+
+    package.access=sun.,org.apache.catalina.,org.apache.coyote.,org.apache.jasper.,\
+
+    org.apache.naming.resources.,org.apache.tomcat.
+
+    #
+
+    # List of comma-separated packages that start with or equal this string
+
+    # will cause a security exception to be thrown when
+
+    # passed to checkPackageDefinition unless the
+
+    # corresponding RuntimePermission ("defineClassInPackage."+package) has
+
+    # been granted.
+
+    #
+
+    # by default, no packages are restricted for definition, and none of
+
+    # the class loaders supplied with the JDK call checkPackageDefinition.
+
+    #
+
+    package.definition=sun.,java.,org.apache.catalina.,org.apache.coyote.,\
+
+    org.apache.jasper.,org.apache.naming.,org.apache.tomcat.
+
+
+    #
+
+    #
+
+    # List of comma-separated paths defining the contents of the "common"
+
+    # classloader. Prefixes should be used to define what is the repository
+    type.
+
+    # Path may be relative to the CATALINA_HOME or CATALINA_BASE path or
+    absolute.
+
+    # If left as blank,the JVM system loader will be used as Catalina's "common"
+
+    # loader.
+
+    # Examples:
+
+    #     "foo": Add this folder as a class repository
+
+    #     "foo/*.jar": Add all the JARs of the specified folder as class
+
+    #                  repositories
+
+    #     "foo/bar.jar": Add bar.jar as a class repository
+
+    common.loader=${catalina.base}/lib,${catalina.base}/lib/*.jar,${catalina.home}/lib,${catalina.home}/lib/*.jar
+
+
+    #
+
+    # List of comma-separated paths defining the contents of the "server"
+
+    # classloader. Prefixes should be used to define what is the repository
+    type.
+
+    # Path may be relative to the CATALINA_HOME or CATALINA_BASE path or
+    absolute.
+
+    # If left as blank, the "common" loader will be used as Catalina's "server"
+
+    # loader.
+
+    # Examples:
+
+    #     "foo": Add this folder as a class repository
+
+    #     "foo/*.jar": Add all the JARs of the specified folder as class
+
+    #                  repositories
+
+    #     "foo/bar.jar": Add bar.jar as a class repository
+
+    server.loader=
+
+
+    #
+
+    # List of comma-separated paths defining the contents of the "shared"
+
+    # classloader. Prefixes should be used to define what is the repository
+    type.
+
+    # Path may be relative to the CATALINA_BASE path or absolute. If left as
+    blank,
+
+    # the "common" loader will be used as Catalina's "shared" loader.
+
+    # Examples:
+
+    #     "foo": Add this folder as a class repository
+
+    #     "foo/*.jar": Add all the JARs of the specified folder as class
+
+    #                  repositories
+
+    #     "foo/bar.jar": Add bar.jar as a class repository
+
+    # Please note that for single jars, e.g. bar.jar, you need the URL form
+
+    # starting with file:.
+
+    shared.loader=
+
+
+    # List of JAR files that should not be scanned using the JarScanner
+
+    # functionality. This is typically used to scan JARs for configuration
+
+    # information. JARs that do not contain such information may be excluded
+    from
+
+    # the scan to speed up the scanning process. This is the default list. JARs
+    on
+
+    # this list are excluded from all scans. Scan specific lists (to exclude
+    JARs
+
+    # from individual scans) follow this. The list must be a comma separated
+    list of
+
+    # JAR file names.
+
+    # The JARs listed below include:
+
+    # - Tomcat Bootstrap JARs
+
+    # - Tomcat API JARs
+
+    # - Catalina JARs
+
+    # - Jasper JARs
+
+    # - Tomcat JARs
+
+    # - Common non-Tomcat JARs
+
+    # - Test JARs (JUnit, Cobertura and dependencies)
+
+    tomcat.util.scan.DefaultJarScanner.jarsToSkip=\
+
+    annotations-api.jar,\
+
+    ant-junit*.jar,\
+
+    ant-launcher.jar,\
+
+    ant.jar,\
+
+    asm-*.jar,\
+
+    aspectj*.jar,\
+
+    bootstrap.jar,\
+
+    catalina-ant.jar,\
+
+    catalina-ha.jar,\
+
+    catalina-jmx-remote.jar,\
+
+    catalina-tribes.jar,\
+
+    catalina-ws.jar,\
+
+    catalina.jar,\
+
+    cobertura-*.jar,\
+
+    commons-beanutils*.jar,\
+
+    commons-codec*.jar,\
+
+    commons-collections*.jar,\
+
+    commons-daemon.jar,\
+
+    commons-dbcp*.jar,\
+
+    commons-digester*.jar,\
+
+    commons-fileupload*.jar,\
+
+    commons-httpclient*.jar,\
+
+    commons-io*.jar,\
+
+    commons-lang*.jar,\
+
+    commons-logging*.jar,\
+
+    commons-math*.jar,\
+
+    commons-pool*.jar,\
+
+    dom4j-*.jar,\
+
+    ecj-*.jar,\
+
+    el-api.jar,\
+
+    geronimo-spec-jaxrpc*.jar,\
+
+    h2*.jar,\
+
+    hamcrest-*.jar,\
+
+    hibernate*.jar,\
+
+    httpclient*.jar,\
+
+    icu4j-*.jar,\
+
+    jasper-el.jar,\
+
+    jasper.jar,\
+
+    jaxb-*.jar,\
+
+    jaxen-*.jar,\
+
+    jdom-*.jar,\
+
+    jetty-*.jar,\
+
+    jmx-tools.jar,\
+
+    jmx.jar,\
+
+    jsp-api.jar,\
+
+    jstl.jar,\
+
+    jta*.jar,\
+
+    junit-*.jar,\
+
+    junit.jar,\
+
+    log4j-1*.jar,\
+
+    log4j*.jar,\
+
+    mail*.jar,\
+
+    org.hamcrest.*.jar,\
+
+    oraclepki.jar,\
+
+    oro-*.jar,\
+
+    servlet-api-*.jar,\
+
+    servlet-api.jar,\
+
+    slf4j*.jar,\
+
+    taglibs-standard-spec-*.jar,\
+
+    tagsoup-*.jar,\
+
+    tomcat-api.jar,\
+
+    tomcat-coyote.jar,\
+
+    tomcat-dbcp.jar,\
+
+    tomcat-i18n-*.jar,\
+
+    tomcat-jdbc.jar,\
+
+    tomcat-jni.jar,\
+
+    tomcat-juli-adapters.jar,\
+
+    tomcat-juli.jar,\
+
+    tomcat-spdy.jar,\
+
+    tomcat-util.jar,\
+
+    tools.jar,\
+
+    websocket-api.jar,\
+
+    wsdl4j*.jar,\
+
+    xercesImpl.jar,\
+
+    xml-apis.jar,\
+
+    xmlParserAPIs-*.jar,\
+
+    xmlParserAPIs.jar,\
+
+    xom-*.jar
+
+
+    # Additional JARs (over and above the default JARs listed above) to skip
+    when
+
+    # scanning for Servlet 3.0 pluggability features. These features include web
+
+    # fragments, annotations, SCIs and classes that match @HandlesTypes. The
+    list
+
+    # must be a comma separated list of JAR file names.
+
+    org.apache.catalina.startup.ContextConfig.jarsToSkip=
+
+
+    # Additional JARs (over and above the default JARs listed above) to skip
+    when
+
+    # scanning for TLDs. The list must be a comma separated list of JAR file
+    names.
+
+    org.apache.catalina.startup.TldConfig.jarsToSkip=tomcat7-websocket.jar
+
+
+    #
+
+    # String cache configuration.
+
+    tomcat.util.buf.StringCache.byte.enabled=true
+
+    #tomcat.util.buf.StringCache.char.enabled=true
+
+    #tomcat.util.buf.StringCache.trainThreshold=500000
+
+    #tomcat.util.buf.StringCache.cacheSize=5000
+
+
+    # This system property is deprecated. Use the relaxedPathChars
+    relaxedQueryChars
+
+    # attributes of the Connector instead. These attributes permit a wider range
+    of
+
+    # characters to be configured as valid.
+
+    # Allow for changes to HTTP request validation
+
+    # WARNING: Using this option may expose the server to CVE-2016-6816
+
+    tomcat.util.http.parser.HttpParser.requestTargetAllow=|{}
+  javaMonitorGatherComponet.properties: >-
+    ######程序监控采集配置节点#######
+
+    #*程序名称(用于监控时方便查询，请按如下规则填写)
+
+    #格式：程序名-机房-环境-服务集区分关键字
+
+    #如：差旅系统用户网站-NW-测试
+
+    #如：差旅系统交易集成服务-SYQ-机票
+
+    monitor.programName=平台管理网站新
+
+    #*kafka地址
+    内网192.168.1.117:9092,192.168.1.117:9093,192.168.1.117:9094，外网kafka.zabbix.517na.com:9092
+
+    monitor.kafkaServer=kafka.zabbix.517na.com:9092
+  jdbc.properties: |-
+    keyIdConfigPath=/home/nacfg.ini
+     ####################\u4E0A\u4F20\u8282\u70B9######################
+    upload.servers= https://wjsc_tmc.517la.com/fileupload.do
+    # \u4E34\u65F6\u76EE\u5F55
+    upload.tmpdir = tmpdir/
+    # \u662F\u5426\u5220\u9664\u4E34\u65F6\u6587\u4EF6
+    upload.isDeleteTmp = true
+    # \u63D0\u4F9B\u670D\u52A1\u7684\u9759\u6001\u57DF\u540D
+    upload.staticServer = https://wjsc_tmc.517la.com/
+    connectAPI.url = http://172.21.51.20:4640/user/api
+    customize.domain=tmccs|eastAir
+    customize.shareDomain=tmc.517la.com|http://m.517la.com/user
+    customize.eastAirShow = tmc.ceair.com
+    uniquesign=PAL
+    thirdDomain = //tmc.517la.com/flights
+    es.search.port=9200
+    es.search.host=192.168.1.34
+    isWriteInteraction = true
+  log4j.properties: |-
+    ### 设置Logger输出级别和输出目的地 ###
+    log4j.rootLogger=error,stdout
+    ### 把日志信息输出到控制台 ###
+    log4j.appender.stdout=org.apache.log4j.ConsoleAppender
+    #log4j.appender.stdout.Target=System.err
+    #log4j.appender.stdout=org.apache.log4j
+    log4j.appender.stdout.layout=org.apache.log4j.PatternLayout
+  log_config.properties: >-
+    #####################   日志组件配置文件        ###########################
+
+    ##################################################################
+
+    #说明：所有属性均采用? key = value 的方式，只有value的值可以修改，现有的key不可修改；密码域账户均加密不是乱码?
+
+    #AppName 应用程序名??
+
+    log.kafka.iswritetokafka=1
+
+    log.kafka.addresses=kafkalog1.517la.com:9092,kafkalog2.517la.com:9092,kafkalog3.517la.com:9092
+
+    log.AppName = HotelPlatWebZS_PAL
+
+    #AppRecord App日志记录开关 true：开     false：关
+
+    log.AppRecord = true
+
+    #DebugRecord Debug日志记录开关 true：开     false：关
+
+    log.DebugRecord = false
+
+    #Driver 数据库驱动
+
+    log.jdbc.driver = com.mysql.jdbc.Driver
+
+    #Url 数据库链接  jdbc:mysql://ip：port/数据库名称
+
+    log.acc.jdbc.url =
+    jdbc:mysql://BJLogDBALL003-W.BJ01.517na.com:3306/LogAccJKCL
+
+    log.acc.jdbc.username=vxSs4i7BS58@
+
+    log.acc.jdbc.password=6BPzhGiVwAPCW1LhtdUvCblGokvcMGesrY1wV/coEWg@
+
+    log.app.jdbc.url =
+    jdbc:mysql://BJLogDBALL003-W.BJ01.517na.com:3306/LogAppJKCL
+
+    log.app.jdbc.username=vxSs4i7BS58@
+
+    log.app.jdbc.password=6BPzhGiVwAPCW1LhtdUvCblGokvcMGesrY1wV/coEWg@
+
+    log.cachehit.jdbc.url =
+    jdbc:mysql://BJLogDBALL003-W.BJ01.517na.com:3306/LogCacheHitJKCL
+
+    log.cachehit.jdbc.username=vxSs4i7BS58@
+
+    log.cachehit.jdbc.password=6BPzhGiVwAPCW1LhtdUvCblGokvcMGesrY1wV/coEWg@
+
+    log.debug.jdbc.url =
+    jdbc:mysql://BJLogDBALL003-W.BJ01.517na.com:3306/LogDebugJKCL
+
+    log.debug.jdbc.username=vxSs4i7BS58@
+
+    log.debug.jdbc.password=6BPzhGiVwAPCW1LhtdUvCblGokvcMGesrY1wV/coEWg@
+
+    log.exception.jdbc.url =
+    jdbc:mysql://BJLogDBALL003-W.BJ01.517na.com:3306/LogExceptionJKCL
+
+    log.exception.jdbc.username=vxSs4i7BS58@
+
+    log.exception.jdbc.password=6BPzhGiVwAPCW1LhtdUvCblGokvcMGesrY1wV/coEWg@
+
+    log.interaction.jdbc.url =
+    jdbc:mysql://BJLogDBALL003-W.BJ01.517na.com:3306/LogInteractionJKCL
+
+    log.interaction.jdbc.username=vxSs4i7BS58@
+
+    log.interaction.jdbc.password=6BPzhGiVwAPCW1LhtdUvCblGokvcMGesrY1wV/coEWg@
+
+    log.slowcall.jdbc.url =
+    jdbc:mysql://BJLogDBALL003-W.BJ01.517na.com:3306/LogSlowCallJKCL
+
+    log.slowcall.jdbc.username=vxSs4i7BS58@
+
+    log.slowcall.jdbc.password=6BPzhGiVwAPCW1LhtdUvCblGokvcMGesrY1wV/coEWg@
+
+    log.uiacc.jdbc.url =
+    jdbc:mysql://BJLogDBALL003-W.BJ01.517na.com:3306/LogUiaccJKCL
+
+    log.uiacc.jdbc.username=vxSs4i7BS58@
+
+    log.uiacc.jdbc.password=6BPzhGiVwAPCW1LhtdUvCblGokvcMGesrY1wV/coEWg@
+
+    #Directory linux下日志记录路径?
+
+    log.Directory = /var/log/cllog
+
+    #DivisionFileSize （单位：兆） 日志在某一时间段内超过文件大小已2M划分
+
+    log.DivisionFileSize = 2
+
+    #DivisionFileTime （单位：分钟） 日志在某一时间段内不足2M文件按2min划分
+
+    log.DivisionFileTime = 1
+
+    #windows下载文件目录,windows服务的配置成Logs，linux服务一般配置成 JavaLogs
+
+    log.download.Directory=JavaLogs
+  param-jdbc.properties: |-
+    ########## JDBC ##########################
+    param.applicationName = HotelPlatWeb
+    param.databaseName = SysParamDB
+    param.isRead = true
+    param.bizTime = 2014-12-19
+    pool.initialSize=5
+    pool.maxActive=100
+    pool.maxIdle=30
+    pool.maxWait=1000
+    pool.poolPreparedStatements=true
+    pool.defaultAutoCommit=false
+    param.DictionaryTimeOut=5
+    param.SysParamTimeOut=5
+    param.UserParamTimeOut=5
+    #param.AppName=test
+    bucketName=hotelcontract
+    endpoint=http://oss-cn-beijing.aliyuncs.com
+
+    accessKeyId=LTAIMQDC4yKecYVy
+
+    accessKeySecret=8mp8JzVjFbNQW98Ylim8IP5q422vhA
+  redis.properties: |-
+    redis.maxActive=200
+    redis.maxIdle=60
+    redis.maxWait=10000
+    redis.sleepTime=60000
+    redis.url= jdbc:mysql://DataBaseRoute-W.BJ01.517na.com:3306/DataBaseRoute
+    redis.userName=kSRw85/S628Jd6cTkHmEgA@@
+    redis.password=6BPzhGiVwAPCW1LhtdUvCblGokvcMGesrY1wV/coEWg@
+    redis.DBName=CLTradeRedisDB
+    redis.driverClassName=com.mysql.jdbc.Driver
+    redis.initialSize=4
+    redis.maxActive=300
+    redis.maxIdle=60
+    redis.maxWait=10000
+    redis.appName=default
+    redis.nacfgFile=/home/nacfg.ini
+  server.xml: |-
+    <?xml version="1.0" encoding="UTF-8"?>
+    <Server port="0" shutdown="SHUTDOWN">
+      <Listener className="org.apache.catalina.startup.VersionLoggerListener" />
+      <Listener className="org.apache.catalina.core.AprLifecycleListener" SSLEngine="on" />
+      <Listener className="org.apache.catalina.core.JreMemoryLeakPreventionListener" />
+      <Listener className="org.apache.catalina.mbeans.GlobalResourcesLifecycleListener" />
+      <Listener className="org.apache.catalina.core.ThreadLocalLeakPreventionListener" />
+      <GlobalNamingResources>
+        <Resource name="UserDatabase" auth="Container"
+                  type="org.apache.catalina.UserDatabase"
+                  description="User database that can be updated and saved"
+                  factory="org.apache.catalina.users.MemoryUserDatabaseFactory"
+                  pathname="conf/tomcat-users.xml" />
+      </GlobalNamingResources>
+      <Service name="Catalina">
+        <Connector port="14037" protocol="org.apache.coyote.http11.Http11NioProtocol" connectionTimeout="20000" URIEncoding="UTF-8"  relaxedPathChars="|{}[],"
+    relaxedQueryChars="|{}[]," maxPostSize="-1"/>
+        <Engine name="Catalina" defaultHost="localhost">
+          <Realm className="org.apache.catalina.realm.LockOutRealm">
+            <Realm className="org.apache.catalina.realm.UserDatabaseRealm" resourceName="UserDatabase"/>
+          </Realm>
+          <Host name="localhost"  appBase="webapps" unpackWARs="true" autoDeploy="true">
+            <Valve className="org.apache.catalina.valves.AccessLogValve" directory="logs"
+                   prefix="localhost_access_log" suffix=".txt"
+                   pattern="%h %l %u %t &quot;%r&quot; %s %b" />
+          </Host>
+        </Engine>
+      </Service>
+    </Server>
+  systemParam.properties: |-
+    systemParam.DownloadMark=0
+
+    systemParam.SftpName=sftptest
+
+    systemParam.SftpAccout=zhonghuitest
+
+    systemParam.SftpIP=192.168.1.115
+
+    systemParam.SftpPort=22
+
+    systemParam.SftpPath=/sftptest/upload
+kind: ConfigMap
+metadata:
+  name: hotelplatweb-config
+  namespace: jd

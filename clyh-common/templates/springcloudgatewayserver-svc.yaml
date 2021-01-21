@@ -1,0 +1,19 @@
+apiVersion: v1
+kind: Service
+metadata:
+  name: springcloudgatewayserver-jp-outer
+  namespace: common
+spec:
+  externalTrafficPolicy: Cluster
+  ports:
+    - name: http
+      nodePort: 30602
+      port: 30602
+      protocol: TCP
+      targetPort: 13948
+  selector:
+    app: springcloudgatewayserver-jp-outer
+  sessionAffinity: None
+  type: NodePort
+status:
+  loadBalancer: {}

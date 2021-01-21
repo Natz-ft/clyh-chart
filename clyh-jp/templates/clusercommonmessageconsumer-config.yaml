@@ -1,0 +1,9 @@
+apiVersion: v1
+data:
+  ChinesePhoneticize.properties: |-
+    hzresourceurl=/srv/access/hz.dat
+    pinyinresourceurl=/srv/access/resPinYin.dat
+kind: ConfigMap
+metadata:
+  name: clusercommonmessageconsumer-config
+  namespace: jp

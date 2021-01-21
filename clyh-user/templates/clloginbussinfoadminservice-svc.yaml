@@ -1,0 +1,24 @@
+apiVersion: v1
+kind: Service
+metadata:
+  name: clloginbussinfoadminservice-nodeport
+  namespace: user
+spec:
+  externalTrafficPolicy: Cluster
+  ports:
+    - name: http
+      nodePort: 31014
+      port: 13132
+      protocol: TCP
+      targetPort: 13132
+    - name: thrift
+      nodePort: 31024
+      port: 13134
+      protocol: TCP
+      targetPort: 13134
+  selector:
+    app: clloginbussinfoadminservice
+  sessionAffinity: None
+  type: NodePort
+status:
+  loadBalancer: {}

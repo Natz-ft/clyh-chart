@@ -1,0 +1,147 @@
+apiVersion: v1
+data:
+  DBRoute.properties: |-
+    driver=com.mysql.jdbc.Driver
+    #############read#############
+    readurl={{ .Values.configMapManger.db.dbroute.readurl }}
+    readusername={{ .Values.configMapManger.db.dbroute.readusername }}
+    readpassword={{ .Values.configMapManger.db.dbroute.readpassword }}
+    ############write#############
+    writeurl={{ .Values.configMapManger.db.dbroute.writeurl }}
+    writeusername={{ .Values.configMapManger.db.dbroute.writeusername }}
+    writepassword={{ .Values.configMapManger.db.dbroute.writepassword }}
+  ServiceRoute.properties: >-
+    #\u552F\u4E00\u6807\u8BC6
+
+    uniqueSign=Jav-CLYPG-419
+
+    ########## JDBC ##########################
+
+    driver=com.mysql.jdbc.Driver
+
+    url={{ .Values.configMapManger.db.serviceroute.url }}
+
+    username={{ .Values.configMapManger.db.serviceroute.username }}
+
+    password={{ .Values.configMapManger.db.serviceroute.password }}
+
+    #password = better2008
+
+    ###########cxf timeOut###########################
+
+    cxf.connectionTimeout = 20000000
+
+    cxf.readtimeout = 60000000
+
+    #####################debug######################
+
+    ##################1\u3001debug\u6A21\u5F0F 
+    2\u3001release\u6A21\u5F0F##################
+
+    debug.model = 1
+
+    ###################\u8C03\u7528\u5931\u8D25\u91CD\u8BD5\u6B21\u6570
+    \u9ED8\u8BA42\u6B21##################################
+
+    retrynum = 0
+
+    ###################thrift路由暴露端口##########################
+
+    thrift.port={{ .Values.clformvalidatedataservice.configMap.networkManager.thriftport }}
+  jdbc.properties: >-
+    ########## JDBC ##########################
+
+    applicationName = formValidateDataService
+
+    databaseName = FormValidateDB
+
+    isRead = true
+
+    bizTime = 2014-12-19
+
+    dataSourceTimeout=3600
+
+    showSql=true
+
+    #\u521D\u59CB\u8FDE\u63A5\u6570
+
+    pool.initialSize=10
+
+    #\u6700\u5927\u8FDE\u63A5\u6570
+
+    pool.maxActive=100
+
+    #\u6700\u5927\u7A7A\u95F2\u8FDE\u63A5\u6570,\u8D85\u8FC7\u8FD9\u4E2A\u6570\u5C06\u91CA\u653E\u591A\u4F59\u7684,\u5982\u679C\u662F\u8D1F\u6570\u5C31\u4E0D\u9650\u5236
+
+    pool.maxIdle=10
+
+    #\u83B7\u53D6\u8FDE\u63A5\u7B49\u5F85\u65F6\u95F4
+
+    pool.maxWait=-1
+
+    pool.poolPreparedStatements=true
+
+    pool.defaultAutoCommit=true
+
+    #\u8FDE\u63A5\u5728\u6C60\u4E2D\u4FDD\u6301\u7A7A\u95F2\u800C\u4E0D\u88AB\u7A7A\u95F2\u8FDE\u63A5\u56DE\u6536\u5668\u7EBF\u7A0B(\u5982\u679C\u6709)\u56DE\u6536\u7684\u6700\u5C0F\u65F6\u95F4\u503C\uFF0C
+    \u5355\u4F4D\u6BEB\u79D2  \u9ED8\u8BA4\u503C:1000 * 60 * 30
+
+    routeTimeout= 0
+
+    #############################################
+
+    keyIdConfigPath=/home/nacfg.ini
+  log4j.properties: >-
+    ### 设置Logger输出级别和输出目的地 ###
+
+    log4j.rootLogger=error,stdout,logfile
+     
+     
+    ### 把日志信息输出到控制台 ###
+
+    log4j.appender.stdout=org.apache.log4j.ConsoleAppender
+
+    #log4j.appender.stdout.Target=System.err
+
+    #log4j.appender.stdout=org.apache.log4j
+
+    log4j.appender.stdout.layout=org.apache.log4j.PatternLayout
+     
+     
+    ### 把日志信息输出到文件：jbit.log ###
+
+    #log4j.appender.logfile=org.apache.log4j.FileAppender
+
+    log4j.appender.logfile=org.apache.log4j.DailyRollingFileAppender
+
+    log4j.appender.logfile.DatePattern='_'yyyy-MM-dd'.log'
+
+    log4j.appender.logfile.File=${catalina.home}/webapps/517Log/ticketOrderJavaDataService.log
+
+    log4j.appender.logfile.layout=org.apache.log4j.PatternLayout
+
+    log4j.appender.logfile.layout.ConversionPattern=%d{yyyy-MM-dd HH:mm:ss} %F
+    %p %m%n
+     
+     
+    ###显示SQL语句部分 正式环境注释以下部分
+
+    log4j.logger.com.ibatis=error 
+
+    log4j.logger.com.ibatis.common.jdbc.SimpleDataSource=error 
+
+    log4j.logger.com.ibatis.common.jdbc.ScriptRunner=error 
+
+    log4j.logger.com.ibatis.sqlmap.engine.impl.SqlMapClientDelegate=error 
+
+    log4j.logger.java.sql.Connection=error 
+
+    log4j.logger.java.sql.Statement=error 
+
+    log4j.logger.java.sql.PreparedStatement=error
+  log_config.properties: "#################################################################\n#####################   日志组件配置文件        ###########################\n##################################################################\n#说明：所有属性均采用Œ key = value 的方式，只有value的值可以修改，现有的key不可修改；密码域账户均加密不是乱码\x8F\n#AppName 应用程序名\x90\x8D\nlog.AppName = CLFormValidateDataService\n\n#AppRecord App日志记录开关 true：开     false：关\nlog.AppRecord = true\n\n#DebugRecord Debug日志记录开关 true：开     false：关\nlog.DebugRecord = false\n\n#Driver 数据库驱动\nlog.jdbc.driver = com.mysql.jdbc.Driver\n\nlog.kafka.iswritetokafka=1\nlog.kafka.addresses=kafkalog1.517la.com:9092,kafkalog2.517la.com:9092,kafkalog3.517la.com:9092\n\n#Url 数据库链接  jdbc:mysql://ip：port/数据库名称\nlog.acc.jdbc.url = jdbc:mysql://BJLogDBALL003-W.BJ01.517na.com:3306/LogAccJKCL\nlog.acc.jdbc.username=vxSs4i7BS58@\nlog.acc.jdbc.password=6BPzhGiVwAPCW1LhtdUvCblGokvcMGesrY1wV/coEWg@\n\nlog.app.jdbc.url = jdbc:mysql://BJLogDBALL003-W.BJ01.517na.com:3306/LogAppJKCL\nlog.app.jdbc.username=vxSs4i7BS58@\nlog.app.jdbc.password=6BPzhGiVwAPCW1LhtdUvCblGokvcMGesrY1wV/coEWg@\n\nlog.cachehit.jdbc.url = jdbc:mysql://BJLogDBALL003-W.BJ01.517na.com:3306/LogCacheHitJKCL\nlog.cachehit.jdbc.username=vxSs4i7BS58@\nlog.cachehit.jdbc.password=6BPzhGiVwAPCW1LhtdUvCblGokvcMGesrY1wV/coEWg@\n\nlog.debug.jdbc.url = jdbc:mysql://BJLogDBALL003-W.BJ01.517na.com:3306/LogDebugJKCL\nlog.debug.jdbc.username=vxSs4i7BS58@\nlog.debug.jdbc.password=6BPzhGiVwAPCW1LhtdUvCblGokvcMGesrY1wV/coEWg@\n\nlog.exception.jdbc.url = jdbc:mysql://BJLogDBALL003-W.BJ01.517na.com:3306/LogExceptionJKCL\nlog.exception.jdbc.username=vxSs4i7BS58@\nlog.exception.jdbc.password=6BPzhGiVwAPCW1LhtdUvCblGokvcMGesrY1wV/coEWg@\n\nlog.interaction.jdbc.url = jdbc:mysql://BJLogDBALL003-W.BJ01.517na.com:3306/LogInteractionJKCL\nlog.interaction.jdbc.username=vxSs4i7BS58@\nlog.interaction.jdbc.password=6BPzhGiVwAPCW1LhtdUvCblGokvcMGesrY1wV/coEWg@\n\nlog.slowcall.jdbc.url = jdbc:mysql://BJLogDBALL003-W.BJ01.517na.com:3306/LogSlowCallJKCL\nlog.slowcall.jdbc.username=vxSs4i7BS58@\nlog.slowcall.jdbc.password=6BPzhGiVwAPCW1LhtdUvCblGokvcMGesrY1wV/coEWg@\n\nlog.uiacc.jdbc.url = jdbc:mysql://BJLogDBALL003-W.BJ01.517na.com:3306/LogUiaccJKCL\nlog.uiacc.jdbc.username=vxSs4i7BS58@\nlog.uiacc.jdbc.password=6BPzhGiVwAPCW1LhtdUvCblGokvcMGesrY1wV/coEWg@\n\n#Directory linux下日志记录路径?\nlog.Directory = /var/log/cllog\n\n#DivisionFileSize （单位：兆） 日志在某一时间段内超过文件大小已2M划分\nlog.DivisionFileSize = 2\n\n#DivisionFileTime （单位：分钟） 日志在某一时间段内不足2M文件按2min划分\nlog.DivisionFileTime = 1\n\n#windows下载文件目录,windows服务的配置成Logs，linux服务一般配置成 JavaLogs\nlog.download.Directory=JavaLogs"
+kind: ConfigMap
+metadata:
+  name: clformvalidatedataservice-config
+  namespace: jp
+

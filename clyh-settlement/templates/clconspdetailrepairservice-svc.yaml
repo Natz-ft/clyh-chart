@@ -1,0 +1,17 @@
+apiVersion: v1
+kind: Service
+metadata:
+  name: clconspdetailrepairservice-nodeport
+  namespace: settlement
+spec:
+  externalTrafficPolicy: Cluster
+  ports:
+    - name: thrift
+      nodePort: 30717
+      port: 12569
+      protocol: TCP
+      targetPort: 12569
+  selector:
+    app: clconspdetailrepairservice
+  sessionAffinity: None
+  type: NodePort

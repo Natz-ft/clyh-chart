@@ -1,0 +1,62 @@
+apiVersion: v1
+data:
+  AppUrl.properties: >-
+    ######以下数据格式为:业务线编码code,业务线名称,测试地址,正式地址,系统参数未配置的时候是否使用该地址0否1是######
+
+    ######国内机票######
+
+    ticket_gn=1,ticket_gn,https://jpcs.jk.517la.com/,https://xyzpaljk.517la.com/,1
+
+    ######国内酒店######
+
+    hotle_gn=3,hotel,cs.m.517la.com,m.517la.com,1
+
+    ######火车票######
+
+    train=5,train,test.517la.com,,0
+
+    ######审批######
+
+    approval=8,approval,cs.m2.517la.com,,0
+
+    ######国内酒店静态化网站######
+
+    hotle_st=9,hotle_st,http://st.cs.m.517la.com/hotel/hotel/index.html,http://st.m.517la.com/hotel/hotel/index.html,1
+
+    ######差旅订单网站######
+
+    order=10,order,https://cs.m.517la.com/manager,https://m.517la.com/manager,1
+
+    ######差旅日程网站######
+
+    schedule=11,schedule,https://cs.m.517la.com/schedule/schedule/index,https://m.517la.com/schedule/schedule/index,1
+
+    ######酒店静态化https######
+
+    hotle_st_https=12,hotle_st_https,https://stcs.m.517la.com/hotel/hotel/index.html,https://st.m.517la.com/hotel/hotel/index.html,1
+
+    ######酒店静态化https2######
+
+    hotel_DynamicWeb_Https=13,hotel_DynamicWeb_Https,https://cs.m.517la.com,https://m.517la.com,1
+
+    ######收银台######
+
+    cashier=14,cashier,https://zf_jk.517la.com/AppPaySdkService.ashx/,https://zf_jk.517la.com/AppPaySdkService.ashx/,1
+
+    ######国际业务######
+
+    interBuss=15,inter,https://cs.m.517la.com/inter,https://mpal.517la.com/inter,1
+
+    ######服务中心######
+
+    service_Center=16,serviceCenter,https://test.517la.com/serviceCenter/serviceCenter,https://www.517la.com/serviceCenter/serviceCenter,1
+
+    ######增值服务######
+
+    incrementService=17,incrementService,https://www.517la.com/html/eastAir/index.html,https://www.517la.com/html/eastAir/index.html,1
+
+    approve=21,approve,https://cs-m.517la.com/sp/dist,https://m.517la.com/sp/dist,1
+kind: ConfigMap
+metadata:
+  name: clloginbussinfoadminservice-configmap
+  namespace: user

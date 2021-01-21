@@ -1,0 +1,17 @@
+apiVersion: v1
+kind: Service
+metadata:
+  name: cltransportpaynotifywebsite
+  namespace: car
+spec:
+  externalTrafficPolicy: Cluster
+  ports:
+    - name: http
+      nodePort: 31108
+      port: 12284
+      protocol: TCP
+      targetPort: 12284
+  selector:
+    app: cltransportpaynotifywebsite
+  sessionAffinity: None
+  type: NodePort

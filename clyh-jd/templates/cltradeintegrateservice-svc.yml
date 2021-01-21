@@ -1,0 +1,15 @@
+apiVersion: v1
+kind: Service
+metadata:
+  name: cltradeintegrateservice-svc
+  namespace: common
+spec:
+  ports:
+    - name: thrift
+      port: 15664
+      protocol: TCP
+      targetPort: 15664
+  selector:
+    app: cltradeintegrateservice
+  sessionAffinity: None
+  type: ClusterIP

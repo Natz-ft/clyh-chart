@@ -1,0 +1,15 @@
+apiVersion: v1
+kind: Service
+metadata:
+  name: hotelprimeratedataservice-svc
+  namespace: jd
+spec:
+  ports:
+    - name: thrift
+      port: 5222
+      protocol: TCP
+      targetPort: 5222
+  selector:
+    app: hotelprimeratedataservice
+  sessionAffinity: None
+  type: ClusterIP

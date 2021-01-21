@@ -1,0 +1,84 @@
+apiVersion: apps/v1
+kind: DaemonSet
+metadata:
+  name: xxljobadmincommon
+  namespace: base
+spec:
+  revisionHistoryLimit: 10
+  selector:
+    matchLabels:
+      app: xxljobadmincommon
+  template:
+    metadata:
+      labels:
+        app: xxljobadmincommon
+    spec:
+      containers:
+        - env:
+            - name: MYENV_TOMCATPORT
+              value: '18427'
+            - name: JAVA_OPTS
+              value: '-server -Xms128m -Xmx1g'
+          image: >-
+            registry-vpc.cn-beijing.aliyuncs.com/517la_product/xxljobadmin517la:1.0.1
+          imagePullPolicy: IfNotPresent
+          livenessProbe:
+            failureThreshold: 3
+            httpGet:
+              path: /favicon.ico
+              port: 18427
+              scheme: HTTP
+            initialDelaySeconds: 100
+            periodSeconds: 10
+            successThreshold: 1
+            timeoutSeconds: 10
+          name: xxljobadmincommon
+          ports:
+            - containerPort: 18427
+              hostPort: 18427
+              protocol: TCP
+          readinessProbe:
+            failureThreshold: 3
+            httpGet:
+              path: /favicon.ico
+              port: 18427
+              scheme: HTTP
+            initialDelaySeconds: 10
+            periodSeconds: 5
+            successThreshold: 1
+            timeoutSeconds: 10
+          resources:
+            limits:
+              cpu: '1'
+              memory: 1Gi
+            requests:
+              cpu: 200m
+              memory: 128Mi
+          terminationMessagePath: /dev/termination-log
+          terminationMessagePolicy: File
+          volumeMounts:
+            - mountPath: >-
+                /usr/local/soft/tomcat/webapps/ROOT/WEB-INF/classes/xxl-job-admin.properties
+              name: application
+              subPath: xxl-job-admin.properties
+      dnsPolicy: ClusterFirstWithHostNet
+      imagePullSecrets:
+        - name: regcred
+      nodeSelector:
+        env: base
+      restartPolicy: Always
+      schedulerName: default-scheduler
+      securityContext: {}
+      terminationGracePeriodSeconds: 15
+      volumes:
+        - configMap:
+            defaultMode: 420
+            items:
+              - key: xxl-job-admin.properties
+                path: xxl-job-admin.properties
+            name: xxljobcommon-config
+          name: application
+  updateStrategy:
+    rollingUpdate:
+      maxUnavailable: 1
+    type: RollingUpdate

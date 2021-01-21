@@ -1,0 +1,46 @@
+apiVersion: v1
+data:
+  xxl-job-admin.properties: >-
+    xxl.job.db.driverClass=com.mysql.jdbc.Driver
+
+    xxl.job.db.url={{ .Values.configMapManger.xxjob.db.url }}
+
+    xxl.job.db.user={{ .Values.configMapManger.xxjob.db.username }}
+
+    xxl.job.db.password={{ .Values.configMapManger.xxjob.db.password }}
+
+    ### xxl-job email
+
+    xxl.job.mail.host={{ .Values.configMapManger.xxjob.email.host }}
+
+    xxl.job.mail.port={{ .Values.configMapManger.xxjob.email.port }}
+
+    xxl.job.mail.username={{ .Values.configMapManger.xxjob.email.username }}
+
+    xxl.job.mail.password={{ .Values.configMapManger.xxjob.email.password }}
+
+    xxl.job.mail.sendNick={{ .Values.configMapManger.xxjob.email.sendNick }}
+
+    ### xxl-job login
+
+    xxl.job.login.username={{ .Values.configMapManger.xxjob.login.username }}
+
+    xxl.job.login.password={{ .Values.configMapManger.xxjob.login.password }}
+
+    ### xxl-job, access token
+
+    xxl.job.accessToken=
+
+    ### xxl-job, i18n (default empty as chinese, "en" as english)
+
+    xxl.job.i18n=
+
+    extension.ldap.host={{ .Values.configMapManger.xxjob.ldap.host }}
+
+    extension.ldap.port={{ .Values.configMapManger.xxjob.ldap.port }}
+
+    extension.ldap.domain={{ .Values.configMapManger.xxjob.ldap.domain }}
+kind: ConfigMap
+metadata:
+  name: xxljobcommon-config
+  namespace: base

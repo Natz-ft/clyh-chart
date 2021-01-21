@@ -1,0 +1,1038 @@
+apiVersion: v1
+data:
+  DBRoute.properties: >-
+    dbroute.driver=com.mysql.jdbc.Driver
+
+    #############read#############
+
+    dbroute.readurl={{ .Values.configMapManger.db.readroute.url }}
+
+    dbroute.readusername={{ .Values.configMapManger.db.readroute.username }}
+
+    dbroute.readpassword={{ .Values.configMapManger.db.readroute.password }}
+
+    ############write#############
+
+    dbroute.writeurl={{ .Values.configMapManger.db.writeroute.url }}
+
+    dbroute.writeusername={{ .Values.configMapManger.db.writeroute.username }}
+
+    dbroute.writepassword={{ .Values.configMapManger.db.writeroute.password }}
+  KeyIDGenerator.config: '#keyIdConfigPath=/home/nacfg.ini'
+  ServiceRoute.properties: >-
+    serviceroute.uniqueSign=Jav-CLYPG-12
+
+    ########## JDBC ##########################
+
+    serviceroute.driver=com.mysql.jdbc.Driver
+
+    serviceroute.url={{ .Values.configMapManger.db.serviceroute.url }}
+
+    serviceroute.username={{ .Values.configMapManger.db.serviceroute.username }}
+
+    serviceroute.password={{ .Values.configMapManger.db.serviceroute.password }}
+
+    ###########cxf timeOut###########################
+
+    serviceroute.cxf.connectionTimeout = 20000
+
+    serviceroute.cxf.readtimeout = 600000
+
+    ##################1��debugģʽ  2��releaseģʽ##################
+
+    serviceroute.debug.model = 1
+
+    ###################acc��־��¼�ܿ� 1��Ĭ��ֵ����¼acc��־
+    2������¼acc��־(�����ͻ��˺ͷ����)##################################
+
+    serviceroute.acclog.switch = 1
+
+    ###################################��¼acc��־�ķ����������ŷָ�������acclog.switch
+    = 2(ֻҪ������1) ʱ��Ч###########################################
+
+    serviceroute.acclog.method.writelog = a,b
+
+    ###################################����¼acc��־�ķ����������ŷָ�������acclog.switch
+    = 1 ʱ��Ч###########################################
+
+    serviceroute.acclog.method.nolog = c,d
+
+    serviceroute.retrynum = 2
+
+    thrift.connectionPool.conTimeOut=1000000
+
+    thrift.connectionPool.maxIdle=0
+
+    thrift.connectionPool.minIdle=0
+
+    thrift.connectionPool.maxActive=8
+
+    thrift.connectionPool.maxWait=-1
+
+    thrift.connectionPool.testOnBorrow=true
+
+    thrift.connectionPool.testOnReturn=false
+
+    thrift.connectionPool.testWhileIdle=false
+  app-content.xml: >-
+    <?xml version="1.0" encoding="UTF-8"?>
+
+    <beans xmlns="http://www.springframework.org/schema/beans"
+        xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:mvc="http://www.springframework.org/schema/mvc"
+        xmlns:context="http://www.springframework.org/schema/context" xmlns:tx="http://www.springframework.org/schema/tx"
+        xmlns:task="http://www.springframework.org/schema/task" xmlns:aop="http://www.springframework.org/schema/aop"
+        xsi:schemaLocation="
+        http://www.springframework.org/schema/mvc http://www.springframework.org/schema/mvc/spring-mvc-4.3.xsd
+        http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans-4.3.xsd
+        http://www.springframework.org/schema/context http://www.springframework.org/schema/context/spring-context-4.3.xsd
+        http://www.springframework.org/schema/tx http://www.springframework.org/schema/tx/spring-tx-4.3.xsd
+        http://www.springframework.org/schema/task http://www.springframework.org/schema/task/spring-task-4.3.xsd
+        http://www.springframework.org/schema/aop 
+        http://www.springframework.org/schema/aop/spring-aop-4.3.xsd ">
+        <bean
+            class="org.springframework.beans.factory.config.PropertyPlaceholderConfigurer">
+            <property name="locations">
+                <list>
+                    <value>/WEB-INF/config/jdbc.properties</value>
+                    <value>/WEB-INF/config/log_config.properties</value>
+                    <value>/WEB-INF/config/param-jdbc.properties</value>
+                    <value>/WEB-INF/config/systemParam.properties</value>
+                    <value>/WEB-INF/config/redis.properties</value>
+                    <value>/WEB-INF/config/DBRoute.properties</value>
+                    <value>/WEB-INF/config/ServiceRoute.properties</value>
+                    <value>/WEB-INF/config/application.properties</value>
+                </list>
+            </property>
+        </bean>
+        <bean class="org.springframework.context.annotation.CommonAnnotationBeanPostProcessor" />
+        
+        
+        <context:component-scan base-package="com.better517na"></context:component-scan>
+
+        <!-- 统一参数配置 -->
+    <!--    <bean id="ParamBusiness"
+    class="com.better517na.unifiedParameters.business.ParamBusiness" >-->
+
+    <!--        <constructor-arg>-->
+
+    <!--        <props>-->
+
+    <!--        <prop
+    key="maxExpireSeconds">${param.maxExpireSeconds:1800}</prop>-->
+
+    <!--        <prop
+    key="cacheSleepSeconds">${param.cacheSleepSeconds:300}</prop>-->
+
+    <!--        <prop key="redisCacheEnabled">false</prop>-->
+
+
+    <!--        </props>-->
+
+    <!--        </constructor-arg>-->
+
+    <!--    </bean>-->
+       <!--  统一参数配置结束 -->
+
+        <!-- 日志组件 -->
+        <bean id="logAspect" class="com.better517na.logcompontent.util.LoggingAspect">
+            <property name="logBusiness" ref="logBusiness"></property>
+        </bean>
+        <bean id="dubboHelper" class="com.better517na.logcompontent.util.DubboHelper" />
+        <bean id="logBusiness" class="com.better517na.logcompontent.business.LogBusiness">
+            <constructor-arg ref="properties" />
+        </bean>
+        <bean id="properties" class="java.util.Properties" lazy-init="true">
+            <constructor-arg>
+                <props>
+                    <prop key="log.kafka.iswritetokafka">${log.kafka.iswritetokafka}</prop>
+                    <prop key="log.kafka.addresses">${log.kafka.addresses}</prop>
+                    <prop key="AppName">${log.AppName}</prop>   
+                    <prop key="AppRecord">${log.AppRecord}</prop>   
+                    <prop key="DebugRecord">${log.DebugRecord}</prop> 
+                    <prop key="jdbc.driver">${log.jdbc.driver}</prop> 
+                    <prop key="downLoadDiretory">${log.download.Directory}</prop>
+                    <prop key="AccUrl">${log.acc.jdbc.url}</prop>
+                    <prop key="AccUserName">${log.acc.jdbc.username}</prop>
+                    <prop key="AccPassword">${log.acc.jdbc.password}</prop>
+        
+                    <prop key="AppUrl">${log.app.jdbc.url}</prop>
+                    <prop key="AppUserName">${log.app.jdbc.username}</prop>
+                    <prop key="AppPassword">${log.app.jdbc.password}</prop>
+
+                    <prop key="CacheHitUrl">${log.cachehit.jdbc.url}</prop>
+                    <prop key="CacheHitUserName">${log.cachehit.jdbc.username}</prop>
+                    <prop key="CacheHitPassword">${log.cachehit.jdbc.password}</prop>
+
+                    <prop key="DebugUrl">${log.debug.jdbc.url}</prop>
+                    <prop key="DebugUserName">${log.debug.jdbc.username}</prop>
+                    <prop key="DebugPassword">${log.debug.jdbc.password}</prop>
+
+                    <prop key="ExceptionUrl">${log.exception.jdbc.url}</prop>
+                    <prop key="ExceptionUserName">${log.exception.jdbc.username}</prop>
+                    <prop key="ExceptionPassword">${log.exception.jdbc.password}</prop>
+
+                    <prop key="InteractionUrl">${log.interaction.jdbc.url}</prop>
+                    <prop key="InteractionUserName">${log.interaction.jdbc.username}</prop>
+                    <prop key="InteractionPassword">${log.interaction.jdbc.password}</prop>
+
+                    <prop key="SlowCallUrl">${log.slowcall.jdbc.url}</prop>
+                    <prop key="SlowCallUserName">${log.slowcall.jdbc.username}</prop>
+                    <prop key="SlowCallPassword">${log.slowcall.jdbc.password}</prop>
+
+                    <prop key="UiaccUrl">${log.uiacc.jdbc.url}</prop>
+                    <prop key="UiaccUserName">${log.uiacc.jdbc.username}</prop>
+                    <prop key="UiaccPassword">${log.uiacc.jdbc.password}</prop>                 
+                    <prop key="Directory">${log.Directory}</prop>   
+                    <prop key="DivisionFileSize">${log.DivisionFileSize}</prop>
+                    <prop key="DivisionFileTime">${log.DivisionFileTime}</prop>
+                   
+                    <prop key="upload.servers">${upload.servers}</prop>
+                    <prop key="upload.tmpdir">${upload.tmpdir}</prop>
+                    <prop key="upload.isDeleteTmp">${upload.isDeleteTmp}</prop>
+                    <prop key="upload.staticServer">${upload.staticServer}</prop>
+                    <prop key="staticFile.server">${staticFile.server}</prop>
+                    <prop key="customize.domain">${customize.domain}</prop>
+                    <prop key="customize.WXAuthInfo">${customize.WXAuthInfo}</prop>
+                    <prop key="customize.shareDomain">${customize.shareDomain}</prop>
+                    <prop key="uniquesign">${uniquesign}</prop>
+                    <!-- API地址 -->
+                    <prop key="eastAir.domain">${eastAir.domain}</prop>
+                    <!-- API地址 -->
+                    <prop key="connectAPI">${connectAPI.url}</prop>
+                </props>
+            </constructor-arg>
+        </bean>
+
+        <!-- 默认的注解映射的支持 -->
+        <mvc:annotation-driven>
+            <mvc:message-converters>
+                <bean class="org.springframework.http.converter.StringHttpMessageConverter">
+                    <property name="supportedMediaTypes">
+                        <list>
+                            <value>text/plain;charset=UTF-8</value>
+                            <value>text/html;charset=UTF-8</value>
+                            <value>application/json;charset=UTF-8</value>
+                        </list>
+                    </property>
+                </bean>
+            </mvc:message-converters>
+        </mvc:annotation-driven>
+        <mvc:default-servlet-handler />
+
+        <!-- 拦截器   -->
+          <mvc:interceptors>
+            <mvc:interceptor>
+                <mvc:mapping path="/**" />
+                <mvc:exclude-mapping path="/"/>
+                <mvc:exclude-mapping path="/html/**"/>
+                <mvc:exclude-mapping path="/html5/**"/>
+                <mvc:exclude-mapping path="/Content/**"/>
+                <mvc:exclude-mapping path="/js/**"/>
+                <mvc:exclude-mapping path="/css/**"/>
+                <mvc:exclude-mapping path="/favicon.ico"/>
+                <mvc:exclude-mapping path="/login/**"/>
+                <mvc:exclude-mapping path="/common/**"/>
+                <mvc:exclude-mapping path="/linkInvite/**"/>
+                <mvc:exclude-mapping path="/register/**"/>
+                <mvc:exclude-mapping path="/forgetPwd/**"/>
+                <mvc:exclude-mapping path="/error/**"/>
+                <mvc:exclude-mapping path="/scannerLogin/**"/>
+                <mvc:exclude-mapping path="/i18n/**"/>
+                <mvc:exclude-mapping path="/Views/customize/**/img/**"/>
+                <mvc:exclude-mapping path="/Views/customize/**/css/**"/>
+                 <mvc:exclude-mapping path="/Views/customize/**/js/**"/>
+                <bean class="com.better517na.cLBussUserWeb.interceptor.LoginHandlerInterceptor" />
+            </mvc:interceptor>
+            <mvc:interceptor>
+                <mvc:mapping path="/**" />
+                <mvc:exclude-mapping path="/"/>
+                <mvc:exclude-mapping path="/yy_tjid.js"/>
+                <mvc:exclude-mapping path="/html/**"/>
+                <mvc:exclude-mapping path="/html5/**"/>
+                <mvc:exclude-mapping path="/Content/**"/>
+                <mvc:exclude-mapping path="/favicon.ico"/>
+                <mvc:exclude-mapping path="/login/**"/>
+                <mvc:exclude-mapping path="/common/**"/>
+                <mvc:exclude-mapping path="/linkInvite/**"/>
+                <mvc:exclude-mapping path="/register/**"/>
+                <mvc:exclude-mapping path="/forgetPwd/**"/>
+                <mvc:exclude-mapping path="/error/**"/>
+                <mvc:exclude-mapping path="/scannerLogin/**"/>
+                <mvc:exclude-mapping path="/i18n/**"/>
+                <mvc:exclude-mapping path="/Views/customize/**/img/**"/>
+                <mvc:exclude-mapping path="/Views/customize/**/css/**"/>
+                 <mvc:exclude-mapping path="/Views/customize/**/js/**"/>
+                <bean class="com.better517na.JavaMonitorGatherComponent.Interceptor.HttpServletHandlerInterceptor" />
+            </mvc:interceptor>
+        </mvc:interceptors>
+        <!-- 视图解释类 -->
+        
+        <bean
+            class="org.springframework.web.servlet.view.InternalResourceViewResolver">
+            <property name="prefix" value="/Views/" />
+            <!-- 可为空,方便实现自已的依据扩展名来选择视图解释类的逻辑 -->
+            <property name="suffix" value=".jsp" />
+        </bean>
+        <!-- <bean id="httpClient" class="com.better517na.cLBussUserWeb.HttpClientFactoryBean.HttpClientFactoryBeanHelper"></bean> -->
+        <bean id="multipartResolver" class="org.springframework.web.multipart.commons.CommonsMultipartResolver"></bean>
+         <!--短信验证组件 -->
+         <!-- <bean id="xxx" class="com.better517na.SMSAuthCodeHelper.SMSAuthCodeHelper"></bean>
+        <bean id="smsRedisHelper" class="com.better517na.redis.helper.RedisHelper">
+           璺敱淇℃伅鐨勬暟鎹簱杩炴帴
+           <property name="url" value="${redis.url}">
+           </property>
+            <property name="userName" value="${redis.userName}"></property>
+            <property name="password"  value="${redis.password}"></property>
+            搴旂敤绋嬪簭榛樿浣跨敤鐨凴edisDb
+            <property name="redisDBName"  value="${redisUserAuthDB}"></property>
+            <property name="driverClassName"  value="${redis.driverClassName}">
+           </property>
+            <property name="initialSize"  value="${redis.initialSize}"></property>
+            <property name="maxActive"  value="${redis.maxActive}"></property>
+            <property name="maxIdle"  value="${redis.maxIdle}"></property>
+            <property name="maxWait"  value="${redis.maxWait}"></property>
+            搴旂敤绋嬪簭鍚嶇О
+            <property name="appName"  value="${redis.appName}"></property>
+            鏍囨敞搴旂敤绋嬪簭鎵€鍦ㄦ満鎴跨殑閰嶇疆鏂囦欢鍦板潃
+            <property name="nacfgFile"  value="${redis.nacfgFile}"></property>
+            <property name="jedisConfig" ref="config" ></property>
+         </bean>
+    <bean id="config" class="com.better517na.redis.config.JedisConfig">
+           <property name="maxActive" value="${redis.maxActive}"></property>
+           <property name="maxIdle" value="${redis.maxIdle}"></property>
+           <property name="maxWait" value="${redis.maxWait}"></property>
+           •休眠时间 1  
+           <property name="sleepTime" value="${redis.sleepTime}"></property> 
+        </bean> -->
+
+    </beans>
+  application.properties: |-
+    #
+    spring.application.name=CLBussUserWeb
+  catalina.properties: >-
+    # Licensed to the Apache Software Foundation (ASF) under one or more
+
+    # contributor license agreements.  See the NOTICE file distributed with
+
+    # this work for additional information regarding copyright ownership.
+
+    # The ASF licenses this file to You under the Apache License, Version 2.0
+
+    # (the "License"); you may not use this file except in compliance with
+
+    # the License.  You may obtain a copy of the License at
+
+    #
+
+    #     http://www.apache.org/licenses/LICENSE-2.0
+
+    #
+
+    # Unless required by applicable law or agreed to in writing, software
+
+    # distributed under the License is distributed on an "AS IS" BASIS,
+
+    # WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+
+    # See the License for the specific language governing permissions and
+
+    # limitations under the License.
+
+
+    #
+
+    # List of comma-separated packages that start with or equal this string
+
+    # will cause a security exception to be thrown when
+
+    # passed to checkPackageAccess unless the
+
+    # corresponding RuntimePermission ("accessClassInPackage."+package) has
+
+    # been granted.
+
+    package.access=sun.,org.apache.catalina.,org.apache.coyote.,org.apache.jasper.,\
+
+    org.apache.naming.resources.,org.apache.tomcat.
+
+    #
+
+    # List of comma-separated packages that start with or equal this string
+
+    # will cause a security exception to be thrown when
+
+    # passed to checkPackageDefinition unless the
+
+    # corresponding RuntimePermission ("defineClassInPackage."+package) has
+
+    # been granted.
+
+    #
+
+    # by default, no packages are restricted for definition, and none of
+
+    # the class loaders supplied with the JDK call checkPackageDefinition.
+
+    #
+
+    package.definition=sun.,java.,org.apache.catalina.,org.apache.coyote.,\
+
+    org.apache.jasper.,org.apache.naming.,org.apache.tomcat.
+
+
+    #
+
+    #
+
+    # List of comma-separated paths defining the contents of the "common"
+
+    # classloader. Prefixes should be used to define what is the repository
+    type.
+
+    # Path may be relative to the CATALINA_HOME or CATALINA_BASE path or
+    absolute.
+
+    # If left as blank,the JVM system loader will be used as Catalina's "common"
+
+    # loader.
+
+    # Examples:
+
+    #     "foo": Add this folder as a class repository
+
+    #     "foo/*.jar": Add all the JARs of the specified folder as class
+
+    #                  repositories
+
+    #     "foo/bar.jar": Add bar.jar as a class repository
+
+    common.loader=${catalina.base}/lib,${catalina.base}/lib/*.jar,${catalina.home}/lib,${catalina.home}/lib/*.jar
+
+
+    #
+
+    # List of comma-separated paths defining the contents of the "server"
+
+    # classloader. Prefixes should be used to define what is the repository
+    type.
+
+    # Path may be relative to the CATALINA_HOME or CATALINA_BASE path or
+    absolute.
+
+    # If left as blank, the "common" loader will be used as Catalina's "server"
+
+    # loader.
+
+    # Examples:
+
+    #     "foo": Add this folder as a class repository
+
+    #     "foo/*.jar": Add all the JARs of the specified folder as class
+
+    #                  repositories
+
+    #     "foo/bar.jar": Add bar.jar as a class repository
+
+    server.loader=
+
+
+    #
+
+    # List of comma-separated paths defining the contents of the "shared"
+
+    # classloader. Prefixes should be used to define what is the repository
+    type.
+
+    # Path may be relative to the CATALINA_BASE path or absolute. If left as
+    blank,
+
+    # the "common" loader will be used as Catalina's "shared" loader.
+
+    # Examples:
+
+    #     "foo": Add this folder as a class repository
+
+    #     "foo/*.jar": Add all the JARs of the specified folder as class
+
+    #                  repositories
+
+    #     "foo/bar.jar": Add bar.jar as a class repository
+
+    # Please note that for single jars, e.g. bar.jar, you need the URL form
+
+    # starting with file:.
+
+    shared.loader=
+
+
+    # List of JAR files that should not be scanned using the JarScanner
+
+    # functionality. This is typically used to scan JARs for configuration
+
+    # information. JARs that do not contain such information may be excluded
+    from
+
+    # the scan to speed up the scanning process. This is the default list. JARs
+    on
+
+    # this list are excluded from all scans. Scan specific lists (to exclude
+    JARs
+
+    # from individual scans) follow this. The list must be a comma separated
+    list of
+
+    # JAR file names.
+
+    # The JARs listed below include:
+
+    # - Tomcat Bootstrap JARs
+
+    # - Tomcat API JARs
+
+    # - Catalina JARs
+
+    # - Jasper JARs
+
+    # - Tomcat JARs
+
+    # - Common non-Tomcat JARs
+
+    # - Test JARs (JUnit, Cobertura and dependencies)
+
+    tomcat.util.scan.DefaultJarScanner.jarsToSkip=\
+
+    annotations-api.jar,\
+
+    ant-junit*.jar,\
+
+    ant-launcher.jar,\
+
+    ant.jar,\
+
+    asm-*.jar,\
+
+    aspectj*.jar,\
+
+    bootstrap.jar,\
+
+    catalina-ant.jar,\
+
+    catalina-ha.jar,\
+
+    catalina-jmx-remote.jar,\
+
+    catalina-tribes.jar,\
+
+    catalina-ws.jar,\
+
+    catalina.jar,\
+
+    cobertura-*.jar,\
+
+    commons-beanutils*.jar,\
+
+    commons-codec*.jar,\
+
+    commons-collections*.jar,\
+
+    commons-daemon.jar,\
+
+    commons-dbcp*.jar,\
+
+    commons-digester*.jar,\
+
+    commons-fileupload*.jar,\
+
+    commons-httpclient*.jar,\
+
+    commons-io*.jar,\
+
+    commons-lang*.jar,\
+
+    commons-logging*.jar,\
+
+    commons-math*.jar,\
+
+    commons-pool*.jar,\
+
+    dom4j-*.jar,\
+
+    ecj-*.jar,\
+
+    el-api.jar,\
+
+    geronimo-spec-jaxrpc*.jar,\
+
+    h2*.jar,\
+
+    hamcrest-*.jar,\
+
+    hibernate*.jar,\
+
+    httpclient*.jar,\
+
+    icu4j-*.jar,\
+
+    jasper-el.jar,\
+
+    jasper.jar,\
+
+    jaxb-*.jar,\
+
+    jaxen-*.jar,\
+
+    jdom-*.jar,\
+
+    jetty-*.jar,\
+
+    jmx-tools.jar,\
+
+    jmx.jar,\
+
+    jsp-api.jar,\
+
+    jstl.jar,\
+
+    jta*.jar,\
+
+    junit-*.jar,\
+
+    junit.jar,\
+
+    log4j-1*.jar,\
+
+    log4j*.jar,\
+
+    mail*.jar,\
+
+    org.hamcrest.*.jar,\
+
+    oraclepki.jar,\
+
+    oro-*.jar,\
+
+    servlet-api-*.jar,\
+
+    servlet-api.jar,\
+
+    slf4j*.jar,\
+
+    taglibs-standard-spec-*.jar,\
+
+    tagsoup-*.jar,\
+
+    tomcat-api.jar,\
+
+    tomcat-coyote.jar,\
+
+    tomcat-dbcp.jar,\
+
+    tomcat-i18n-*.jar,\
+
+    tomcat-jdbc.jar,\
+
+    tomcat-jni.jar,\
+
+    tomcat-juli-adapters.jar,\
+
+    tomcat-juli.jar,\
+
+    tomcat-spdy.jar,\
+
+    tomcat-util.jar,\
+
+    tools.jar,\
+
+    websocket-api.jar,\
+
+    wsdl4j*.jar,\
+
+    xercesImpl.jar,\
+
+    xml-apis.jar,\
+
+    xmlParserAPIs-*.jar,\
+
+    xmlParserAPIs.jar,\
+
+    xom-*.jar
+
+
+    # Additional JARs (over and above the default JARs listed above) to skip
+    when
+
+    # scanning for Servlet 3.0 pluggability features. These features include web
+
+    # fragments, annotations, SCIs and classes that match @HandlesTypes. The
+    list
+
+    # must be a comma separated list of JAR file names.
+
+    org.apache.catalina.startup.ContextConfig.jarsToSkip=
+
+
+    # Additional JARs (over and above the default JARs listed above) to skip
+    when
+
+    # scanning for TLDs. The list must be a comma separated list of JAR file
+    names.
+
+    org.apache.catalina.startup.TldConfig.jarsToSkip=tomcat7-websocket.jar
+
+
+    #
+
+    # String cache configuration.
+
+    tomcat.util.buf.StringCache.byte.enabled=true
+
+    #tomcat.util.buf.StringCache.char.enabled=true
+
+    #tomcat.util.buf.StringCache.trainThreshold=500000
+
+    #tomcat.util.buf.StringCache.cacheSize=5000
+
+
+    # This system property is deprecated. Use the relaxedPathChars
+    relaxedQueryChars
+
+    # attributes of the Connector instead. These attributes permit a wider range
+    of
+
+    # characters to be configured as valid.
+
+    # Allow for changes to HTTP request validation
+
+    # WARNING: Using this option may expose the server to CVE-2016-6816
+
+    tomcat.util.http.parser.HttpParser.requestTargetAllow=|{}
+  javaMonitorGatherComponet.properties: |-
+    ######程序监控采集配置节点#######
+    #*程序名称(用于监控时方便查询，请按如下规则填写)
+    #格式：程序名-机房-环境-服务集区分关键字
+    #如：差旅系统用户网站-NW-测试
+    #如：差旅系统交易集成服务-SYQ-机票
+    monitor.programName=差旅用户网站-SYQ-正式
+    #*kafka地址 内网192.168.1.117:9092,192.168.1.117:9093,192.168.1.117:9094
+    monitor.kafkaServer=kafka.zabbix.517na.com:9092
+  jdbc.properties: >-
+    keyIdConfigPath=/home/nacfg.ini
+
+    ####################\u4E0A\u4F20\u8282\u70B9######################
+
+    upload.servers= http://wjsc.tmc.517na.com/fileupload.do
+
+    # \u4E34\u65F6\u76EE\u5F55
+
+    upload.tmpdir = tmpdir/
+
+    # \u662F\u5426\u5220\u9664\u4E34\u65F6\u6587\u4EF6
+
+    upload.isDeleteTmp = true
+
+    # \u63D0\u4F9B\u670D\u52A1\u7684\u9759\u6001\u57DF\u540D
+
+    upload.staticServer = https://wjsc_tmc.517la.com
+
+    connectAPI.url = http://172.21.51.20:4640/user/api
+
+    staticFile.server = https://st2_m.517la.com
+
+    customize.domain =
+    ts-pc.huaruntong.cn^127.0.0.1^172.17.42.72|huarun&ct.ansteelzy.com|loginTemplate
+
+    eastAir.domain = cotrip.ceair.com
+
+    customize.shareDomain = www.517la.com|https://m.517la.com/user
+
+    customize.WXAuthInfo =
+    517la.com|wxafd5fe59d50c51c9|d0360cea92bb254f81cfaa273cbfdf07
+
+    uniquesign=PAL
+
+    noCarService=0
+  log4j.properties: |-
+    ### 设置Logger输出级别和输出目的地 ###
+    log4j.rootLogger=debug,stdout
+    ### 把日志信息输出到控制台 ###
+    log4j.appender.stdout=org.apache.log4j.ConsoleAppender
+    #log4j.appender.stdout.Target=System.err
+    #log4j.appender.stdout=org.apache.log4j
+    log4j.appender.stdout.layout=org.apache.log4j.PatternLayout
+  log_config.properties: >-
+    #####################   日志组件配置文件        ###########################
+
+    ##################################################################
+
+    #说明：所有属性均采用? key = value 的方式，只有value的值可以修改，现有的key不可修改；密码域账户均加密不是乱码?
+
+    #AppName 应用程序名??
+
+    log.AppName = CLBussUserWebZS_PAL
+
+    log.kafka.iswritetokafka=1
+
+    log.kafka.addresses=kafkalog1.517la.com:9092,kafkalog2.517la.com:9092,kafkalog3.517la.com:9092
+
+    #AppRecord App日志记录开关 true：开     false：关
+
+    log.AppRecord = true
+
+    #DebugRecord Debug日志记录开关 true：开     false：关
+
+    log.DebugRecord = false
+
+    #Driver 数据库驱动
+
+    log.jdbc.driver = com.mysql.jdbc.Driver
+
+    #Url 数据库链接  jdbc:mysql://ip：port/数据库名称
+
+    log.acc.jdbc.url =
+    jdbc:mysql://BJLogDBALL003-W.BJ01.517na.com:3306/LogAccJKCL
+
+    log.acc.jdbc.username=vxSs4i7BS58@
+
+    log.acc.jdbc.password=6BPzhGiVwAPCW1LhtdUvCblGokvcMGesrY1wV/coEWg@
+
+    log.app.jdbc.url =
+    jdbc:mysql://BJLogDBALL003-W.BJ01.517na.com:3306/LogAppJKCL
+
+    log.app.jdbc.username=vxSs4i7BS58@
+
+    log.app.jdbc.password=6BPzhGiVwAPCW1LhtdUvCblGokvcMGesrY1wV/coEWg@
+
+    log.cachehit.jdbc.url =
+    jdbc:mysql://BJLogDBALL003-W.BJ01.517na.com:3306/LogCacheHitJKCL
+
+    log.cachehit.jdbc.username=vxSs4i7BS58@
+
+    log.cachehit.jdbc.password=6BPzhGiVwAPCW1LhtdUvCblGokvcMGesrY1wV/coEWg@
+
+    log.debug.jdbc.url =
+    jdbc:mysql://BJLogDBALL003-W.BJ01.517na.com:3306/LogDebugJKCL
+
+    log.debug.jdbc.username=vxSs4i7BS58@
+
+    log.debug.jdbc.password=6BPzhGiVwAPCW1LhtdUvCblGokvcMGesrY1wV/coEWg@
+
+    log.exception.jdbc.url =
+    jdbc:mysql://BJLogDBALL003-W.BJ01.517na.com:3306/LogExceptionJKCL
+
+    log.exception.jdbc.username=vxSs4i7BS58@
+
+    log.exception.jdbc.password=6BPzhGiVwAPCW1LhtdUvCblGokvcMGesrY1wV/coEWg@
+
+    log.interaction.jdbc.url =
+    jdbc:mysql://BJLogDBALL003-W.BJ01.517na.com:3306/LogInteractionJKCL
+
+    log.interaction.jdbc.username=vxSs4i7BS58@
+
+    log.interaction.jdbc.password=6BPzhGiVwAPCW1LhtdUvCblGokvcMGesrY1wV/coEWg@
+
+    log.slowcall.jdbc.url =
+    jdbc:mysql://BJLogDBALL003-W.BJ01.517na.com:3306/LogSlowCallJKCL
+
+    log.slowcall.jdbc.username=vxSs4i7BS58@
+
+    log.slowcall.jdbc.password=6BPzhGiVwAPCW1LhtdUvCblGokvcMGesrY1wV/coEWg@
+
+    log.uiacc.jdbc.url =
+    jdbc:mysql://BJLogDBALL003-W.BJ01.517na.com:3306/LogUiaccJKCL
+
+    log.uiacc.jdbc.username=vxSs4i7BS58@
+
+    log.uiacc.jdbc.password=6BPzhGiVwAPCW1LhtdUvCblGokvcMGesrY1wV/coEWg@
+
+    #Directory linux下日志记录路径?
+
+    log.Directory = /var/log/cllog
+
+    #DivisionFileSize （单位：兆） 日志在某一时间段内超过文件大小已2M划分
+
+    log.DivisionFileSize = 2
+
+    #DivisionFileTime （单位：分钟） 日志在某一时间段内不足2M文件按2min划分
+
+    log.DivisionFileTime = 1
+
+    #windows下载文件目录,windows服务的配置成Logs，linux服务一般配置成 JavaLogs
+
+    log.download.Directory=JavaLogs
+  param-jdbc.properties: >-
+    ########## JDBC ##########################
+
+    param.applicationName = CLBussUserWeb
+
+    param.databaseName = SysParamDB
+
+    param.isRead = true
+
+    param.bizTime = 2014-12-19
+
+    pool.initialSize=5
+
+    pool.maxActive=100
+
+    pool.maxIdle=5
+
+    pool.maxWait=1000
+
+    pool.poolPreparedStatements=true
+
+    pool.defaultAutoCommit=false
+
+    #################\u4E3B\u952E\u751F\u6210\u7B56\u7565\u6587\u4EF6############################
+
+    param.DictionaryTimeOut=5
+
+    param.SysParamTimeOut=5
+
+    param.UserParamTimeOut=5
+
+    param.AppName=CLBussUserWebZS
+  redis.properties: |-
+    redis.maxActive=100
+    redis.maxIdle=5
+    redis.maxWait=10000
+    redis.sleepTime=60000
+    redis.url= {{ .Values.configMapManger.redis.url }}
+    redis.userName={{ .Values.configMapManger.redis.username }}
+    redis.password={{ .Values.configMapManger.redis.password }}
+    redis.DBName=UnifiedUserCacheDB
+    redis.driverClassName=com.mysql.jdbc.Driver
+    redis.initialSize=4
+    redis.appName=default
+    redis.nacfgFile=/home/nacfg.ini
+  server.xml: >-
+    <?xml version='1.0' encoding='utf-8'?>
+
+
+    <Server port="0" shutdown="SHUTDOWN">
+      <!-- Security listener. Documentation at /docs/config/listeners.html
+      <Listener className="org.apache.catalina.security.SecurityListener" />
+      -->
+      <!--APR library loader. Documentation at /docs/apr.html -->
+      <Listener className="org.apache.catalina.core.AprLifecycleListener" SSLEngine="on" />
+      <!--Initialize Jasper prior to webapps are loaded. Documentation at /docs/jasper-howto.html -->
+      <!--<Listener className="org.apache.catalina.core.JasperListener" />-->
+      <!-- Prevent memory leaks due to use of particular java/javax APIs-->
+      <Listener className="org.apache.catalina.core.JreMemoryLeakPreventionListener" />
+      <Listener className="org.apache.catalina.mbeans.GlobalResourcesLifecycleListener" />
+      <Listener className="org.apache.catalina.core.ThreadLocalLeakPreventionListener" />
+
+      <GlobalNamingResources>
+
+        <Resource name="UserDatabase" auth="Container"
+                  type="org.apache.catalina.UserDatabase"
+                  description="User database that can be updated and saved"
+                  factory="org.apache.catalina.users.MemoryUserDatabaseFactory"
+                  pathname="conf/tomcat-users.xml" />
+      </GlobalNamingResources>
+
+      <Service name="Catalina">
+
+        <Connector port="12130" protocol="org.apache.coyote.http11.Http11NioProtocol"
+    relaxedPathChars="|\{}[]^,%" relaxedQueryChars="|\{}[]^,%&quot;"
+    maxPostSize="-1"
+                   connectionTimeout="20000"
+                               URIEncoding="UTF-8"  />
+
+        <Engine name="Catalina" defaultHost="localhost">
+
+          <Realm className="org.apache.catalina.realm.LockOutRealm">
+
+            <Realm className="org.apache.catalina.realm.UserDatabaseRealm"
+                   resourceName="UserDatabase"/>
+          </Realm>
+
+          <Host name="localhost"  appBase="webapps"
+                unpackWARs="false" autoDeploy="false">
+
+    <Valve className="org.apache.catalina.valves.AccessLogValve"
+    directory="logs"
+                   prefix="localhost_access_log." suffix=".txt"
+                   pattern="%h %l %u %t &quot;%r&quot; %s %b" />
+
+          </Host>
+        </Engine>
+      </Service>
+    </Server>
+  strings_wcslo.properties: >
+
+    #--------------------------\u9884\u8BA2\u5217\u8868\u663E\u793A-------------------------- 
+
+    AppName=\u6f4d\u67f4\u5546\u65c5
+
+    IosAppUrl=https://apps.apple.com/cn/app/%E6%BD%8D%E6%9F%B4%E5%95%86%E6%97%85/id1450904074
+
+    AndroidUrl=https://h5coml.vivo.com.cn/h5coml/appdetail_h5/browser_v2/index.html?appId=2814967&resource=301&source=7
+
+    QrcodeImg=//cdn.517la.net/app-source/appDown/wcsl/logo.png
+
+    HeaderImg=//cdn.517la.net/app-source/appDown/wcsl/logo.png
+
+    HideDownDes=1
+
+
+    ShareDownLogo=//cdn.517la.net/app-source/appDown/wcsl/logo.png
+
+    HeadLogo=//cdn.517la.net/app-source/appDown/wcsl/logo.png
+  strings_www_517la_com.properties: >-
+    #--------------------------\u9884\u8BA2\u5217\u8868\u663E\u793A--------------------------
+
+    AppName=\u5DEE\u65C5\u58F9\u53F7
+
+    AppDownDes=\u624B\u673A30\u79D2\u4E00\u952E\u9884\u8BA2\u673A\u7968\u3001\u706B\u8F66\u7968\u3001\u6253\u8F66
+
+    DownPageUrl=https://www.517la.com/appDown/index
+
+    IosAppUrl=https://itunes.apple.com/cn/app/cha-lu-yi-hao-shang-lu.-ji-piao/id1116911191?mt=8
+
+    AndroidUrl=http://app.mi.com/details?id=com.na517.businesstravel&ref=search
+
+    QrcodeImg=../Views/appDown/img/qrcodeImg.jpg
+
+    HeaderImg=../Views/appDown/img/app.png
+
+    HideDownDes=0
+
+
+    ShareDownLogo=/Content/html5/images/orderSharing/app.png
+
+    HeadLogo=/Content/html5/images/orderSharing/logo.png
+
+
+
+    # -------- www.517la.com--------
+
+    QRScanLogin_ServiceDomain=https://dl_jk.517la.com
+  systemParam.properties: |-
+    systemParam.DownloadMark=0
+
+    systemParam.SftpName=sftptest
+
+    systemParam.SftpAccout=zhonghuitest
+
+    #sftp
+    #systemParam.DownloadIP=192.168.1.115
+
+    #DownloadLocalFile
+    systemParam.DownloadIP=https://clreportpal.517la.com
+
+    systemParam.DownloadPort=22
+
+    #sftp
+    #systemParam.DownloadPath=/sftptest/upload
+
+    #DownloadLocalFile
+    systemParam.DownloadPath=/api/download/file
+    systemParam.HotelWebUrl= https://m.517la.com/login/commonLogin
+kind: ConfigMap
+metadata:
+  creationTimestamp: '2019-09-24T09:06:15Z'
+  name: clbussuserweb-config
+  namespace: common
+  resourceVersion: '2618468116'
+  selfLink: /api/v1/namespaces/common/configmaps/clbussuserweb-config
+  uid: 8fdf7b83-deaa-11e9-b700-3ef5fae14555

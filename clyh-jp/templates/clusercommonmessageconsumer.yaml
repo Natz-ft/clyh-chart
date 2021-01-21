@@ -1,0 +1,210 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: clusercommonmessageconsumer
+  namespace: jp
+spec:
+  progressDeadlineSeconds: 600
+{{- if .Values.clusercommonmessageconsumer.nodeManager.replicas }}
+  replicas: {{ .Values.clusercommonmessageconsumer.nodeManager.replicas }}
+{{- else if eq .Values.environment "test" }}
+  replicas: 1
+{{- else if eq .Values.environment "formal" }}
+  replicas: 2
+{{- end }}
+  revisionHistoryLimit: 10
+  selector:
+    matchLabels:
+      app: clusercommonmessageconsumer
+  strategy:
+    rollingUpdate:
+      maxSurge: 25%
+      maxUnavailable: 1
+    type: RollingUpdate
+  template:
+    metadata:
+      labels:
+        app: clusercommonmessageconsumer
+    spec:
+      containers:
+        - env:
+            - name: MYENV_CONFIGNAME
+              value: >-
+                application,dbroute,logconfig,serviceroute
+            - name: MYENV_CONFIGPROFILE
+              value: zs
+            - name: MYENV_CONFIGLABEL
+              value: CLUserCommonMessageConsumer-PAL-K8S-ZS
+            - name: MYENV_CONFIGSERVICEID
+              value: spring-cloud-config-server
+            - name: MYENV_EUREKAURL
+              value: >-
+                http://eureka1:8000/eureka/,http://eureka2:8000/eureka/,http://eureka3:8000/eureka/
+            - name: MYENV_TOMCATPORT
+            {{- if .Values.clusercommonmessageconsumer.networkManager.tomcat.port }}
+              value: {{ .Values.clusercommonmessageconsumer.networkManager.tomcat.port | quote }}
+            {{- else }}
+              value: "12777"
+            {{- end }}
+            - name: JAVA_OPTS
+              value: {{ .Values.clusercommonmessageconsumer.resourceManager.jvm }}
+        {{- if .Values.clusercommonmessageconsumer.nodeManager.tag }}
+          image: {{ .Values.imageRegistry }}/clusercommonmessageconsumer:{{ .Values.clusercommonmessageconsumer.nodeManager.tag }}
+        {{- else }}
+          image: {{ .Values.imageRegistry }}/clusercommonmessageconsumer:{{ .Values.dockerTag }}
+        {{- end }}
+          imagePullPolicy: IfNotPresent
+          lifecycle:
+            preStop:
+              exec:
+                {{- if .Values.clusercommonmessageconsumer.networkManager.command.url }}
+                command:
+                  - curl
+                  - {{ .Values.clusercommonmessageconsumer.networkManager.command.url }}
+                {{- else }}
+                command:
+                  - curl
+                  - 'http://localhost:12777/unregisterbyext'
+                {{- end }}
+          livenessProbe:
+            failureThreshold: 3
+            httpGet:
+              path: /info
+            {{- if .Values.clusercommonmessageconsumer.networkManager.tomcat.port }}
+              port: {{ .Values.clusercommonmessageconsumer.networkManager.tomcat.port }}
+            {{- else }}
+              port: 12777
+            {{- end }}
+              scheme: HTTP
+            initialDelaySeconds: 100
+            periodSeconds: 10
+            successThreshold: 1
+            timeoutSeconds: 10
+          name: clusercommonmessageconsumer
+          ports:
+            {{- if .Values.clusercommonmessageconsumer.networkManager.tomcat.port }}
+            - containerPort: {{ .Values.clusercommonmessageconsumer.networkManager.tomcat.port }}
+              hostPort: {{ .Values.clusercommonmessageconsumer.networkManager.tomcat.port }}
+              protocol: TCP
+            {{- else }}
+            - containerPort: 12777
+              hostPort: 12777
+              protocol: TCP
+            {{- end }}
+          readinessProbe:
+            failureThreshold: 3
+            httpGet:
+              path: /info
+            {{- if .Values.clusercommonmessageconsumer.networkManager.tomcat.port }}
+              port: {{ .Values.clusercommonmessageconsumer.networkManager.tomcat.port }}
+            {{- else }}
+              port: 12777
+            {{- end }}
+              scheme: HTTP
+            initialDelaySeconds: 10
+            periodSeconds: 5
+            successThreshold: 1
+            timeoutSeconds: 10
+          {{- if .Values.clusercommonmessageconsumer.resourceManager.resources.custom -}}
+          resources:
+            limits:
+              cpu: {{ .Values.clusercommonmessageconsumer.resourceManager.resources.limits.cpu }}
+              memory: {{ .Values.clusercommonmessageconsumer.resourceManager.resources.limits.memory }}
+            requests:
+              cpu: {{ .Values.clusercommonmessageconsumer.resourceManager.resources.requests.cpu }}
+              memory: {{ .Values.clusercommonmessageconsumer.resourceManager.resources.requests.memory }}
+          {{- else }}
+          resources:
+            limits:
+              cpu: '1'
+              memory: 1Gi
+            requests:
+              cpu: 100m
+              memory: 128Mi
+          {{- end }}
+          terminationMessagePath: /dev/termination-log
+          terminationMessagePolicy: File
+          volumeMounts:
+            - mountPath: /home/nacfg.ini
+              name: nacfg
+              subPath: nacfg.ini
+            - mountPath: /var/log/cllog
+              name: cllog
+            - mountPath: /var/log/java
+              name: logjava
+            - mountPath: /srv/access/hz.dat
+              name: hz
+            - mountPath: /srv/access/resPinYin.dat
+              name: respinyin
+            - mountPath: >-
+                /usr/local/soft/tomcat/webapps/ROOT/WEB-INF/classes/config/ChinesePhoneticize.properties
+              name: chinese
+              subPath: ChinesePhoneticize.properties
+      dnsPolicy: ClusterFirstWithHostNet
+      imagePullSecrets:
+        - name: regcred
+      nodeSelector:
+        env: jp
+      restartPolicy: Always
+      schedulerName: default-scheduler
+      securityContext: {}
+      terminationGracePeriodSeconds: 15
+    {{- if .Values.hostManager.volumes.hostPath }}
+      volumes:
+        - hostPath:
+            path: {{ .Values.hostManager.volumes.hostPath }}/log/cllog
+            type: ''
+          name: cllog
+        - hostPath:
+            path: {{ .Values.hostManager.volumes.hostPath }}/log/java
+            type: ''
+          name: logjava
+        - hostPath:
+            path: /home/nacfg.ini
+            type: ''
+          name: nacfg
+        - hostPath:
+            path: {{ .Values.hostManager.volumes.hostPath }}/programfiles/hz.dat
+            type: ''
+          name: hz
+        - hostPath:
+            path: {{ .Values.hostManager.volumes.hostPath }}/programfiles/resPinYin.dat
+            type: ''
+          name: respinyin
+        - configMap:
+            defaultMode: 420
+            items:
+              - key: ChinesePhoneticize.properties
+                path: ChinesePhoneticize.properties
+            name: clusercommonmessageconsumer-config
+          name: chinese
+    {{- else }}
+      volumes:
+        - hostPath:
+            path: /app/log/cllog
+            type: ''
+          name: cllog
+        - hostPath:
+            path: /app/log/java
+            type: ''
+          name: logjava
+        - hostPath:
+            path: /home/nacfg.ini
+            type: ''
+          name: nacfg
+         - hostPath:
+            path: /app/programfiles/hz.dat
+            type: ''
+          name: hz
+        - hostPath:
+            path: /app/programfiles/resPinYin.dat
+            type: ''
+          name: respinyin
+        - configMap:
+            defaultMode: 420
+            items:
+              - key: ChinesePhoneticize.properties
+                path: ChinesePhoneticize.properties
+            name: clusercommonmessageconsumer-config
+          name: chinese
+    {{- end }}

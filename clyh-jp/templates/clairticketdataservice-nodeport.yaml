@@ -1,0 +1,18 @@
+apiVersion: v1
+kind: Service
+metadata:
+  name: clairticketdataservice-nodeport
+  namespace: jp
+spec:
+  externalTrafficPolicy: Cluster
+  ports:
+    - name: http
+      nodePort: 30106
+      port: {{ .Values.clairticketdataservice.service.port }}
+      protocol: TCP
+      targetPort: {{ .Values.clairticketdataservice.service.port }}
+  selector:
+    app: clairticketdataservice
+  sessionAffinity: None
+  type: NodePort
+

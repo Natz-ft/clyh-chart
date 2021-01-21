@@ -1,0 +1,172 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: clrefundticketbusiservice
+  namespace: jp
+spec:
+  progressDeadlineSeconds: 600
+{{- if .Values.clrefundticketbusiservice.nodeManager.replicas }}
+  replicas: {{ .Values.clrefundticketbusiservice.nodeManager.replicas }}
+{{- else if eq .Values.environment "test" }}
+  replicas: 1
+{{- else if eq .Values.environment "formal" }}
+  replicas: 2
+{{- end }}
+  revisionHistoryLimit: 10
+  selector:
+    matchLabels:
+      app: clrefundticketbusiservice
+  strategy:
+    rollingUpdate:
+      maxSurge: 25%
+      maxUnavailable: 1
+    type: RollingUpdate
+  template:
+    metadata:
+      labels:
+        app: clrefundticketbusiservice
+    spec:
+      containers:
+        - env:
+            - name: MYENV_CONFIGNAME
+              value: >-
+                application,dbroute,logconfig,serviceroute
+            - name: MYENV_CONFIGPROFILE
+              value: zs
+            - name: MYENV_CONFIGLABEL
+              value: CLRefundTicketBusiService-PAL-K8S-ZS
+            - name: MYENV_CONFIGSERVICEID
+              value: spring-cloud-config-server
+            - name: MYENV_EUREKAURL
+              value: >-
+                http://eureka1:8000/eureka/,http://eureka2:8000/eureka/,http://eureka3:8000/eureka/
+            - name: MYENV_TOMCATPORT
+            {{- if .Values.clrefundticketbusiservice.networkManager.tomcat.port }}
+              value: {{ .Values.clrefundticketbusiservice.networkManager.tomcat.port | quote }}
+            {{- else }}
+              value: "9383"
+            {{- end }}
+            - name: JAVA_OPTS
+              value: {{ .Values.clrefundticketbusiservice.resourceManager.jvm }}
+        {{- if .Values.clrefundticketbusiservice.nodeManager.tag }}
+          image: {{ .Values.imageRegistry }}/clrefundticketbusiservice:{{ .Values.clrefundticketbusiservice.nodeManager.tag }}
+        {{- else }}
+          image: {{ .Values.imageRegistry }}/clrefundticketbusiservice:{{ .Values.dockerTag }}
+        {{- end }}
+          imagePullPolicy: IfNotPresent
+          lifecycle:
+            preStop:
+              exec:
+                {{- if .Values.clrefundticketbusiservice.networkManager.command.url }}
+                command:
+                  - curl
+                  - {{ .Values.clrefundticketbusiservice.networkManager.command.url }}
+                {{- else }}
+                command:
+                  - curl
+                  - 'http://localhost:9383/unregisterbyext'
+                {{- end }}
+          livenessProbe:
+            failureThreshold: 3
+            httpGet:
+              path: /info
+            {{- if .Values.clrefundticketbusiservice.networkManager.tomcat.port }}
+              port: {{ .Values.clrefundticketbusiservice.networkManager.tomcat.port }}
+            {{- else }}
+              port: 9383
+            {{- end }}
+              scheme: HTTP
+            initialDelaySeconds: 100
+            periodSeconds: 10
+            successThreshold: 1
+            timeoutSeconds: 10
+          name: clrefundticketbusiservice
+          ports:
+            {{- if .Values.clrefundticketbusiservice.networkManager.tomcat.port }}
+            - containerPort: {{ .Values.clrefundticketbusiservice.networkManager.tomcat.port }}
+              hostPort: {{ .Values.clrefundticketbusiservice.networkManager.tomcat.port }}
+              protocol: TCP
+            {{- else }}
+            - containerPort: 9383
+              hostPort: 9383
+              protocol: TCP
+            {{- end }}
+          readinessProbe:
+            failureThreshold: 3
+            httpGet:
+              path: /info
+            {{- if .Values.clrefundticketbusiservice.networkManager.tomcat.port }}
+              port: {{ .Values.clrefundticketbusiservice.networkManager.tomcat.port }}
+            {{- else }}
+              port: 9383
+            {{- end }}
+              scheme: HTTP
+            initialDelaySeconds: 10
+            periodSeconds: 5
+            successThreshold: 1
+            timeoutSeconds: 10
+          {{- if .Values.clrefundticketbusiservice.resourceManager.resources.custom -}}
+          resources:
+            limits:
+              cpu: {{ .Values.clrefundticketbusiservice.resourceManager.resources.limits.cpu }}
+              memory: {{ .Values.clrefundticketbusiservice.resourceManager.resources.limits.memory }}
+            requests:
+              cpu: {{ .Values.clrefundticketbusiservice.resourceManager.resources.requests.cpu }}
+              memory: {{ .Values.clrefundticketbusiservice.resourceManager.resources.requests.memory }}
+          {{- else }}
+          resources:
+            limits:
+              cpu: '1'
+              memory: 1Gi
+            requests:
+              cpu: 100m
+              memory: 128Mi
+          {{- end }}
+          terminationMessagePath: /dev/termination-log
+          terminationMessagePolicy: File
+          volumeMounts:
+            - mountPath: /home/nacfg.ini
+              name: nacfg
+              subPath: nacfg.ini
+            - mountPath: /var/log/cllog
+              name: cllog
+            - mountPath: /var/log/java
+              name: logjava
+      dnsPolicy: ClusterFirstWithHostNet
+      imagePullSecrets:
+        - name: regcred
+      nodeSelector:
+        env: jp
+      restartPolicy: Always
+      schedulerName: default-scheduler
+      securityContext: {}
+      terminationGracePeriodSeconds: 15
+    {{- if .Values.hostManager.volumes.hostPath }}
+      volumes:
+        - hostPath:
+            path: {{ .Values.hostManager.volumes.hostPath }}/log/cllog
+            type: ''
+          name: cllog
+        - hostPath:
+            path: {{ .Values.hostManager.volumes.hostPath }}/log/java
+            type: ''
+          name: logjava
+        - hostPath:
+            path: /home/nacfg.ini
+            type: ''
+          name: nacfg
+    {{- else }}
+      volumes:
+        - hostPath:
+            path: /app/log/cllog
+            type: ''
+          name: cllog
+        - hostPath:
+            path: /app/log/java
+            type: ''
+          name: logjava
+        - hostPath:
+            path: /home/nacfg.ini
+            type: ''
+          name: nacfg
+    {{- end }}

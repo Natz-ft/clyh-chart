@@ -1,0 +1,133 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: clbussairticketh52
+  namespace: jp
+spec:
+  progressDeadlineSeconds: 600
+{{- if .Values.clbussairticketh52.nodeManager.replicas }}
+  replicas: {{ .Values.clbussairticketh52.nodeManager.replicas }}
+{{- else if eq .Values.environment "test" }}
+  replicas: 1
+{{- else if eq .Values.environment "formal" }}
+  replicas: 2
+{{- end }}
+  revisionHistoryLimit: 10
+  selector:
+    matchLabels:
+      app: clbussairticketh52
+  strategy:
+    rollingUpdate:
+      maxSurge: 25%
+      maxUnavailable: 1
+    type: RollingUpdate
+  template:
+    metadata:
+      labels:
+        app: clbussairticketh52
+    spec:
+      containers:
+        - env:
+            - name: MYENV_TOMCATPORT
+            {{- if .Values.clbussairticketh52.networkManager.tomcat.port }}
+              value: {{ .Values.clbussairticketh52.networkManager.tomcat.port | quote }}
+            {{- else }}
+              value: "12185"
+            {{- end }}
+            - name: JAVA_OPTS
+              value: {{ .Values.clbussairticketh52.resourceManager.jvm }}
+        {{- if .Values.clbussairticketh52.nodeManager.tag }}
+          image: {{ .Values.imageRegistry }}/clbussairticketh52:{{ .Values.clbussairticketh52.nodeManager.tag }}
+        {{- else }}
+          image: {{ .Values.imageRegistry }}/clbussairticketh52:{{ .Values.dockerTag }}
+        {{- end }}
+          imagePullPolicy: IfNotPresent
+          name: clbussairticketh52
+          ports:
+            {{- if .Values.clbussairticketh52.networkManager.tomcat.port }}
+            - containerPort: {{ .Values.clbussairticketh52.networkManager.tomcat.port }}
+              hostPort: {{ .Values.clbussairticketh52.networkManager.tomcat.port }}
+              protocol: TCP
+            {{- else }}
+            - containerPort: 12185
+              hostPort: 12185
+              protocol: TCP
+            {{- end }}
+          {{- if .Values.clbussairticketh52.resourceManager.resources.custom -}}
+          resources:
+            limits:
+              cpu: {{ .Values.clbussairticketh52.resourceManager.resources.limits.cpu }}
+              memory: {{ .Values.clbussairticketh52.resourceManager.resources.limits.memory }}
+            requests:
+              cpu: {{ .Values.clbussairticketh52.resourceManager.resources.requests.cpu }}
+              memory: {{ .Values.clbussairticketh52.resourceManager.resources.requests.memory }}
+          {{- else }}
+          resources:
+            limits:
+              cpu: '1'
+              memory: 1Gi
+            requests:
+              cpu: 100m
+              memory: 128Mi
+          {{- end }}
+          terminationMessagePath: /dev/termination-log
+          terminationMessagePolicy: File
+          volumeMounts:
+            - mountPath: /home/nacfg.ini
+              name: nacfg
+              subPath: nacfg.ini
+            - mountPath: /var/log/cllog
+              name: cllog
+            - mountPath: /var/log/java
+              name: logjava
+            - mountPath: /usr/local/soft/tomcat/webapps/ROOT/WEB-INF/config
+              name: config
+            - mountPath: /usr/local/soft/tomcat/conf/server.xml
+              name: config
+              subPath: server.xml
+      dnsPolicy: ClusterFirstWithHostNet
+      imagePullSecrets:
+        - name: regcred
+      nodeSelector:
+        env: jp
+      restartPolicy: Always
+      schedulerName: default-scheduler
+      securityContext: {}
+      terminationGracePeriodSeconds: 15
+    {{- if .Values.hostManager.volumes.hostPath }}
+      volumes:
+        - hostPath:
+            path: {{ .Values.hostManager.volumes.hostPath }}/log/cllog
+            type: ''
+          name: cllog
+        - hostPath:
+            path: {{ .Values.hostManager.volumes.hostPath }}/log/java
+            type: ''
+          name: logjava
+        - hostPath:
+            path: /home/nacfg.ini
+            type: ''
+          name: nacfg
+        - configMap:
+            defaultMode: 420
+            name: clbussairticketh52-config
+          name: config
+    {{- else }}
+      volumes:
+        - hostPath:
+            path: /app/log/cllog
+            type: ''
+          name: cllog
+        - hostPath:
+            path: /app/log/java
+            type: ''
+          name: logjava
+        - hostPath:
+            path: /home/nacfg.ini
+            type: ''
+          name: nacfg
+        - configMap:
+            defaultMode: 420
+            name: clbussairticketh5-config
+          name: config
+    {{- end }}

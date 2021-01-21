@@ -1,0 +1,180 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: clopenapidataservice
+  namespace: user
+spec:
+  progressDeadlineSeconds: 600
+  {{- if .Values.clopenapidataservice.nodeManager.replicas }}
+  replicas: {{ .Values.clopenapidataservice.nodeManager.replicas }}
+  {{- else if eq .Values.environment "test" }}
+  replicas: 1
+  {{- else if eq .Values.environment "formal" }}
+  replicas: 2
+  {{- end }}
+  revisionHistoryLimit: 10
+  selector:
+    matchLabels:
+      app: clopenapidataservice
+  strategy:
+    rollingUpdate:
+      maxSurge: 25%
+      maxUnavailable: 1
+    type: RollingUpdate
+  template:
+    metadata:
+      labels:
+        app: clopenapidataservice
+    spec:
+      containers:
+        - env:
+            - name: MYENV_CONFIGNAME
+              value: dbroute,jdbc,logconfig,paramjdbc,serviceroute,redis,mqhelper,application,myconfig,systemparam,javaweb
+            - name: MYENV_CONFIGPROFILE
+              value: zs
+            - name: MYENV_CONFIGLABEL
+              value: CLOpenAPIDataService-k8s
+            - name: MYENV_CONFIGSERVICEID
+              value: spring-cloud-config-server
+            - name: MYENV_EUREKAURL
+              value: http://eureka1:8000/eureka/,http://eureka2:8000/eureka/,http://eureka3:8000/eureka/
+            - name: MYENV_TOMCATPORT
+              {{- if .Values.clopenapidataservice.networkManager.tomcat.port }}
+              value: {{ .Values.clopenapidataservice.networkManager.tomcat.port | quote }}
+              {{- else }}
+              value: "12336"
+              {{- end }}
+            - name: JAVA_OPTS
+              value: {{ .Values.clopenapidataservice.resourceManager.jvm }}
+        {{- if .Values.clopenapidataservice.nodeManager.tag }}
+          image: {{ .Values.imageRegistry }}/clopenapidataservice:{{ .Values.clopenapidataservice.nodeManager.tag }}
+        {{- else }}
+          image: {{ .Values.imageRegistry }}/clopenapidataservice:{{ .Values.dockerTag }}
+        {{- end }}
+          imagePullPolicy: IfNotPresent
+          lifecycle:
+            preStop:
+              exec:
+                {{- if .Values.clopenapidataservice.networkManager.command.url }}
+                command:
+                  - curl
+                  - {{ .Values.clopenapidataservice.networkManager.command.url }}
+                {{- else }}
+                command:
+                  - curl
+                  - 'http://localhost:12336/unregisterbyext'
+                {{- end }}
+          livenessProbe:
+            failureThreshold: 3
+            httpGet:
+              path: /info
+            {{- if .Values.clopenapidataservice.networkManager.tomcat.port }}
+              port: {{ .Values.clopenapidataservice.networkManager.tomcat.port }}
+            {{- else }}
+              port: 12336
+            {{- end }}
+              scheme: HTTP
+            initialDelaySeconds: 100
+            periodSeconds: 10
+            successThreshold: 1
+            timeoutSeconds: 10
+          name: clopenapidataservice
+          ports:
+          {{- if .Values.clopenapidataservice.networkManager.tomcat.port }}
+            - containerPort: {{ .Values.clopenapidataservice.networkManager.tomcat.port }}
+              hostPort: {{ .Values.clopenapidataservice.networkManager.tomcat.port }}
+              protocol: TCP
+          {{- else }}
+            - containerPort: 12336
+              hostPort: 12336
+              protocol: TCP
+          {{- end }}
+          {{- if .Values.clopenapidataservice.networkManager.thrift.port }}
+            - containerPort: {{ .Values.clopenapidataservice.networkManager.thrift.port }}
+              hostPort: {{ .Values.clopenapidataservice.networkManager.thrift.port }}
+              protocol: TCP
+          {{- else }}
+            - containerPort: 12338
+              hostPort: 12338
+              protocol: TCP
+          {{- end }}
+          readinessProbe:
+            failureThreshold: 3
+            httpGet:
+              path: /info
+            {{- if .Values.clopenapidataservice.networkManager.tomcat.port }}
+              port: {{ .Values.clopenapidataservice.networkManager.tomcat.port }}
+            {{- else }}
+              port: 12336
+            {{- end }}
+              scheme: HTTP
+            initialDelaySeconds: 10
+            periodSeconds: 5
+            successThreshold: 1
+            timeoutSeconds: 10
+        {{- if .Values.clopenapidataservice.resourceManager.resources.custom -}}
+          resources:
+            limits:
+              cpu: {{ .Values.clopenapidataservice.resourceManager.resources.limits.cpu }}
+              memory: {{ .Values.clopenapidataservice.resourceManager.resources.limits.memory }}
+            requests:
+              cpu: {{ .Values.clopenapidataservice.resourceManager.resources.requests.cpu }}
+              memory: {{ .Values.clopenapidataservice.resourceManager.resources.requests.memory }}
+        {{- else }}
+          resources:
+            limits:
+              cpu: 500m
+              memory: 512Mi
+            requests:
+              cpu: 100m
+              memory: 128Mi
+        {{- end }}
+          terminationMessagePath: /dev/termination-log
+          terminationMessagePolicy: File
+          volumeMounts:
+            - mountPath: /srv/access/hz.dat
+              name: base
+              subPath: hz.dat
+            - mountPath: /var/log/java
+              name: logjava
+            - mountPath: /home/nacfg.ini
+              name: base
+              subPath: nacfg.ini
+      dnsPolicy: ClusterFirstWithHostNet
+      imagePullSecrets:
+        - name: regcred
+      nodeSelector:
+        env2: user
+      restartPolicy: Always
+      schedulerName: default-scheduler
+      securityContext: {}
+      terminationGracePeriodSeconds: 15
+    {{- if .Values.hostManager.volumes.hostPath }}
+      volumes:
+        - hostPath:
+            path: {{ .Values.hostManager.volumes.hostPath }}/log/cllog
+            type: ''
+          name: cllog
+        - hostPath:
+            path: {{ .Values.hostManager.volumes.hostPath }}/log/java
+            type: ''
+          name: logjava
+        - configMap:
+            defaultMode: 420
+            name: base-config
+          name: base
+    {{- else }}
+      volumes:
+        - hostPath:
+            path: /app/log/cllog
+            type: ''
+          name: cllog
+        - hostPath:
+            path: /app/log/java
+            type: ''
+          name: logjava
+        - configMap:
+            defaultMode: 420
+            name: base-config
+          name: base
+    {{- end }}

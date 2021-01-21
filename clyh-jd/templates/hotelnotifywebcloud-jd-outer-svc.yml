@@ -1,0 +1,16 @@
+apiVersion: v1
+kind: Service
+metadata:
+  name: hotelnotifywebcloud-jd-outer-svc
+  namespace: jd
+spec:
+  ports:
+    - name: http
+      nodePort: 30603
+      port: 30603
+      protocol: TCP
+      targetPort: 12444
+  selector:
+    app: hotelnotifywebcloud
+  sessionAffinity: None
+  type: NodePort

@@ -1,0 +1,16 @@
+apiVersion: v1
+kind: Service
+metadata:
+  name: clproductcenterservice
+  namespace: jp
+spec:
+  ports:
+    - name: http
+      port: {{ .Values.clproductcenterservice.service.port }}
+      protocol: TCP
+      targetPort: {{ .Values.clproductcenterservice.service.port }}
+  selector:
+    app: clproductcenterservice
+  sessionAffinity: None
+  type: ClusterIP
+

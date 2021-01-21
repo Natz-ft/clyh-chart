@@ -1,0 +1,16 @@
+apiVersion: v1
+kind: Service
+metadata:
+  name: hotelexternalinteractionservice-svc
+  namespace: jd
+spec:
+  ports:
+    - name: http
+      nodePort: 30623
+      port: 30623
+      protocol: TCP
+      targetPort: 14323
+  selector:
+    app: hotelexternalinteractionservice
+  sessionAffinity: None
+  type: NodePort

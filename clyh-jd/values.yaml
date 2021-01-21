@@ -1,0 +1,438 @@
+# The base hadoop image to use for all components.
+# See this repo for image build details: https://github.com/Comcast/kube-yarn/tree/master/image
+imageRegistry:
+
+dockerTag: 1.0.0
+
+environment: "formal"
+
+hostManager:
+  volumes:
+    hostPath: /app
+    nacfgPath: /home
+
+configMapManger:
+  db:
+    serviceroute:
+      url: jdbc:mysql://ServiceRouteDB-R.BJ01.517na.com/ServiceRouteDB
+      username: JmllLBwCJN7P5a0VXvvHkg@@
+      password: 6BPzhGiVwAPCW1LhtdUvCblGokvcMGesrY1wV/coEWg@
+    databaserouteW:
+      url: jdbc:mysql://ServiceRouteDB-R.BJ01.517na.com/DataBaseRouteDB
+      username: JmllLBwCJN7P5a0VXvvHkg@@
+      password: 6BPzhGiVwAPCW1LhtdUvCblGokvcMGesrY1wV/coEWg@
+    databaserouteR:
+      url: jdbc:mysql://ServiceRouteDB-R.BJ01.517na.com/DataBaseRouteDB
+      username: JmllLBwCJN7P5a0VXvvHkg@@
+      password: 6BPzhGiVwAPCW1LhtdUvCblGokvcMGesrY1wV/coEWg@
+  redis:
+
+
+commonConfig:
+  networkManager:
+    tomcat:
+      port:
+    thrift:
+      port:
+    command:
+      url:
+  resourceManager:
+    resources:
+      custom: false
+    #      requests:
+    #        memory: 128Mi
+    #        cpu: 200m
+    #      limits:
+    #        memory: 1Gi
+    #        cpu: '1'
+    jvm: '-server -Xms128m -Xmx1024m'
+  nodeManager:
+    tag: 1.0.0
+#    replicas: 2
+  service:
+    clusterIP:
+
+
+clbusiintegrationinterfaceweb:
+  networkManager:
+    tomcat:
+      port: 13949
+    thrift:
+      port: 13951
+    command:
+      url: 'http://localhost:17100/unregisterbyext'
+  resourceManager:
+    resources:
+      custom: false
+    jvm: '-server -Xms128m -Xmx1024m'
+  nodeManager:
+    tag: 1.0.0
+
+
+clbusshotelh5:
+  networkManager:
+    tomcat:
+      port:
+    thrift:
+      port:
+    command:
+      url:
+  resourceManager:
+    resources:
+      custom: false
+    jvm: '-server -Xms128m -Xmx512m'
+  nodeManager:
+    tag: 1.0.0
+
+
+clcitylinesetdbservice:
+  networkManager:
+    tomcat:
+      port:
+    thrift:
+      port:
+    command:
+      url:
+  resourceManager:
+    resources:
+      custom: false
+    jvm: '-server -Xms128m -Xmx512m'
+  nodeManager:
+    tag: 1.0.0
+
+
+clconfigurebussservice:
+  networkManager:
+    tomcat:
+      port:
+    thrift:
+      port:
+    command:
+      url:
+  resourceManager:
+    resources:
+      custom: false
+    jvm: '-server -Xms128m -Xmx512m'
+  nodeManager:
+    tag: 1.0.0
+
+
+clintegrationinterfaceservice:
+  networkManager:
+    tomcat:
+      port:
+    thrift:
+      port:
+    command:
+      url:
+  resourceManager:
+    resources:
+      custom: false
+    jvm: '-server -Xms128m -Xmx512m'
+  nodeManager:
+    tag: 1.0.0
+
+
+cltradeintegrateservice:
+  networkManager:
+    tomcat:
+      port:
+    thrift:
+      port:
+    command:
+      url:
+  resourceManager:
+    resources:
+      custom: false
+    jvm: '-server -Xms128m -Xmx512m -XX:PermSize=256m -XX:MaxPermSize=512m'
+  nodeManager:
+    tag: 1.0.0
+
+
+cluserappweb:
+  networkManager:
+    tomcat:
+      port:
+    thrift:
+      port:
+    command:
+      url:
+  resourceManager:
+    resources:
+      custom: false
+    jvm: '-server -Xms128m -Xmx1024m'
+  nodeManager:
+    tag: 1.0.0
+
+
+hotelexternalinteractionservice:
+  networkManager:
+    tomcat:
+      port:
+    thrift:
+      port:
+    command:
+      url:
+  resourceManager:
+    resources:
+      custom: false
+    jvm: '-server -Xms128m -Xmx1g'
+  nodeManager:
+    tag: 1.0.0
+
+
+hotelgeographydataservice:
+  networkManager:
+    tomcat:
+      port:
+    thrift:
+      port:
+    command:
+      url:
+  resourceManager:
+    resources:
+      custom: false
+    jvm: '-server -Xms128m -Xmx1024m'
+  nodeManager:
+    tag: 1.0.0
+
+
+hotelmanagerintegrateservicecloud:
+  networkManager:
+    tomcat:
+      port:
+    thrift:
+      port:
+    command:
+      url:
+  resourceManager:
+    resources:
+      custom: false
+    jvm: '-server -Xms128m -Xmx1g'
+  nodeManager:
+    tag: 1.0.0
+
+
+hotelnewbaseinfodataservice:
+  networkManager:
+    tomcat:
+      port:
+    thrift:
+      port:
+    command:
+      url:
+  resourceManager:
+    resources:
+      custom: false
+    jvm: '-server -Xms256m -Xmx2g'
+  nodeManager:
+    tag: 1.0.0
+
+
+hotelnotifywebcloud:
+  networkManager:
+    tomcat:
+      port:
+    thrift:
+      port:
+    command:
+      url:
+  resourceManager:
+    resources:
+      custom: false
+    jvm: '-server -Xms128m -Xmx1g'
+  nodeManager:
+    tag: 1.0.0
+
+
+hotelorderdataservicecloud:
+  networkManager:
+    tomcat:
+      port:
+    thrift:
+      port:
+    command:
+      url:
+  resourceManager:
+    resources:
+      custom: false
+    jvm: '-server -Xms128m -Xmx1400m'
+  nodeManager:
+    tag: 1.0.0
+
+
+hotelorderhandlewebnew:
+  networkManager:
+    tomcat:
+      port:
+    thrift:
+      port:
+    command:
+      url:
+  resourceManager:
+    resources:
+      custom: false
+    jvm: '-server -Xms128m -Xmx1g'
+  nodeManager:
+    tag: 1.0.0
+
+
+hotelplatweb:
+  networkManager:
+    tomcat:
+      port:
+    thrift:
+      port:
+    command:
+      url:
+  resourceManager:
+    resources:
+      custom: false
+    jvm: '-server -Xms256m -Xmx1024m'
+  nodeManager:
+    tag: 1.0.0
+
+
+hotelpriceruledataservice:
+  networkManager:
+    tomcat:
+      port:
+    thrift:
+      port:
+    command:
+      url:
+  resourceManager:
+    resources:
+      custom: false
+    jvm: '-server -Xms128m -Xmx1024m'
+  nodeManager:
+    tag: 1.0.0
+
+hotelprimeratedataservice:
+  networkManager:
+    tomcat:
+      port:
+    thrift:
+      port:
+    command:
+      url:
+  resourceManager:
+    resources:
+      custom: false
+    jvm: '-server -Xms128m -Xmx1g'
+  nodeManager:
+    tag: 1.0.0
+
+
+hotelpurchaseinterfaceweb:
+  networkManager:
+    tomcat:
+      port:
+    thrift:
+      port:
+    command:
+      url:
+  resourceManager:
+    resources:
+      custom: false
+    jvm: '-server -Xms128m -Xmx1024m'
+  nodeManager:
+    tag: 1.0.0
+
+
+hotelqueryintegrationcloudservice:
+  networkManager:
+    tomcat:
+      port:
+    thrift:
+      port:
+    command:
+      url:
+  resourceManager:
+    resources:
+      custom: false
+    jvm: '-server -Xms128m -Xmx2048m'
+  nodeManager:
+    tag: 1.0.0
+
+
+
+hotelrecorddataservice:
+  networkManager:
+    tomcat:
+      port:
+    thrift:
+      port:
+    command:
+      url:
+  resourceManager:
+    resources:
+      custom: false
+    jvm: '-server -Xms128m -Xmx1g'
+  nodeManager:
+    tag: 1.0.0
+
+
+
+hotelsellinterfaceweb:
+  networkManager:
+    tomcat:
+      port:
+    thrift:
+      port:
+    command:
+      url:
+  resourceManager:
+    resources:
+      custom: false
+    jvm: '-server -Xms128m -Xmx1024m'
+  nodeManager:
+    tag: 1.0.0
+
+
+
+hotelstandardbussinessservice:
+  networkManager:
+    tomcat:
+      port:
+    thrift:
+      port:
+    command:
+      url:
+  resourceManager:
+    resources:
+      custom: false
+    jvm: '-server -Xms128m -Xmx1g'
+  nodeManager:
+    tag: 1.0.0
+
+
+hoteltradeintegrateservicecloud:
+  networkManager:
+    tomcat:
+      port:
+    thrift:
+      port:
+    command:
+      url:
+  resourceManager:
+    resources:
+      custom: false
+    jvm: '-server -Xms256m -Xmx2000m'
+  nodeManager:
+    tag: 1.0.0
+
+permanenthoteldataservicecloud:
+  networkManager:
+    tomcat:
+      port:
+    thrift:
+      port:
+    command:
+      url:
+  resourceManager:
+    resources:
+      custom: false
+    jvm: '-server -Xms128m -Xmx1g'
+  nodeManager:
+    tag: 1.0.0

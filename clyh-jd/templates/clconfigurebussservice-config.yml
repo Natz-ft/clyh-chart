@@ -1,0 +1,364 @@
+apiVersion: v1
+data:
+  DBRoute.properties: |-
+    driver=com.mysql.jdbc.Driver
+    readurl={{ .Values.configMapManger.db.databaserouteR.url }}
+    readusername={{ .Values.configMapManger.db.databaserouteR.username }}
+    readpassword={{ .Values.configMapManger.db.databaserouteR.username }}
+    writeurl={{ .Values.configMapManger.db.databaserouteW.url }}
+    writeusername={{ .Values.configMapManger.db.databaserouteW.username }}
+    writepassword={{ .Values.configMapManger.db.databaserouteW.username }}
+  KeyIDGenerator.config: |-
+    <?xml version="1.0" encoding="utf-8" ?>
+    <configuration>
+        <appSettings>
+            <add key="nacfg" value="/home/nacfg.ini"/>
+        </appSettings>
+    </configuration>
+  MessageQueueHelper.properties: >-
+    ######### 应用程序名称 ##########################################
+
+    appId=报表生成程序   
+
+    ################# 需要连接的主机地址及端口,多台主机时，以分号隔开
+    192.168.1.117:15672;192.168.1.120:15672##############################
+
+    host=172.21.21.5:5672;172.21.21.9:5672
+
+    #host=172.17.41.110:5672
+
+    ################## 虚拟主机 ##############################################
+
+    vhost=cl-putting
+
+    ####################  用户名  #############################################
+
+    username=Wb7cogt4b+s@
+
+    ##################### 密    码 #############################################
+
+    password=Wb7cogt4b+s@
+
+    ##################### 超时时间 ############################################
+
+    timeout=600000
+
+    ##################### 心跳    ########################################
+
+    requestedHeartbeat=300
+  MyConfig.properties: |-
+    #############用户行程报表工作线程数######################################
+    UserTrip.UserTripThreadNum=2
+    #############用户行程报表RabbitMQ队列名##############################
+    UserTrip.QueueName=ha.clUserTrip_qu
+    #############用户行程报表RabbitMQ交换机名##############################
+    UserTrip.ExchangeName=ha.clUserTrip_ex
+    #############用户行程报表RabbitMQ路由key名##############################
+    UserTrip.RoutingKey=clUserTrip_key
+    #############生成账单的线程数##############################
+    CreateBillThreadNum=30
+
+    ############## lateFree count threadNum setting ############################
+    CreateLateFreeThreadNum=1
+
+    ############## 清算接口地址 ############################
+    QSRequestUrl=http://injk.yc.517na.com/LedgerInterfaceUnCheck.do
+
+
+    #############用户消费报表工作线程数######################################
+    ConsumptionReport.ConsumptionThreadNum=1
+    #############用户消费报表RabbitMQ队列名##############################
+    ConsumptionReport.ConsumptionQueueName=ha.clConsumption_qu
+    #############用户消费报表RabbitMQ交换机名##############################
+    ConsumptionReport.ConsumptionExchangeName=ha.clConsumption_ex
+    #############用户消费报表RabbitMQ路由key名##############################
+    ConsumptionReport.ConsumptionRoutingKey=clConsumption_Key
+  ServiceRoute.properties: >-
+    uniqueSign=Jav-CLYPG-448
+
+    ########## JDBC ##########################
+
+    driver=com.mysql.jdbc.Driver
+
+    url={{ .Values.configMapManger.db.serviceroute.url }}
+
+    username={{ .Values.configMapManger.db.serviceroute.username }}
+
+    password={{ .Values.configMapManger.db.serviceroute.password }}
+
+    ###########cxf timeOut###########################
+
+    cxf.connectionTimeout = 20000
+
+    cxf.readtimeout = 600000
+
+    ##################1、debug模式  2、release模式##################
+
+    debug.model = 1
+
+    ###################acc日志记录总控 1、默认值，记录acc日志
+    2、不记录acc日志(包括客户端和服务端)##################################
+
+    acclog.switch = 1
+
+    ###################################记录acc日志的方法名，逗号分隔开。在acclog.switch =
+    2(只要不等于1) 时起效###########################################
+
+    acclog.method.writelog = a,b
+
+    ###################################不记录acc日志的方法名，逗号分隔开。在acclog.switch = 1
+    时起效###########################################
+
+    acclog.method.nolog = c,d
+
+
+    ###################调用失败重试次数 默认2次#######################
+
+    retrynum =2
+
+    ###################thrift路由暴露端口##########################thrift.port=6573
+  jdbc.properties: |-
+    keyIdConfigPath=/home/nacfg.ini
+    thrift.port=13674
+    console=true
+  log4j.properties: >-
+    ### 设置Logger输出级别和输出目的地 ###
+
+    log4j.rootLogger=debug,stdout
+     
+     
+    ### 把日志信息输出到控制台 ###
+
+    log4j.appender.stdout=org.apache.log4j.ConsoleAppender
+
+    #log4j.appender.stdout.Target=System.err
+
+    #log4j.appender.stdout=org.apache.log4j
+
+    log4j.appender.stdout.layout=org.apache.log4j.PatternLayout
+
+    log4j.appender.stdout.layout.ConversionPattern=%d{yyyy-MM-dd HH:mm:ss.SSS}
+    %m%n
+     
+    ### 把日志信息输出到文件：jbit.log ###
+
+    #log4j.appender.logfile=org.apache.log4j.FileAppender
+
+    log4j.appender.logfile=org.apache.log4j.DailyRollingFileAppender
+
+    log4j.appender.logfile.DatePattern='_'yyyy-MM-dd'.log'
+
+    log4j.appender.logfile.File=${catalina.home}/webapps/517Log/CLCostCenterInfoService.log
+
+    log4j.appender.logfile.layout=org.apache.log4j.PatternLayout
+
+    log4j.appender.logfile.layout.ConversionPattern=%d{yyyy-MM-dd HH:mm:ss.SSS}
+    %F %p %m%n
+     
+     
+    ###显示SQL语句部分 正式环境注释以下部分
+
+    log4j.logger.com.ibatis=DEBUG 
+
+    log4j.logger.com.ibatis.common.jdbc.SimpleDataSource=DEBUG 
+
+    log4j.logger.com.ibatis.common.jdbc.ScriptRunner=DEBUG 
+
+    log4j.logger.com.ibatis.sqlmap.engine.impl.SqlMapClientDelegate=DEBUG 
+
+    log4j.logger.java.sql.Connection=DEBUG 
+
+    log4j.logger.java.sql.Statement=DEBUG 
+
+    log4j.logger.java.sql.PreparedStatement=DEBUG
+  log_config.properties: >-
+    #####################   日志组件配置文件        ###########################
+
+    ##################################################################
+
+    #说明：所有属性均采用? key = value 的方式，只有value的值可以修改，现有的key不可修改；密码域账户均加密不是乱码?
+
+    #AppName 应用程序名
+
+    log.AppName = CLConfigureBussServiceZS
+
+
+    #AppRecord App日志记录开关 true：开     false：关
+
+    log.AppRecord = true
+
+
+    #DebugRecord Debug日志记录开关 true：开     false：关
+
+    log.DebugRecord = false
+
+
+    #Driver 数据库驱动
+
+    log.jdbc.driver = com.mysql.jdbc.Driver
+
+
+    #ELK日志组件
+
+    log.kafka.iswritetokafka=1
+
+    log.kafka.addresses=kafkalog1.517la.com:9092,kafkalog2.517la.com:9092,kafkalog3.517la.com:9092
+
+
+    #Url 数据库链接  jdbc:mysql://ip：port/数据库名称
+
+    log.acc.jdbc.url =
+    jdbc:mysql://BJLogDBALL003-W.BJ01.517na.com:3306/LogAccJKCL
+
+    log.acc.jdbc.username=vxSs4i7BS58@
+
+    log.acc.jdbc.password=6BPzhGiVwAPCW1LhtdUvCblGokvcMGesrY1wV/coEWg@
+
+
+    log.app.jdbc.url =
+    jdbc:mysql://BJLogDBALL003-W.BJ01.517na.com:3306/LogAppJKCL
+
+    log.app.jdbc.username=vxSs4i7BS58@
+
+    log.app.jdbc.password=6BPzhGiVwAPCW1LhtdUvCblGokvcMGesrY1wV/coEWg@
+
+
+    log.cachehit.jdbc.url =
+    jdbc:mysql://BJLogDBALL003-W.BJ01.517na.com:3306/LogCacheHitJKCL
+
+    log.cachehit.jdbc.username=vxSs4i7BS58@
+
+    log.cachehit.jdbc.password=6BPzhGiVwAPCW1LhtdUvCblGokvcMGesrY1wV/coEWg@
+
+
+    log.debug.jdbc.url =
+    jdbc:mysql://BJLogDBALL003-W.BJ01.517na.com:3306/LogDebugJKCL
+
+    log.debug.jdbc.username=vxSs4i7BS58@
+
+    log.debug.jdbc.password=6BPzhGiVwAPCW1LhtdUvCblGokvcMGesrY1wV/coEWg@
+
+
+    log.exception.jdbc.url =
+    jdbc:mysql://BJLogDBALL003-W.BJ01.517na.com:3306/LogExceptionJKCL
+
+    log.exception.jdbc.username=vxSs4i7BS58@
+
+    log.exception.jdbc.password=6BPzhGiVwAPCW1LhtdUvCblGokvcMGesrY1wV/coEWg@
+
+
+    log.interaction.jdbc.url =
+    jdbc:mysql://BJLogDBALL003-W.BJ01.517na.com:3306/LogInteractionJKCL
+
+    log.interaction.jdbc.username=vxSs4i7BS58@
+
+    log.interaction.jdbc.password=6BPzhGiVwAPCW1LhtdUvCblGokvcMGesrY1wV/coEWg@
+
+
+    log.slowcall.jdbc.url =
+    jdbc:mysql://BJLogDBALL003-W.BJ01.517na.com:3306/LogSlowCallJKCL
+
+    log.slowcall.jdbc.username=vxSs4i7BS58@
+
+    log.slowcall.jdbc.password=6BPzhGiVwAPCW1LhtdUvCblGokvcMGesrY1wV/coEWg@
+
+
+    log.uiacc.jdbc.url =
+    jdbc:mysql://BJLogDBALL003-W.BJ01.517na.com:3306/LogUiaccJKCL
+
+    log.uiacc.jdbc.username=vxSs4i7BS58@
+
+    log.uiacc.jdbc.password=6BPzhGiVwAPCW1LhtdUvCblGokvcMGesrY1wV/coEWg@
+
+
+    #Directory linux下日志记录路径?
+
+    log.Directory = /var/log/cllog
+
+
+    #DivisionFileSize （单位：兆） 日志在某一时间段内超过文件大小已2M划分
+
+    log.DivisionFileSize = 2
+
+
+    #DivisionFileTime （单位：分钟） 日志在某一时间段内不足2M文件按2min划分
+
+    log.DivisionFileTime = 1
+
+
+    #windows下载文件目录,windows服务的配置成Logs，linux服务一般配置成 JavaLogs
+
+    log.download.Directory=JavaLogs
+
+
+    #ELK配置
+
+    log.kafka.iswritetokafka=1
+
+    log.kafka.addresses=kafkalog1.517la.com:9092,kafkalog2.517la.com:9092,kafkalog3.517la.com:9092
+  param-jdbc.properties: >-
+    ########## JDBC ##########################
+
+    param.applicationName = CLCLConfigureBussService
+
+    param.databaseName = SysParamDB
+
+    param.isRead = true
+
+    param.bizTime = 2014-12-19
+
+    param.showSql=true
+
+
+    pool.initialSize=5
+
+    pool.maxActive=100
+
+    pool.maxIdle=30
+
+    pool.maxWait=1000
+
+    pool.poolPreparedStatements=true
+
+    pool.defaultAutoCommit=false
+
+
+    #################\u4E3B\u952E\u751F\u6210\u7B56\u7565\u6587\u4EF6############################
+
+
+    # 字典缓存超时时间
+
+    param.DictionaryTimeOut=2
+
+    #统一参数缓存超时时间
+
+    param.SysParamTimeOut=2
+
+    #部分参数缓存超时时间
+
+    param.UserParamTimeOut=2
+
+
+    #\u7528\u6237\u7F13\u5B58\u4FE1\u606F
+
+    redisUserDB=CLTradeRedisDB
+  redis.properties: |-
+    redis.maxActive=200
+    redis.maxIdle=60
+    redis.maxWait=10000
+    redis.sleepTime=60000
+    redis.url= jdbc:mysql://DataBaseRoute-W.BJ01.517na.com:3306/DataBaseRoute
+    redis.userName=kSRw85/S628Jd6cTkHmEgA@@
+    redis.password=6BPzhGiVwAPCW1LhtdUvCblGokvcMGesrY1wV/coEWg@
+    redis.DBName=CLTradeRedisDB
+    redis.driverClassName=com.mysql.jdbc.Driver
+    redis.initialSize=4
+    redis.maxActive=300
+    redis.maxIdle=60
+    redis.maxWait=10000
+    redis.appName=default
+    redis.nacfgFile=/home/nacfg.ini
+kind: ConfigMap
+metadata:
+  name: clconfigurebussservice-config
+  namespace: common

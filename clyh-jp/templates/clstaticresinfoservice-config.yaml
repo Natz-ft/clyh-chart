@@ -1,0 +1,243 @@
+apiVersion: v1
+data:
+  ChinesePhoneticize.properties: |-
+    hzresourceurl = /srv/access/hz.dat
+    pinyinresourceurl = /srv/access/resPinYin.dat
+  DBRoute.properties: |-
+    driver=com.mysql.jdbc.Driver
+    #############read#############
+    readurl={{ .Values.configMapManger.db.dbroute.readurl }}
+    readusername={{ .Values.configMapManger.db.dbroute.readusername }}
+    readpassword={{ .Values.configMapManger.db.dbroute.readpassword }}
+    ############write#############
+    writeurl={{ .Values.configMapManger.db.dbroute.writeurl }}
+    writeusername={{ .Values.configMapManger.db.dbroute.writeusername }}
+    writepassword={{ .Values.configMapManger.db.dbroute.writepassword }}
+  MessageQueueHelper.properties: >-
+    ######### 应用程序名称 ##########################################
+
+    appId=报表生成程序
+
+    ################# 需要连接的主机地址及端口,多台主机时，以分号隔开
+    192.168.1.117:15672;192.168.1.120:15672##############################
+
+    host=172.21.21.5:5672;172.21.21.9:5672
+
+    #host=172.17.41.110:5672
+
+    ################## 虚拟主机 ##############################################
+
+    vhost=CLUserCare
+
+    ####################  用户名  #############################################
+
+    username=guest
+
+    ##################### 密    码 #############################################
+
+    password=guest
+
+    ##################### 超时时间 ############################################
+
+    timeout=600000
+
+    ##################### 心跳    ########################################
+
+    requestedHeartbeat=300
+  ServiceRoute.properties: |-
+    uniqueSign=Jav-CLYPG-565
+    ########## JDBC ##########################
+    driver=com.mysql.jdbc.Driver
+    url={{ .Values.configMapManger.db.serviceroute.url }}
+    username={{ .Values.configMapManger.db.serviceroute.username }}
+    password={{ .Values.configMapManger.db.serviceroute.password }}
+    ###########cxf timeOut###########################
+    cxf.connectionTimeout = 5000000
+    cxf.readtimeout = 5000000
+    debug.model = 1
+    retrynum = 2
+    thrift.port={{ .Values.clstaticresinfoservice.configMap.networkManager.thriftport }}
+    thrift.connectionPool.conTimeOut=300000
+  javaMonitorGatherComponet.properties: |-
+    ######程序监控采集配置节点#######
+    #*程序名称(用于监控时方便查询，请按如下规则填写)
+    #格式：程序名-机房-环境-服务集区分关键字
+    #如：差旅系统用户网站-NW-测试
+    #如：差旅系统交易集成服务-SYQ-机票
+    monitor.programName= 交易集成服务-SYQ-测试
+    #*kafka地址
+    monitor.kafkaServer= 172.21.21.49:9092,172.21.21.69:9092,172.21.21.79:9092
+  jdbc.properties: >-
+    ########## JDBC ##########################
+
+    applicationName = default
+
+    databaseName = CLStaticResInfoService
+
+    isRead = true
+
+    bizTime = 2014-12-19
+
+    dataSourceTimeout=3600
+
+    showSql=true
+
+    #\u521D\u59CB\u8FDE\u63A5\u6570
+
+    pool.initialSize=5
+
+    #\u6700\u5927\u8FDE\u63A5\u6570
+
+    pool.maxActive=100
+
+    #\u6700\u5927\u7A7A\u95F2\u8FDE\u63A5\u6570,\u8D85\u8FC7\u8FD9\u4E2A\u6570\u5C06\u91CA\u653E\u591A\u4F59\u7684,\u5982\u679C\u662F\u8D1F\u6570\u5C31\u4E0D\u9650\u5236
+
+    pool.maxIdle=30
+
+    #\u83B7\u53D6\u8FDE\u63A5\u7B49\u5F85\u65F6\u95F4
+
+    pool.maxWait=1000
+
+    showResult=true
+
+    pool.poolPreparedStatements=true
+
+    pool.defaultAutoCommit=false
+
+    #\u8FDE\u63A5\u5728\u6C60\u4E2D\u4FDD\u6301\u7A7A\u95F2\u800C\u4E0D\u88AB\u7A7A\u95F2\u8FDE\u63A5\u56DE\u6536\u5668\u7EBF\u7A0B(\u5982\u679C\u6709)\u56DE\u6536\u7684\u6700\u5C0F\u65F6\u95F4\u503C\uFF0C
+    \u5355\u4F4D\u6BEB\u79D2  \u9ED8\u8BA4\u503C:1000 * 60 * 30
+
+    routeTimeout= 0
+
+    #############################################
+
+    keyIdConfigPath=/home/nacfg.ini
+
+    ptAccountCacheTime=2592000
+
+    bigClientCacheTime=600
+
+    flightSortCacheTime=600
+
+    openapi.url={{ .Values.clstaticresinfoservice.configMap.networkManager.openapi.url }}
+
+
+    openapi.pid={{ .Values.clstaticresinfoservice.configMap.networkManager.openapi.pid }}
+
+
+    openapi.secret={{ .Values.clstaticresinfoservice.configMap.networkManager.openapi.secret }}
+
+    openapi.version={{ .Values.clstaticresinfoservice.configMap.networkManager.openapi.version }}
+
+
+    ##通知系统的webservice地址
+
+    notify_url={{ .Values.clstaticresinfoservice.configMap.networkManager.notify_url }}
+  log4j.properties: >-
+    ### 设置Logger输出级别和输出目的地 ###
+
+    log4j.rootLogger=error,stdout,logfile
+
+
+
+    ### 把日志信息输出到控制台 ###
+
+    log4j.appender.stdout=org.apache.log4j.ConsoleAppender
+
+    #log4j.appender.stdout.Target=System.err
+
+    #log4j.appender.stdout=org.apache.log4j
+
+    log4j.appender.stdout.layout=org.apache.log4j.PatternLayout
+
+
+
+    ### 把日志信息输出到文件：jbit.log ###
+
+    #log4j.appender.logfile=org.apache.log4j.FileAppender
+
+    log4j.appender.logfile=org.apache.log4j.DailyRollingFileAppender
+
+    log4j.appender.logfile.DatePattern='_'yyyy-MM-dd'.log'
+
+    log4j.appender.logfile.File=${catalina.home}/webapps/517Log/CLTradeIntegrateService.log
+
+    log4j.appender.logfile.layout=org.apache.log4j.PatternLayout
+
+    log4j.appender.logfile.layout.ConversionPattern=%d{yyyy-MM-dd HH:mm:ss} %F
+    %p %m%n
+
+
+
+    ###显示SQL语句部分 正式环境注释以下部分
+
+    log4j.logger.com.ibatis=error
+
+    log4j.logger.com.ibatis.common.jdbc.SimpleDataSource=error
+
+    log4j.logger.com.ibatis.common.jdbc.ScriptRunner=error
+
+    log4j.logger.com.ibatis.sqlmap.engine.impl.SqlMapClientDelegate=error
+
+    log4j.logger.java.sql.Connection=error
+
+    log4j.logger.java.sql.Statement=error
+  log_config.properties: "###########################################################################\n########################   日志组件配置文件        ########################\n###########################################################################\n#说明：所有属性均采用\x8C key = value 的方式，只有value的值可以修改，现有的key不可修改；密码域账户均加密不是乱码\x8F\n#AppName 应用程序名\x90\x8D\nlog.AppName = CLStaticResInfoService\n\n#AppRecord App日志记录开关 true：开     false：关\nlog.AppRecord = true\n\n#DebugRecord Debug日志记录开关 true：开     false：关\nlog.DebugRecord = false\n\n#Driver 数据库驱动\nlog.jdbc.driver = com.mysql.jdbc.Driver\n\n#Url 数据库链接  jdbc:mysql://ip：port/数据库名称\nlog.acc.jdbc.url = jdbc:mysql://BJLogDBALL003-W.BJ01.517na.com:3306/LogAccJKCL\nlog.acc.jdbc.username=vxSs4i7BS58@\nlog.acc.jdbc.password=6BPzhGiVwAPCW1LhtdUvCblGokvcMGesrY1wV/coEWg@\n\nlog.app.jdbc.url = jdbc:mysql://BJLogDBALL003-W.BJ01.517na.com:3306/LogAppJKCL\nlog.app.jdbc.username=vxSs4i7BS58@\nlog.app.jdbc.password=6BPzhGiVwAPCW1LhtdUvCblGokvcMGesrY1wV/coEWg@\n\nlog.cachehit.jdbc.url = jdbc:mysql://BJLogDBALL003-W.BJ01.517na.com:3306/LogCacheHitJKCL\nlog.cachehit.jdbc.username=vxSs4i7BS58@\nlog.cachehit.jdbc.password=6BPzhGiVwAPCW1LhtdUvCblGokvcMGesrY1wV/coEWg@\n\nlog.debug.jdbc.url = jdbc:mysql://BJLogDBALL003-W.BJ01.517na.com:3306/LogDebugJKCL\nlog.debug.jdbc.username=vxSs4i7BS58@\nlog.debug.jdbc.password=6BPzhGiVwAPCW1LhtdUvCblGokvcMGesrY1wV/coEWg@\n\nlog.exception.jdbc.url = jdbc:mysql://BJLogDBALL003-W.BJ01.517na.com:3306/LogExceptionJKCL\nlog.exception.jdbc.username=vxSs4i7BS58@\nlog.exception.jdbc.password=6BPzhGiVwAPCW1LhtdUvCblGokvcMGesrY1wV/coEWg@\n\nlog.interaction.jdbc.url = jdbc:mysql://BJLogDBALL003-W.BJ01.517na.com:3306/LogInteractionJKCL\nlog.interaction.jdbc.username=vxSs4i7BS58@\nlog.interaction.jdbc.password=6BPzhGiVwAPCW1LhtdUvCblGokvcMGesrY1wV/coEWg@\n\nlog.slowcall.jdbc.url = jdbc:mysql://BJLogDBALL003-W.BJ01.517na.com:3306/LogSlowCallJKCL\nlog.slowcall.jdbc.username=vxSs4i7BS58@\nlog.slowcall.jdbc.password=6BPzhGiVwAPCW1LhtdUvCblGokvcMGesrY1wV/coEWg@\n\nlog.uiacc.jdbc.url = jdbc:mysql://BJLogDBALL003-W.BJ01.517na.com:3306/LogUiaccJKCL\nlog.uiacc.jdbc.username=vxSs4i7BS58@\nlog.uiacc.jdbc.password=6BPzhGiVwAPCW1LhtdUvCblGokvcMGesrY1wV/coEWg@\n\n#Directory linux下日志记录路径?\nlog.Directory = /var/log/cllog\n\n#DivisionFileSize （单位：兆） 日志在某一时间段内超过文件大小已2M划分\nlog.DivisionFileSize = 2\n\n#DivisionFileTime （单位：分钟） 日志在某一时间段内不足2M文件按2min划分\nlog.DivisionFileTime = 1\n\n#windows下载文件目录,windows服务的配置成Logs，linux服务一般配置成 JavaLogs\nlog.download.Directory=JavaLogs"
+  param-jdbc.properties: >-
+    ########## JDBC ##########################
+
+    param.applicationName = CLStaticResInfoService_param
+
+    param.databaseName = SysParamDB
+
+    param.isRead = true
+
+    param.bizTime = 2014-12-19
+
+    param.showSql=true
+
+    pool.initialSize=5
+
+    pool.maxActive=100
+
+    pool.maxIdle=30
+
+    pool.maxWait=1000
+
+    pool.poolPreparedStatements=true
+
+    pool.defaultAutoCommit=false
+
+    #################\u4E3B\u952E\u751F\u6210\u7B56\u7565\u6587\u4EF6############################
+
+    # ??—?…???“???è?…?—??—?é—′
+
+    param.DictionaryTimeOut=5
+
+    #???????????°??“???è?…?—??—?é—′
+
+    param.SysParamTimeOut=5
+
+    #é?¨????????°??“???è?…?—??—?é—′
+
+    param.UserParamTimeOut=5
+  redis.properties: |-
+    redis.maxActive=200
+    redis.maxIdle=60
+    redis.maxWait=10000
+    redis.sleepTime=60000
+    redis.url= {{ .Values.configMapManger.redis.url }}
+    redis.userName={{ .Values.configMapManger.redis.userName }}
+    redis.password={{ .Values.configMapManger.redis.password }}
+    redis.DBName=CLTradeRedisDB
+    redis.driverClassName=com.mysql.jdbc.Driver
+    redis.initialSize=4
+    redis.maxActive=300
+    redis.maxIdle=60
+    redis.maxWait=10000
+    redis.appName=default
+    redis.nacfgFile=/home/nacfg.ini
+kind: ConfigMap
+metadata:
+  name: clstaticresinfoservice-config
+  namespace: jp

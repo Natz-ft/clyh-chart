@@ -1,0 +1,15 @@
+apiVersion: v1
+kind: Service
+metadata:
+  name: hotelrecorddataservice-svc
+  namespace: jd
+spec:
+  ports:
+    - name: thrift
+      port: 13788
+      protocol: TCP
+      targetPort: 13788
+  selector:
+    app: hotelrecorddataservice
+  sessionAffinity: None
+  type: ClusterIP

@@ -1,0 +1,203 @@
+apiVersion: v1
+data:
+  DBRoute.properties: |-
+    driver=com.mysql.jdbc.Driver
+    #############read#############
+    readurl={{ .Values.configMapManger.db.dbroute.readurl }}
+    readusername={{ .Values.configMapManger.db.dbroute.readusername }}
+    readpassword={{ .Values.configMapManger.db.dbroute.readpassword }}
+    ############write#############
+    writeurl={{ .Values.configMapManger.db.dbroute.writeurl }}
+    writeusername={{ .Values.configMapManger.db.dbroute.writeusername }}
+    writepassword={{ .Values.configMapManger.db.dbroute.writepassword }}
+  ServiceRoute.properties: |-
+    ########## JDBC ##########################
+    uniqueSign=Jav-GNJP-153
+    ########## JDBC ##########################
+    driver=com.mysql.jdbc.Driver
+    url={{ .Values.configMapManger.db.serviceroute.url }}
+    username={{ .Values.configMapManger.db.serviceroute.username }}
+    password={{ .Values.configMapManger.db.serviceroute.password }}
+    ###########cxf timeOut###########################
+    cxf.connectionTimeout = 300000
+    cxf.readtimeout = 300000
+
+    debug.model = 1
+    retrynum = 0
+  jdbc.properties: |-
+    ########## JDBC ##########################
+    applicationName = JBusinessBaseDataService(20150730_V4975)
+    databaseName = BusinessBase
+    isRead = true
+    bizTime = 2014-12-19
+    pool.initialSize=5
+    pool.maxActive=100
+    pool.maxIdle=30
+    pool.maxWait=1000
+    pool.poolPreparedStatements=true
+    pool.defaultAutoCommit=false
+  keyIdConfigPath.properties: >-
+    #################\u4E3B\u952E\u751F\u6210\u7B56\u7565\u6587\u4EF6############################
+
+    keyIdConfigPath=home\nacfg.ini
+  log4j.properties: >-
+    ### 设置Logger输出级别和输出目的地 ###
+
+    log4j.rootLogger=error,stdout,logfile
+
+
+
+    ### 把日志信息输出到控制台 ###
+
+    log4j.appender.stdout=org.apache.log4j.ConsoleAppender
+
+    #log4j.appender.stdout.Target=System.err
+
+    #log4j.appender.stdout=org.apache.log4j
+
+    log4j.appender.stdout.layout=org.apache.log4j.PatternLayout
+
+
+
+    ### 把日志信息输出到文件：jbit.log ###
+
+    #log4j.appender.logfile=org.apache.log4j.FileAppender
+
+    log4j.appender.logfile=org.apache.log4j.DailyRollingFileAppender
+
+    log4j.appender.logfile.DatePattern='_'yyyy-MM-dd'.log'
+
+    log4j.appender.logfile.File=${catalina.home}/webapps/517Log/ticketOrderJavaDataService.log
+
+    log4j.appender.logfile.layout=org.apache.log4j.PatternLayout
+
+    log4j.appender.logfile.layout.ConversionPattern=%d{yyyy-MM-dd HH:mm:ss} %F
+    %p %m%n
+
+
+
+    ###显示SQL语句部分 正式环境注释以下部分
+
+    #log4j.logger.com.ibatis=DEBUG
+
+    #log4j.logger.com.ibatis.common.jdbc.SimpleDataSource=DEBUG
+
+    #log4j.logger.com.ibatis.common.jdbc.ScriptRunner=DEBUG
+
+    #log4j.logger.com.ibatis.sqlmap.engine.impl.SqlMapClientDelegate=DEBUG
+
+    #log4j.logger.java.sql.Connection=DEBUG
+
+    #log4j.logger.java.sql.Statement=DEBUG
+  log_config.properties: >-
+    #####################   日志组件配置文件        ###########################
+
+    ##################################################################
+
+    #说明：所有属性均采用? key = value 的方式，只有value的值可以修改，现有的key不可修改；密码域账户均加密不是乱码?
+
+    #AppName 应用程序名??
+
+    log.AppName = Java业务基础数据服务
+
+
+    #AppRecord App日志记录开关 true：开     false：关
+
+    log.AppRecord = true
+
+
+    #DebugRecord Debug日志记录开关 true：开     false：关
+
+    log.DebugRecord = true
+
+
+    #Driver 数据库驱动
+
+    log.jdbc.driver = com.mysql.jdbc.Driver
+
+
+    #Url 数据库链接  jdbc:mysql://ip：port/数据库名称
+
+    log.acc.jdbc.url = jdbc:mysql://172.17.51.252:3306/LogAcc
+
+    log.acc.jdbc.username=vxSs4i7BS58@
+
+    log.acc.jdbc.password=6BPzhGiVwAPCW1LhtdUvCblGokvcMGesrY1wV/coEWg@
+
+
+    log.app.jdbc.url = jdbc:mysql://BJLogDBALL004-W.BJ01.517na.com:3306/LogApp
+
+    log.app.jdbc.username=vxSs4i7BS58@
+
+    log.app.jdbc.password=6BPzhGiVwAPCW1LhtdUvCblGokvcMGesrY1wV/coEWg@
+
+
+    log.cachehit.jdbc.url =
+    jdbc:mysql://BJLogDBALL004-W.BJ01.517na.com:3306/LogCacheHit
+
+    log.cachehit.jdbc.username=vxSs4i7BS58@
+
+    log.cachehit.jdbc.password=6BPzhGiVwAPCW1LhtdUvCblGokvcMGesrY1wV/coEWg@
+
+
+    log.debug.jdbc.url =
+    jdbc:mysql://BJLogDBALL004-W.BJ01.517na.com:3306/LogDebug
+
+    log.debug.jdbc.username=vxSs4i7BS58@
+
+    log.debug.jdbc.password=6BPzhGiVwAPCW1LhtdUvCblGokvcMGesrY1wV/coEWg@
+
+
+    log.exception.jdbc.url =
+    jdbc:mysql://BJLogDBALL004-W.BJ01.517na.com:3306/LogException
+
+    log.exception.jdbc.username=vxSs4i7BS58@
+
+    log.exception.jdbc.password=6BPzhGiVwAPCW1LhtdUvCblGokvcMGesrY1wV/coEWg@
+
+
+    log.interaction.jdbc.url =
+    jdbc:mysql://BJLogDBALL004-W.BJ01.517na.com:3306/LogInteraction
+
+    log.interaction.jdbc.username=vxSs4i7BS58@
+
+    log.interaction.jdbc.password=6BPzhGiVwAPCW1LhtdUvCblGokvcMGesrY1wV/coEWg@
+
+
+    log.slowcall.jdbc.url =
+    jdbc:mysql://BJLogDBALL004-W.BJ01.517na.com:3306/LogSlowCall
+
+    log.slowcall.jdbc.username=vxSs4i7BS58@
+
+    log.slowcall.jdbc.password=6BPzhGiVwAPCW1LhtdUvCblGokvcMGesrY1wV/coEWg@
+
+
+    log.uiacc.jdbc.url = jdbc:mysql://172.17.51.252:3306/LogUiacc
+
+    log.uiacc.jdbc.username=vxSs4i7BS58@
+
+    log.uiacc.jdbc.password=6BPzhGiVwAPCW1LhtdUvCblGokvcMGesrY1wV/coEWg@
+
+
+    #Directory linux下日志记录路径?
+
+    log.Directory = /var/log/cllog
+
+
+    #DivisionFileSize （单位：兆） 日志在某一时间段内超过文件大小已2M划分
+
+    log.DivisionFileSize = 2
+
+
+    #DivisionFileTime （单位：分钟） 日志在某一时间段内不足2M文件按2min划分
+
+    log.DivisionFileTime = 1
+
+
+    #windows下载文件目录,windows服务的配置成Logs，linux服务一般配置成 JavaLogs
+
+    log.download.Directory=JavaLogs
+kind: ConfigMap
+metadata:
+  name: jbusinessbasedataservice-config
+  namespace: jp

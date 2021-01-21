@@ -1,0 +1,196 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: clbussinfoadminservice
+  namespace: user
+spec:
+  progressDeadlineSeconds: 600
+  {{- if not .Values.clbussinfoadminservice.nodeManager.replicas }}
+  replicas: {{ .Values.clbussinfoadminservice.nodeManager.replicas }}
+  {{- else if eq .Values.environment "test" }}
+  replicas: 1
+  {{- else if eq .Values.antiAffinity "formal" }}
+  replicas: 2
+  {{- end }}
+  revisionHistoryLimit: 10
+  selector:
+    matchLabels:
+      app: clbussinfoadminservice
+  strategy:
+    rollingUpdate:
+      maxSurge: 25%
+      maxUnavailable: 1
+    type: RollingUpdate
+  template:
+    metadata:
+      annotations:
+        armsPilotAutoEnable: 'on'
+        armsPilotCreateAppName: clbussinfoadminservice
+        redeploy-timestamp: '1611059135833'
+      labels:
+        app: clbussinfoadminservice
+    spec:
+      containers:
+        - env:
+            - name: MYENV_CONFIGNAME
+              value: >-
+                dbroute,jdbc,logconfig,paramjdbc,serviceroute,redis,mqhelper,application,myconfig,systemparam,javaweb
+            - name: MYENV_CONFIGPROFILE
+              value: zs
+            - name: MYENV_CONFIGLABEL
+              value: cLBussInfoAdminServicek8s
+            - name: MYENV_CONFIGSERVICEID
+              value: spring-cloud-config-server
+            - name: MYENV_EUREKAURL
+              value: >-
+                http://eureka1:8000/eureka/,http://eureka2:8000/eureka/,http://eureka3:8000/eureka/
+            - name: MYENV_TOMCATPORT
+              {{- if not .Values.clbussinfoadminservice.networkManager.tomcat.port }}
+              value: {{ .Values.clbussinfoadminservice.networkManager.tomcat.port | quote }}
+              {{- else }}
+              value: "12132"
+              {{- end }}
+            - name: JAVA_OPTS
+              value: {{ .Values.clbussinfoadminservice.resourceManager.jvm }}
+          {{- if .Values.clbussinfoadminservice.nodeManager.tag }}
+          image: {{ .Values.imageRegistry }}/clbussinfoadminservice:{{ .Values.clbussinfoadminservice.nodeManager.tag }}
+          {{- else }}
+          image: {{ .Values.imageRegistry }}/clbussinfoadminservice:{{ .Values.dockerTag }}
+          {{- end }}
+          imagePullPolicy: IfNotPresent
+          lifecycle:
+            preStop:
+              exec:
+                {{- if not .Values.clbussinfoadminservice.networkManager.command.url }}
+                command:
+                  - curl
+                  - {{ .Values.clbussinfoadminservice.networkManager.command.url }}
+                {{- else }}
+                command:
+                  - curl
+                  - 'http://localhost:12132/unregisterbyext'
+                {{- end }}
+          livenessProbe:
+            failureThreshold: 3
+            httpGet:
+              path: /info
+              {{- if not .Values.clbussinfoadminservice.networkManager.tomcat.port }}
+              port: {{ .Values.clbussinfoadminservice.networkManager.tomcat.port }}
+              {{- else }}
+              port: 12132
+              {{- end }}
+              scheme: HTTP
+            initialDelaySeconds: 200
+            periodSeconds: 10
+            successThreshold: 1
+            timeoutSeconds: 10
+          name: clbussinfoadminservice
+          ports:
+            {{- if not .Values.clbussinfoadminservice.networkManager.tomcat.port }}
+            - containerPort: {{ .Values.clbussinfoadminservice.networkManager.tomcat.port }}
+              hostPort: {{ .Values.clbussinfoadminservice.networkManager.tomcat.port }}
+              protocol: TCP
+            {{- else }}
+            - containerPort: 12132
+              hostPort: 12132
+              protocol: TCP
+            {{- end }}
+            {{- if not .Values.clbussinfoadminservice.networkManager.thrift.port }}
+            - containerPort: {{ .Values.clbussinfoadminservice.networkManager.thrift.port }}
+              hostPort: {{ .Values.clbussinfoadminservice.networkManager.thrift.port }}
+              protocol: TCP
+            {{- else }}
+            - containerPort: 12134
+              hostPort: 12134
+              protocol: TCP
+            {{- end }}
+          readinessProbe:
+            failureThreshold: 3
+            httpGet:
+              path: /info
+              {{- if not .Values.clbussinfoadminservice.networkManager.tomcat.port }}
+              port: {{ .Values.clbussinfoadminservice.networkManager.tomcat.port }}
+              {{- else }}
+              port: 12132
+              {{- end }}
+              scheme: HTTP
+            initialDelaySeconds: 20
+            periodSeconds: 5
+            successThreshold: 1
+            timeoutSeconds: 10
+          {{- if .Values.clbussinfoadminservice.resourceManager.resources.custom -}}
+          resources:
+            limits:
+              cpu: {{ .Values.clbussinfoadminservice.resourceManager.resources.limits.cpu }}
+              memory: {{ .Values.clbussinfoadminservice.resourceManager.resources.limits.memory }}
+            requests:
+              cpu: {{ .Values.clbussinfoadminservice.resourceManager.resources.requests.cpu }}
+              memory: {{ .Values.clbussinfoadminservice.resourceManager.resources.requests.memory }}
+          {{- else }}
+          resources:
+            limits:
+              cpu: '1'
+              memory: 4Gi
+            requests:
+              cpu: 200m
+              memory: 128Mi
+          {{- end }}
+          terminationMessagePath: /dev/termination-log
+          terminationMessagePolicy: File
+          volumeMounts:
+            - mountPath: /var/log/java
+              name: logjava
+            - mountPath: /home/nacfg.ini
+              name: nacfg
+            - mountPath: /srv/access/resPinYin.dat
+              name: respinyin
+            - mountPath: /srv/access/hz.dat
+              name: hz
+            - mountPath: >-
+                /usr/local/soft/apache-tomcat-8.5.55/webapps/ROOT/WEB-INF/classes/AppURL.properties
+              name: nacfgpek
+              subPath: AppUrl.properties
+      dnsPolicy: ClusterFirstWithHostNet
+      imagePullSecrets:
+        - name: regcred
+      nodeSelector:
+        env: user
+      restartPolicy: Always
+      schedulerName: default-scheduler
+      securityContext: {}
+      terminationGracePeriodSeconds: 15
+      {{- if not .Values.hostManager.volumes.hostPath }}
+      volumes:
+        - hostPath:
+            path: {{ .Values.hostManager.volumes.hostPath }}/log/cllog
+            type: ''
+          name: cllog
+        - hostPath:
+            path: {{ .Values.hostManager.volumes.hostPath }}/log/java
+            type: ''
+          name: logjava
+        - configMap:
+            defaultMode: 420
+            items:
+              - key: AppUrl.properties
+                path: AppUrl.properties
+            name: clbussinfoadminservice-configmap
+          name: nacfgpek
+      {{- else }}
+      volumes:
+        - hostPath:
+            path: /app/log/cllog
+            type: ''
+          name: cllog
+        - hostPath:
+            path: /app/log/java
+            type: ''
+          name: logjava
+        - configMap:
+            defaultMode: 420
+            items:
+              - key: AppUrl.properties
+                path: AppUrl.properties
+            name: clbussinfoadminservice-configmap
+          name: nacfgpek
+      {{- end }}

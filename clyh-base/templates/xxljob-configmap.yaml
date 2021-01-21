@@ -1,0 +1,51 @@
+apiVersion: v1
+data:
+  xxl-job-admin.properties: >-
+    xxl.job.db.driverClass=com.mysql.jdbc.Driver
+
+    xxl.job.db.url=jdbc:mysql://rm-2zer4gx7otl4s391e.mysql.rds.aliyuncs.com:3306/XxljobJP?useUnicode=true&characterEncoding=UTF-8
+
+    xxl.job.db.user=xxljob
+
+    xxl.job.db.password=Aa123@321Bb
+
+
+    ### xxl-job email
+
+    xxl.job.mail.host=smtp.163.com
+
+    xxl.job.mail.port=25
+
+    xxl.job.mail.username=yangxilong@517na.com
+
+    xxl.job.mail.password=asdfzxcv
+
+    xxl.job.mail.sendNick=《任务调度平台XXL-JOB》
+
+
+    ### xxl-job login
+
+    xxl.job.login.username=admin
+
+    xxl.job.login.password=123456
+
+
+    ### xxl-job, access token
+
+    xxl.job.accessToken=
+
+
+    ### xxl-job, i18n (default empty as chinese, "en" as english)
+
+    xxl.job.i18n=
+
+
+    extension.ldap.host=172.17.3.28
+
+    extension.ldap.port=389
+
+    extension.ldap.domain=517na.com
+kind: ConfigMap
+metadata:
+  name: xxljob-config
+  namespace: base

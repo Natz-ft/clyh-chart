@@ -1,0 +1,165 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: clstaticresinfoservice
+  namespace: jp
+spec:
+  progressDeadlineSeconds: 600
+{{- if .Values.clstaticresinfoservice.nodeManager.replicas }}
+  replicas: {{ .Values.clstaticresinfoservice.nodeManager.replicas }}
+{{- else if eq .Values.environment "test" }}
+  replicas: 1
+{{- else if eq .Values.environment "formal" }}
+  replicas: 2
+{{- end }}
+  revisionHistoryLimit: 10
+  selector:
+    matchLabels:
+      app: clstaticresinfoservice
+  strategy:
+    rollingUpdate:
+      maxSurge: 25%
+      maxUnavailable: 1
+    type: RollingUpdate
+  template:
+    metadata:
+      labels:
+        app: clstaticresinfoservice
+    spec:
+      containers:
+        - env:
+            - name: MYENV_TOMCATPORT
+            {{- if .Values.clstaticresinfoservice.networkManager.tomcat.port }}
+              value: {{ .Values.clstaticresinfoservice.networkManager.tomcat.port | quote }}
+            {{- else }}
+              value: "13551"
+            {{- end }}
+            - name: JAVA_OPTS
+              value: {{ .Values.clstaticresinfoservice.resourceManager.jvm }}
+        {{- if .Values.clstaticresinfoservice.nodeManager.tag }}
+          image: {{ .Values.imageRegistry }}/clstaticresinfoservice:{{ .Values.clstaticresinfoservice.nodeManager.tag }}
+        {{- else }}
+          image: {{ .Values.imageRegistry }}/clstaticresinfoservice:{{ .Values.dockerTag }}
+        {{- end }}
+          imagePullPolicy: IfNotPresent
+          livenessProbe:
+            failureThreshold: 3
+            initialDelaySeconds: 100
+            periodSeconds: 10
+            successThreshold: 1
+            {{- if .Values.clstaticresinfoservice.networkManager.thrift.port }}
+            tcpSocket:
+              port: {{ .Values.clstaticresinfoservice.networkManager.thrift.port }}
+            {{- else }}
+            tcpSocket:
+              port: 13553
+            {{- end }}
+            timeoutSeconds: 10
+          name: clstaticresinfoservice
+          ports:
+            {{- if .Values.clstaticresinfoservice.networkManager.tomcat.port }}
+            - containerPort: {{ .Values.clstaticresinfoservice.networkManager.tomcat.port }}
+              hostPort: {{ .Values.clstaticresinfoservice.networkManager.tomcat.port }}
+              protocol: TCP
+            {{- else }}
+            - containerPort: 13551
+              hostPort: 13551
+              protocol: TCP
+            {{- end }}
+            {{- if .Values.clstaticresinfoservice.networkManager.thrift.port }}
+            - containerPort: {{ .Values.clstaticresinfoservice.networkManager.thrift.port }}
+              hostPort: {{ .Values.clstaticresinfoservice.networkManager.thrift.port }}
+              protocol: TCP
+            {{- else }}
+            - containerPort: 13553
+              hostPort: 13553
+              protocol: TCP
+            {{- end }}
+          readinessProbe:
+            failureThreshold: 3
+            initialDelaySeconds: 10
+            periodSeconds: 5
+            successThreshold: 1
+            {{- if .Values.clstaticresinfoservice.networkManager.thrift.port }}
+            tcpSocket:
+              port: {{ .Values.clstaticresinfoservice.networkManager.thrift.port }}
+            {{- else }}
+            tcpSocket:
+              port: 13553
+            {{- end }}
+            timeoutSeconds: 10
+          {{- if .Values.clstaticresinfoservice.resourceManager.resources.custom -}}
+          resources:
+            limits:
+              cpu: {{ .Values.clstaticresinfoservice.resourceManager.resources.limits.cpu }}
+              memory: {{ .Values.clstaticresinfoservice.resourceManager.resources.limits.memory }}
+            requests:
+              cpu: {{ .Values.clstaticresinfoservice.resourceManager.resources.requests.cpu }}
+              memory: {{ .Values.clstaticresinfoservice.resourceManager.resources.requests.memory }}
+          {{- else }}
+          resources:
+            limits:
+              cpu: '1'
+              memory: 1Gi
+            requests:
+              cpu: 100m
+              memory: 128Mi
+          {{- end }}
+          terminationMessagePath: /dev/termination-log
+          terminationMessagePolicy: File
+          volumeMounts:
+            - mountPath: /home/nacfg.ini
+              name: nacfg
+              subPath: nacfg.ini
+            - mountPath: /var/log/cllog
+              name: cllog
+            - mountPath: /var/log/java
+              name: logjava
+            - mountPath: /usr/local/soft/tomcat/webapps/ROOT/WEB-INF/config
+              name: config
+      dnsPolicy: ClusterFirstWithHostNet
+      imagePullSecrets:
+        - name: regcred
+      nodeSelector:
+        env: jp
+      restartPolicy: Always
+      schedulerName: default-scheduler
+      securityContext: {}
+      terminationGracePeriodSeconds: 15
+    {{- if .Values.hostManager.volumes.hostPath }}
+      volumes:
+        - hostPath:
+            path: {{ .Values.hostManager.volumes.hostPath }}/log/cllog
+            type: ''
+          name: cllog
+        - hostPath:
+            path: {{ .Values.hostManager.volumes.hostPath }}/log/java
+            type: ''
+          name: logjava
+        - hostPath:
+            path: /home/nacfg.ini
+            type: ''
+          name: nacfg
+        - configMap:
+            defaultMode: 420
+            name: clstaticresinfoservice-config
+          name: config
+    {{- else }}
+      volumes:
+        - hostPath:
+            path: /app/log/cllog
+            type: ''
+          name: cllog
+        - hostPath:
+            path: /app/log/java
+            type: ''
+          name: logjava
+        - hostPath:
+            path: /home/nacfg.ini
+            type: ''
+          name: nacfg
+        - configMap:
+            defaultMode: 420
+            name: clstaticresinfoservice-config
+          name: config
+    {{- end }}

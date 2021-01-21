@@ -1,0 +1,172 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: clcostcentermessageconsumer
+  namespace: jp
+spec:
+  progressDeadlineSeconds: 600
+{{- if .Values.clcostcentermessageconsumer.nodeManager.replicas }}
+  replicas: {{ .Values.clcostcentermessageconsumer.nodeManager.replicas }}
+{{- else if eq .Values.environment "test" }}
+  replicas: 1
+{{- else if eq .Values.environment "formal" }}
+  replicas: 2
+{{- end }}
+  revisionHistoryLimit: 10
+  selector:
+    matchLabels:
+      app: clcostcentermessageconsumer
+  strategy:
+    rollingUpdate:
+      maxSurge: 25%
+      maxUnavailable: 1
+    type: RollingUpdate
+  template:
+    metadata:
+      labels:
+        app: clcostcentermessageconsumer
+    spec:
+      containers:
+        - env:
+            - name: MYENV_CONFIGNAME
+              value: >-
+                application,dbroute,logconfig,serviceroute
+            - name: MYENV_CONFIGPROFILE
+              value: zs
+            - name: MYENV_CONFIGLABEL
+              value: CLCostCenterMessageConsumer-PAL-K8S-ZS
+            - name: MYENV_CONFIGSERVICEID
+              value: spring-cloud-config-server
+            - name: MYENV_EUREKAURL
+              value: >-
+                http://eureka1:8000/eureka/,http://eureka2:8000/eureka/,http://eureka3:8000/eureka/
+            - name: MYENV_TOMCATPORT
+            {{- if .Values.clcostcentermessageconsumer.networkManager.tomcat.port }}
+              value: {{ .Values.clcostcentermessageconsumer.networkManager.tomcat.port | quote }}
+            {{- else }}
+              value: "9376"
+            {{- end }}
+            - name: JAVA_OPTS
+              value: {{ .Values.clcostcentermessageconsumer.resourceManager.jvm }}
+        {{- if .Values.clcostcentermessageconsumer.nodeManager.tag }}
+          image: {{ .Values.imageRegistry }}/clcostcentermessageconsumer:{{ .Values.clcostcentermessageconsumer.nodeManager.tag }}
+        {{- else }}
+          image: {{ .Values.imageRegistry }}/clcostcentermessageconsumer:{{ .Values.dockerTag }}
+        {{- end }}
+          imagePullPolicy: IfNotPresent
+          lifecycle:
+            preStop:
+              exec:
+                {{- if .Values.clcostcentermessageconsumer.networkManager.command.url }}
+                command:
+                  - curl
+                  - {{ .Values.clcostcentermessageconsumer.networkManager.command.url }}
+                {{- else }}
+                command:
+                  - curl
+                  - 'http://localhost:9376/unregisterbyext'
+                {{- end }}
+          livenessProbe:
+            failureThreshold: 3
+            httpGet:
+              path: /info
+            {{- if .Values.clcostcentermessageconsumer.networkManager.tomcat.port }}
+              port: {{ .Values.clcostcentermessageconsumer.networkManager.tomcat.port }}
+            {{- else }}
+              port: 9376
+            {{- end }}
+              scheme: HTTP
+            initialDelaySeconds: 100
+            periodSeconds: 10
+            successThreshold: 1
+            timeoutSeconds: 10
+          name: clcostcentermessageconsumer
+          ports:
+            {{- if .Values.clcostcentermessageconsumer.networkManager.tomcat.port }}
+            - containerPort: {{ .Values.clcostcentermessageconsumer.networkManager.tomcat.port }}
+              hostPort: {{ .Values.clcostcentermessageconsumer.networkManager.tomcat.port }}
+              protocol: TCP
+            {{- else }}
+            - containerPort: 9376
+              hostPort: 9376
+              protocol: TCP
+            {{- end }}
+          readinessProbe:
+            failureThreshold: 3
+            httpGet:
+              path: /info
+            {{- if .Values.clcostcentermessageconsumer.networkManager.tomcat.port }}
+              port: {{ .Values.clcostcentermessageconsumer.networkManager.tomcat.port }}
+            {{- else }}
+              port: 9376
+            {{- end }}
+              scheme: HTTP
+            initialDelaySeconds: 10
+            periodSeconds: 5
+            successThreshold: 1
+            timeoutSeconds: 10
+          {{- if .Values.clcostcentermessageconsumer.resourceManager.resources.custom -}}
+          resources:
+            limits:
+              cpu: {{ .Values.clcostcentermessageconsumer.resourceManager.resources.limits.cpu }}
+              memory: {{ .Values.clcostcentermessageconsumer.resourceManager.resources.limits.memory }}
+            requests:
+              cpu: {{ .Values.clcostcentermessageconsumer.resourceManager.resources.requests.cpu }}
+              memory: {{ .Values.clcostcentermessageconsumer.resourceManager.resources.requests.memory }}
+          {{- else }}
+          resources:
+            limits:
+              cpu: '1'
+              memory: 1Gi
+            requests:
+              cpu: 100m
+              memory: 128Mi
+          {{- end }}
+          terminationMessagePath: /dev/termination-log
+          terminationMessagePolicy: File
+          volumeMounts:
+            - mountPath: /home/nacfg.ini
+              name: nacfg
+              subPath: nacfg.ini
+            - mountPath: /var/log/cllog
+              name: cllog
+            - mountPath: /var/log/java
+              name: logjava
+      dnsPolicy: ClusterFirstWithHostNet
+      imagePullSecrets:
+        - name: regcred
+      nodeSelector:
+        env: jp
+      restartPolicy: Always
+      schedulerName: default-scheduler
+      securityContext: {}
+      terminationGracePeriodSeconds: 15
+    {{- if .Values.hostManager.volumes.hostPath }}
+      volumes:
+        - hostPath:
+            path: {{ .Values.hostManager.volumes.hostPath }}/log/cllog
+            type: ''
+          name: cllog
+        - hostPath:
+            path: {{ .Values.hostManager.volumes.hostPath }}/log/java
+            type: ''
+          name: logjava
+        - hostPath:
+            path: /home/nacfg.ini
+            type: ''
+          name: nacfg
+    {{- else }}
+      volumes:
+        - hostPath:
+            path: /app/log/cllog
+            type: ''
+          name: cllog
+        - hostPath:
+            path: /app/log/java
+            type: ''
+          name: logjava
+        - hostPath:
+            path: /home/nacfg.ini
+            type: ''
+          name: nacfg
+    {{- end }}

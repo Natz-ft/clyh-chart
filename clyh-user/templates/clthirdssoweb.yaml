@@ -1,0 +1,180 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: clthirdssoweb
+  namespace: user
+spec:
+  progressDeadlineSeconds: 600
+{{- if .Values.clthirdssoweb.nodeManager.replicas }}
+  replicas: {{ .Values.clthirdssoweb.nodeManager.replicas }}
+{{- else if eq .Values.environment "test" }}
+  replicas: 1
+{{- else if eq .Values.environment "formal" }}
+  replicas: 2
+{{- end }}
+  revisionHistoryLimit: 10
+  selector:
+    matchLabels:
+      app: clthirdssoweb
+  strategy:
+    rollingUpdate:
+      maxSurge: 25%
+      maxUnavailable: 1
+    type: RollingUpdate
+  template:
+    metadata:
+      creationTimestamp: null
+      labels:
+        app: clthirdssoweb
+    spec:
+      containers:
+        - env:
+            - name: MYENV_CONFIGNAME
+              value: application,dbroute,javaMonitorGatherComponet,jdbc,log_config,log4j,paramjdbc,redis,serviceroute,systemParam
+            - name: MYENV_CONFIGPROFILE
+              value: zs
+            - name: MYENV_CONFIGLABEL
+              value: CLThridSSOWeb-k8s
+            - name: MYENV_CONFIGSERVICEID
+              value: spring-cloud-config-server
+            - name: MYENV_EUREKAURL
+              value: http://eureka1:8000/eureka/,http://eureka2:8000/eureka/,http://eureka3:8000/eureka/
+            - name: MYENV_TOMCATPORT
+            {{- if .Values.clthirdssoweb.networkManager.tomcat.port }}
+              value: {{ .Values.clthirdssoweb.networkManager.tomcat.port | quote }}
+            {{- else }}
+              value: "12360"
+              {{- end }}
+            - name: JAVA_OPTS
+              value: {{ .Values.clthirdssoweb.resourceManager.jvm }}
+        {{- if .Values.clthirdssoweb.nodeManager.tag }}
+          image: {{ .Values.imageRegistry }}/clthirdssoweb:{{ .Values.clthirdssoweb.nodeManager.tag }}
+        {{- else }}
+          image: {{ .Values.imageRegistry }}/clthirdssoweb:{{ .Values.dockerTag }}
+        {{- end }}
+          imagePullPolicy: IfNotPresent
+          lifecycle:
+            preStop:
+              exec:
+                {{- if .Values.clthirdssoweb.networkManager.command.url }}
+                command:
+                  - curl
+                  {{ .Values.clthirdssoweb.networkManager.command.url }}
+                {{- else }}
+                command:
+                  - curl
+                  - 'http://localhost:12360/unregisterbyext'
+                {{- end }}
+          livenessProbe:
+            failureThreshold: 3
+            httpGet:
+              path: /info
+              {{- if .Values.clthirdssoweb.networkManager.tomcat.port }}
+              port: {{ .Values.clthirdssoweb.networkManager.tomcat.port }}
+              {{- else }}
+              port: 12360
+              {{- end }}
+              scheme: HTTP
+            initialDelaySeconds: 100
+            periodSeconds: 10
+            successThreshold: 1
+            timeoutSeconds: 10
+          name: clthirdssoweb
+          ports:
+            {{- if .Values.clthirdssoweb.networkManager.tomcat.port }}
+            - containerPort: {{ .Values.clthirdssoweb.networkManager.tomcat.port }}
+              hostPort: {{ .Values.clthirdssoweb.networkManager.tomcat.port }}
+              protocol: TCP
+            {{- else }}
+            - containerPort: 12360
+              hostPort: 12360
+              protocol: TCP
+            {{- end }}
+            {{- if .Values.clthirdssoweb.networkManager.thrift.port }}
+            - containerPort: {{ .Values.clthirdssoweb.networkManager.thrift.port }}
+              hostPort: {{ .Values.clthirdssoweb.networkManager.thrift.port }}
+              protocol: TCP
+            {{- else }}
+            - containerPort: 12186
+              hostPort: 12186
+              protocol: TCP
+            {{- end }}
+          readinessProbe:
+            failureThreshold: 3
+            httpGet:
+              path: /info
+              {{- if .Values.clthirdssoweb.networkManager.tomcat.port }}
+              port: {{ .Values.clthirdssoweb.networkManager.tomcat.port }}
+              {{- else }}
+              port: 12360
+              {{- end }}
+              scheme: HTTP
+            initialDelaySeconds: 20
+            periodSeconds: 5
+            successThreshold: 1
+            timeoutSeconds: 10
+          {{- if .Values.clthirdssoweb.resourceManager.resources.custom -}}
+          resources:
+            limits:
+              cpu: {{ .Values.clthirdssoweb.resourceManager.resources.limits.cpu }}
+              memory: {{ .Values.clthirdssoweb.resourceManager.resources.limits.memory }}
+            requests:
+              cpu: {{ .Values.clthirdssoweb.resourceManager.resources.requests.cpu }}
+              memory: {{ .Values.clthirdssoweb.resourceManager.resources.requests.memory }}
+          {{- else }}
+          resources:
+            limits:
+              cpu: '1'
+              memory: 1Gi
+            requests:
+              cpu: 200m
+              memory: 512Mi
+          {{- end }}
+          terminationMessagePath: /dev/termination-log
+          terminationMessagePolicy: File
+          volumeMounts:
+            - mountPath: /var/log/cllog
+              name: cllog
+            - mountPath: /var/log/java
+              name: logjava
+            - mountPath: /home/nacfg.ini
+              name: base
+              subPath: nacfg.ini
+      dnsPolicy: ClusterFirstWithHostNet
+      imagePullSecrets:
+        - name: regcred
+      nodeSelector:
+        env2: user
+      restartPolicy: Always
+      schedulerName: default-scheduler
+      securityContext: {}
+      terminationGracePeriodSeconds: 15
+      {{- if .Values.hostManager.volumes.hostPath }}
+      volumes:
+        - hostPath:
+            path: {{ .Values.hostManager.volumes.hostPath }}/log/cllog
+            type: ''
+          name: cllog
+        - hostPath:
+            path: {{ .Values.hostManager.volumes.hostPath }}/log/java
+            type: ''
+          name: logjava
+        - configMap:
+            defaultMode: 420
+            name: base-config
+          name: base
+      {{- else }}
+      volumes:
+        - hostPath:
+            path: /app/log/cllog
+            type: ''
+          name: cllog
+        - hostPath:
+            path: /app/log/java
+            type: ''
+          name: logjava
+        - configMap:
+            defaultMode: 420
+            name: base-config
+          name: base
+      {{- end }}

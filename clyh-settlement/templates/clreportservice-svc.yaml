@@ -1,0 +1,22 @@
+apiVersion: v1
+kind: Service
+metadata:
+  name: clreportservice-nodeport
+  namespace: settlement
+spec:
+  externalTrafficPolicy: Cluster
+  ports:
+    - name: http
+      nodePort: 30711
+      port: 9191
+      protocol: TCP
+      targetPort: 9191
+    - name: thrift
+      nodePort: 30715
+      port: 9193
+      protocol: TCP
+      targetPort: 9193
+  selector:
+    app: clreportservice
+  sessionAffinity: None
+  type: NodePort

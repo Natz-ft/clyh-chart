@@ -1,0 +1,21 @@
+apiVersion: v1
+kind: Service
+metadata:
+  name: clapprovaldataservice
+  namespace: budget
+spec:
+  ports:
+    - name: thrift
+      {{- if .Values.clapprovaldataservice.networkManager.thrift.port }}
+      port: {{ .Values.clapprovaldataservice.networkManager.thrift.port }}
+      protocol: TCP
+      targetPort: {{ .Values.clapprovaldataservice.networkManager.thrift.port }}
+      {{- else }}
+      port: 17096
+      protocol: TCP
+      targetPort: 17096
+      {{- end }}
+  selector:
+    app: clapprovaldataservice
+  sessionAffinity: None
+  type: ClusterIP

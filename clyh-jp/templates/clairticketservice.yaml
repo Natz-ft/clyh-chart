@@ -1,0 +1,152 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: clairticketservice
+  namespace: jp
+spec:
+  progressDeadlineSeconds: 600
+{{- if .Values.clairticketservice.nodeManager.replicas }}
+  replicas: {{ .Values.clairticketservice.nodeManager.replicas }}
+{{- else if eq .Values.environment "test" }}
+  replicas: 1
+{{- else if eq .Values.environment "formal" }}
+  replicas: 2
+{{- end }}
+  revisionHistoryLimit: 10
+  selector:
+    matchLabels:
+      app: clairticketservice
+  strategy:
+    rollingUpdate:
+      maxSurge: 25%
+      maxUnavailable: 1
+    type: RollingUpdate
+  template:
+    metadata:
+      labels:
+        app: clairticketservice
+    spec:
+      containers:
+        - env:
+            - name: MYENV_TOMCATPORT
+            {{- if .Values.clairticketservice.networkManager.tomcat.port }}
+              value: {{ .Values.clairticketservice.networkManager.tomcat.port | quote }}
+            {{- else }}
+              value: "27780"
+            {{- end }}
+            - name: JAVA_OPTS
+              value: {{ .Values.clairticketservice.resourceManager.jvm }}
+        {{- if .Values.clairticketservice.nodeManager.tag }}
+          image: {{ .Values.imageRegistry }}/clairticketservice:{{ .Values.clairticketservice.nodeManager.tag }}
+        {{- else }}
+          image: {{ .Values.imageRegistry }}/clairticketservice:{{ .Values.dockerTag }}
+        {{- end }}
+          imagePullPolicy: IfNotPresent
+          livenessProbe:
+            failureThreshold: 3
+            initialDelaySeconds: 100
+            periodSeconds: 10
+            successThreshold: 1
+            {{- if .Values.clairticketservice.networkManager.thrift.port }}
+            tcpSocket:
+              port: {{ .Values.clairticketservice.networkManager.thrift.port }}
+            {{- else }}
+            tcpSocket:
+              port: 27782
+            {{- end }}
+            timeoutSeconds: 1
+          name: clairticketservice
+          ports:
+            {{- if .Values.clairticketservice.networkManager.tomcat.port }}
+            - containerPort: {{ .Values.clairticketservice.networkManager.tomcat.port }}
+              hostPort: {{ .Values.clairticketservice.networkManager.tomcat.port }}
+              protocol: TCP
+            {{- else }}
+            - containerPort: 27780
+              hostPort: 27780
+              protocol: TCP
+            {{- end }}
+            {{- if .Values.clairticketservice.networkManager.thrift.port }}
+            - containerPort: {{ .Values.clairticketservice.networkManager.thrift.port }}
+              hostPort: {{ .Values.clairticketservice.networkManager.thrift.port }}
+              protocol: TCP
+            {{- else }}
+            - containerPort: 27782
+              hostPort: 27782
+              protocol: TCP
+            {{- end }}
+         {{- if .Values.clairticketservice.resourceManager.resources.custom}}
+          resources:
+            limits:
+              cpu: {{ .Values.clairticketservice.resourceManager.resources.limits.cpu }}
+              memory: {{ .Values.clairticketservice.resourceManager.resources.limits.memory }}
+            requests:
+              cpu: {{ .Values.clairticketservice.resourceManager.resources.requests.cpu }}
+              memory: {{ .Values.clairticketservice.resourceManager.resources.requests.memory }}
+          {{- else }}
+          resources:
+            limits:
+              cpu: '1'
+              memory: 700Mi
+            requests:
+              cpu: 100m
+              memory: 128Mi
+          {{- end }}
+          terminationMessagePath: /dev/termination-log
+          terminationMessagePolicy: File
+          volumeMounts:
+            - mountPath: /home/nacfg.ini
+              name: nacfg
+              subPath: nacfg.ini
+            - mountPath: /var/log/cllog
+              name: cllog
+            - mountPath: /var/log/java
+              name: logjava
+            - mountPath: /usr/local/soft/tomcat/webapps/ROOT/WEB-INF/config
+              name: config
+      dnsPolicy: ClusterFirstWithHostNet
+      imagePullSecrets:
+        - name: regcred
+      nodeSelector:
+        env: jp
+      restartPolicy: Always
+      schedulerName: default-scheduler
+      securityContext: {}
+      terminationGracePeriodSeconds: 15
+    {{- if .Values.hostManager.volumes.hostPath }}
+      volumes:
+        - hostPath:
+            path: {{ .Values.hostManager.volumes.hostPath }}/log/cllog
+            type: ''
+          name: cllog
+        - hostPath:
+            path: {{ .Values.hostManager.volumes.hostPath }}/log/java
+            type: ''
+          name: logjava
+        - hostPath:
+            path: /home/nacfg.ini
+            type: ''
+          name: nacfg
+        - configMap:
+            defaultMode: 420
+            name: clairticketservice-config
+          name: config
+    {{- else }}
+      volumes:
+        - hostPath:
+            path: /app/log/cllog
+            type: ''
+          name: cllog
+        - hostPath:
+            path: /app/log/java
+            type: ''
+          name: logjava
+        - hostPath:
+            path: /home/nacfg.ini
+            type: ''
+          name: nacfg
+        - configMap:
+            defaultMode: 420
+            name: clairticketservice-config
+          name: config
+    {{- end }}

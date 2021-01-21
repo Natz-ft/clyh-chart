@@ -1,0 +1,18 @@
+apiVersion: v1
+kind: Service
+metadata:
+  name: clticketnotifywebsite
+  namespace: jp
+spec:
+  externalTrafficPolicy: Cluster
+  ports:
+    - name: http
+      nodePort: 30110
+      port: {{ .Values.clticketnotifywebsite.service.port }}
+      protocol: TCP
+      targetPort: {{ .Values.clticketnotifywebsite.service.port }}
+  selector:
+    app: clticketnotifywebsite
+  sessionAffinity: None
+  type: NodePort
+

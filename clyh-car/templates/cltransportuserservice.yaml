@@ -1,0 +1,171 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: cltransportuserservice
+  namespace: car
+spec:
+  progressDeadlineSeconds: 600
+  {{- if .Values.cltransportuserservice.nodeManager.replicas }}
+  replicas: {{ .Values.cltransportuserservice.nodeManager.replicas }}
+  {{- else if eq .Values.environment "test" }}
+  replicas: 1
+  {{- else if eq .Values.environment "formal" }}
+  replicas: 2
+  {{- end }}
+  revisionHistoryLimit: 10
+  selector:
+    matchLabels:
+      app: cltransportuserservice
+  strategy:
+    rollingUpdate:
+      maxSurge: 25%
+      maxUnavailable: 1
+    type: RollingUpdate
+  template:
+    metadata:
+      labels:
+        app: cltransportuserservice
+    spec:
+      containers:
+        - env:
+            - name: MYENV_CONFIGNAME
+              value: >-
+                dbroute,jdbc,logconfig,paramjdbc,redis,serviceroute,application
+            - name: MYENV_CONFIGPROFILE
+              value: zs
+            - name: MYENV_CONFIGLABEL
+              value: CLTransportUserService
+            - name: MYENV_CONFIGSERVICEID
+              value: spring-cloud-config-server
+            - name: MYENV_EUREKAURL
+              value: >-
+                http://eureka1:8000/eureka/,http://eureka2:8000/eureka/,http://eureka3:8000/eureka/
+            - name: MYENV_TOMCATPORT
+              {{- if .Values.cltransportuserservice.networkManager.tomcat.port }}
+              value: {{ .Values.cltransportuserservice.networkManager.tomcat.port | quote }}
+              {{- else }}
+              value: "6834"
+            {{- end }}
+            - name: JAVA_OPTS
+              value: {{ .Values.cltransportuserservice.resourceManager.jvm }}
+          {{- if .Values.cltransportuserservice.nodeManager.tag }}
+          image: {{ .Values.imageRegistry }}/cltransportuserservice:{{ .Values.cltransportuserservice.nodeManager.tag }}
+          {{- else }}
+          image: {{ .Values.imageRegistry }}/cltransportuserservice:{{ .Values.dockerTag }}
+          {{- end }}
+          imagePullPolicy: Always
+          lifecycle:
+            preStop:
+              exec:
+                {{- if .Values.cltransportuserservice.networkManager.command.url }}
+                command:
+                  - curl
+                  {{ .Values.cltransportuserservice.networkManager.command.url }}
+                {{- else }}
+                command:
+                  - curl
+                  - 'http://localhost:6834/unregisterbyext'
+          {{- end }}
+          livenessProbe:
+            failureThreshold: 3
+            httpGet:
+              path: /info
+              {{- if .Values.cltransportuserservice.networkManager.tomcat.port }}
+              port: {{ .Values.cltransportuserservice.networkManager.tomcat.port }}
+              {{- else }}
+              port: 6834
+              {{- end }}
+              scheme: HTTP
+            initialDelaySeconds: 100
+            periodSeconds: 10
+            successThreshold: 1
+            timeoutSeconds: 10
+          name: cltransportuserservice
+          ports:
+            {{- if .Values.cltransportuserservice.networkManager.tomcat.port }}
+            - containerPort: {{ .Values.cltransportuserservice.networkManager.tomcat.port }}
+              hostPort: {{ .Values.cltransportuserservice.networkManager.tomcat.port }}
+              protocol: TCP
+            {{- else }}
+            - containerPort: 6834
+              hostPort: 6834
+              protocol: TCP
+            {{- end }}
+          readinessProbe:
+            failureThreshold: 3
+            httpGet:
+              path: /info
+              {{- if .Values.cltransportuserservice.networkManager.tomcat.port }}
+              port: {{ .Values.cltransportuserservice.networkManager.tomcat.port }}
+              {{- else }}
+              port: 6834
+              {{- end }}
+              scheme: HTTP
+            initialDelaySeconds: 10
+            periodSeconds: 5
+            successThreshold: 1
+            timeoutSeconds: 10
+          {{- if .Values.cltransportuserservice.resourceManager.resources.custom -}}
+          resources:
+            limits:
+              cpu: {{ .Values.cltransportuserservice.resourceManager.resources.limits.cpu }}
+              memory: {{ .Values.cltransportuserservice.resourceManager.resources.limits.memory }}
+            requests:
+              cpu: {{ .Values.cltransportuserservice.resourceManager.resources.requests.cpu }}
+              memory: {{ .Values.cltransportuserservice.resourceManager.resources.requests.memory }}
+          {{- else }}
+          resources:
+            limits:
+              cpu: '1'
+              memory: 700Mi
+            requests:
+              cpu: 200m
+              memory: 256Mi
+          {{- end }}
+          terminationMessagePath: /dev/termination-log
+          terminationMessagePolicy: File
+          volumeMounts:
+            - mountPath: /home/nacfg.ini
+              name: nacfg
+            - mountPath: /var/log/cllog
+              name: cllog
+            - mountPath: /var/log/java
+              name: logjava
+      dnsPolicy: ClusterFirstWithHostNet
+      imagePullSecrets:
+        - name: regcred
+      nodeSelector:
+        env: car
+      restartPolicy: Always
+      schedulerName: default-scheduler
+      securityContext: {}
+      terminationGracePeriodSeconds: 15
+      {{- if .Values.hostManager.volumes.hostPath }}
+      volumes:
+        - hostPath:
+            path: {{ .Values.hostManager.volumes.hostPath }}/log/cllog
+            type: ''
+          name: cllog
+        - hostPath:
+            path: {{ .Values.hostManager.volumes.hostPath }}/log/java
+            type: ''
+          name: logjava
+        - hostPath:
+            path: /home/nacfg.ini
+            type: ''
+          name: nacfg
+      {{- else }}
+      volumes:
+        - hostPath:
+            path: /app/log/cllog
+            type: ''
+          name: cllog
+        - hostPath:
+            path: /app/log/java
+            type: ''
+          name: logjava
+        - hostPath:
+            path: /home/nacfg.ini
+            type: ''
+          name: nacfg
+    {{- end }}

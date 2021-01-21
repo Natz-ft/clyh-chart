@@ -1,0 +1,16 @@
+apiVersion: v1
+kind: Service
+metadata:
+  name: hotelqueryintegrationcloudservice-svc
+  namespace: jd
+spec:
+  ports:
+    - name: hotelqueryintegrationcloudservice
+      nodePort: 31837
+      port: 14571
+      protocol: TCP
+      targetPort: 14571
+  selector:
+    app: hotelqueryintegrationcloudservice
+  sessionAffinity: None
+  type: NodePort

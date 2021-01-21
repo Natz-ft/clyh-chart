@@ -1,0 +1,181 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: clairticketdataservice
+  namespace: jp
+spec:
+  progressDeadlineSeconds: 600
+{{- if .Values.clairticketdataservice.nodeManager.replicas }}
+  replicas: {{ .Values.clairticketdataservice.nodeManager.replicas }}
+{{- else if eq .Values.environment "test" }}
+  replicas: 1
+{{- else if eq .Values.environment "formal" }}
+  replicas: 2
+{{- end }}
+  revisionHistoryLimit: 10
+  selector:
+    matchLabels:
+      app: clairticketdataservice
+  strategy:
+    rollingUpdate:
+      maxSurge: 25%
+      maxUnavailable: 1
+    type: RollingUpdate
+  template:
+    metadata:
+      labels:
+        app: clairticketdataservice
+    spec:
+      containers:
+        - env:
+            - name: MYENV_CONFIGNAME
+              value: >-
+                application,dbroute,logconfig,serviceroute
+            - name: MYENV_CONFIGPROFILE
+              value: zs
+            - name: MYENV_CONFIGLABEL
+              value: cLAirTicketInfoDataService-PAL-K8S-ZS
+            - name: MYENV_CONFIGSERVICEID
+              value: spring-cloud-config-server
+            - name: MYENV_EUREKAURL
+              value: >-
+                http://eureka1:8000/eureka/,http://eureka2:8000/eureka/,http://eureka3:8000/eureka/
+            - name: MYENV_TOMCATPORT
+            {{- if .Values.clairticketdataservice.networkManager.tomcat.port }}
+              value: {{ .Values.clairticketdataservice.networkManager.tomcat.port | quote }}
+            {{- else }}
+              value: "12938"
+            {{- end }}
+            - name: JAVA_OPTS
+              value: {{ .Values.clairticketdataservice.resourceManager.jvm }}
+        {{- if .Values.clairticketdataservice.nodeManager.tag }}
+          image: {{ .Values.imageRegistry }}/clairticketdataservice:{{ .Values.clairticketdataservice.nodeManager.tag }}
+        {{- else }}
+          image: {{ .Values.imageRegistry }}/clairticketdataservice:{{ .Values.dockerTag }}
+        {{- end }}
+          imagePullPolicy: IfNotPresent
+          lifecycle:
+            preStop:
+              exec:
+                {{- if .Values.clairticketdataservice.networkManager.command.url }}
+                command:
+                  - curl
+                  - {{ .Values.clairticketdataservice.networkManager.command.url }}
+                {{- else }}
+                command:
+                  - curl
+                  - 'http://localhost:12938/unregisterbyext'
+                {{- end }}
+          livenessProbe:
+            failureThreshold: 3
+            httpGet:
+              path: /info
+            {{- if .Values.clairticketdataservice.networkManager.tomcat.port }}
+              port: {{ .Values.clairticketdataservice.networkManager.tomcat.port }}
+            {{- else }}
+              port: 12938
+            {{- end }}
+              scheme: HTTP
+            initialDelaySeconds: 100
+            periodSeconds: 10
+            successThreshold: 1
+            timeoutSeconds: 10
+          name: clairticketdataservice
+          ports:
+            {{- if .Values.clairticketdataservice.networkManager.tomcat.port }}
+            - containerPort: {{ .Values.clairticketdataservice.networkManager.tomcat.port }}
+              hostPort: {{ .Values.clairticketdataservice.networkManager.tomcat.port }}
+              protocol: TCP
+            {{- else }}
+            - containerPort: 12938
+              hostPort: 12938
+              protocol: TCP
+            {{- end }}
+            {{- if .Values.clairticketdataservice.networkManager.thrift.port }}
+            - containerPort: {{ .Values.clairticketdataservice.networkManager.thrift.port }}
+              hostPort: {{ .Values.clairticketdataservice.networkManager.thrift.port }}
+              protocol: TCP
+            {{- else }}
+            - containerPort: 13157
+              hostPort: 13157
+              protocol: TCP
+            {{- end }}
+          readinessProbe:
+            failureThreshold: 3
+            httpGet:
+              path: /info
+            {{- if .Values.clairticketdataservice.networkManager.tomcat.port }}
+              port: {{ .Values.clairticketdataservice.networkManager.tomcat.port }}
+            {{- else }}
+              port: 12938
+            {{- end }}
+              scheme: HTTP
+            initialDelaySeconds: 10
+            periodSeconds: 5
+            successThreshold: 1
+            timeoutSeconds: 10
+          {{- if .Values.clairticketdataservice.resourceManager.resources.custom -}}
+          resources:
+            limits:
+              cpu: {{ .Values.clairticketdataservice.resourceManager.resources.limits.cpu }}
+              memory: {{ .Values.clairticketdataservice.resourceManager.resources.limits.memory }}
+            requests:
+              cpu: {{ .Values.clairticketdataservice.resourceManager.resources.requests.cpu }}
+              memory: {{ .Values.clairticketdataservice.resourceManager.resources.requests.memory }}
+          {{- else }}
+          resources:
+            limits:
+              cpu: '1'
+              memory: 3Gi
+            requests:
+              cpu: 100m
+              memory: 128Mi
+          {{- end }}
+          terminationMessagePath: /dev/termination-log
+          terminationMessagePolicy: File
+          volumeMounts:
+            - mountPath: /home/nacfg.ini
+              name: nacfg
+              subPath: nacfg.ini
+            - mountPath: /var/log/cllog
+              name: cllog
+            - mountPath: /var/log/java
+              name: logjava
+      dnsPolicy: ClusterFirstWithHostNet
+      imagePullSecrets:
+        - name: regcred
+      nodeSelector:
+        env: jp
+      restartPolicy: Always
+      schedulerName: default-scheduler
+      securityContext: {}
+      terminationGracePeriodSeconds: 15
+    {{- if .Values.hostManager.volumes.hostPath }}
+      volumes:
+        - hostPath:
+            path: {{ .Values.hostManager.volumes.hostPath }}/log/cllog
+            type: ''
+          name: cllog
+        - hostPath:
+            path: {{ .Values.hostManager.volumes.hostPath }}/log/java
+            type: ''
+          name: logjava
+        - hostPath:
+            path: /home/nacfg.ini
+            type: ''
+          name: nacfg
+    {{- else }}
+      volumes:
+        - hostPath:
+            path: /app/log/cllog
+            type: ''
+          name: cllog
+        - hostPath:
+            path: /app/log/java
+            type: ''
+          name: logjava
+        - hostPath:
+            path: /home/nacfg.ini
+            type: ''
+          name: nacfg
+    {{- end }}

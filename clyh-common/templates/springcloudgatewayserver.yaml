@@ -1,0 +1,158 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: springcloudgatewayserver-jp-outer
+  namespace: common
+spec:
+  progressDeadlineSeconds: 600
+  {{- if .Values.springcloudgatewayserver_jp_outer.nodeManager.replicas }}
+  replicas: {{ .Values.springcloudgatewayserver_jp_outer.nodeManager.replicas }}
+  {{- else if eq .Values.environment "test" }}
+  replicas: 1
+  {{- else if eq .Values.environment "formal" }}
+  replicas: 2
+  {{- end }}
+  revisionHistoryLimit: 10
+  selector:
+    matchLabels:
+      app: springcloudgatewayserver-jp-outer
+  strategy:
+    rollingUpdate:
+      maxSurge: 25%
+      maxUnavailable: 1
+    type: RollingUpdate
+  template:
+    metadata:
+      labels:
+        app: springcloudgatewayserver-jp-outer
+    spec:
+      containers:
+        - env:
+            - name: MYENV_CONFIGNAME
+              value: 'application,logconfig'
+            - name: MYENV_CONFIGPROFILE
+              value: zs
+            - name: MYENV_CONFIGLABEL
+              value: SpringCloudGatewayServer-k8s
+            - name: MYENV_CONFIGSERVICEID
+              value: spring-cloud-config-server
+            - name: MYENV_EUREKAURL
+              value: 'http://eureka1:8000/eureka/'
+            - name: MYENV_TOMCATPORT
+              {{- if .Values.springcloudgatewayserver_jp_outer.networkManager.tomcat.port }}
+              value: {{ .Values.springcloudgatewayserver_jp_outer.networkManager.tomcat.port | quote }}
+              {{- else }}
+              value: "13948"
+              {{- end }}
+            - name: JAVA_OPTS
+              value: {{ .Values.springcloudgatewayserver_jp_outer.resourceManager.jvm }}
+          {{- if .Values.springcloudgatewayserver_jp_outer.nodeManager.tag }}
+          image: {{ .Values.imageRegistry }}/springcloudgatewayserver-jp-outer:{{ .Values.springcloudgatewayserver_jp_outer.nodeManager.tag }}
+         {{- else }}
+          image: {{ .Values.imageRegistry }}/springcloudgatewayserver-jp-outer:{{ .Values.dockerTag }}
+         {{- end }}
+          imagePullPolicy: IfNotPresent
+          livenessProbe:
+            failureThreshold: 3
+            httpGet:
+              path: /actuator/info
+              {{- if .Values.springcloudgatewayserver_jp_outer.networkManager.tomcat.port }}
+              port: {{ .Values.springcloudgatewayserver_jp_outer.networkManager.tomcat.port }}
+              {{- else }}
+              port: 13948
+              {{- end }}
+              scheme: HTTP
+            initialDelaySeconds: 100
+            periodSeconds: 10
+            successThreshold: 1
+            timeoutSeconds: 10
+          name: springcloudgatewayserver_jp_outer
+          ports:
+            {{- if .Values.springcloudgatewayserver_jp_outer.networkManager.tomcat.port }}
+            - containerPort: {{ .Values.springcloudgatewayserver_jp_outer.networkManager.tomcat.port }}
+              hostPort: {{ .Values.springcloudgatewayserver_jp_outer.networkManager.tomcat.port }}
+              protocol: TCP
+            {{- else }}
+            - containerPort: 13948
+              hostPort: 13948
+              protocol: TCP
+            {{- end }}
+          readinessProbe:
+            failureThreshold: 3
+            httpGet:
+              path: /actuator/info
+              {{- if .Values.springcloudgatewayserver_jp_outer.networkManager.tomcat.port }}
+              port: {{ .Values.springcloudgatewayserver_jp_outer.networkManager.tomcat.port }}
+              {{- else }}
+              port: 13948
+              {{- end }}
+              scheme: HTTP
+            initialDelaySeconds: 10
+            periodSeconds: 5
+            successThreshold: 1
+            timeoutSeconds: 10
+          {{- if .Values.springcloudgatewayserver_jp_outer.resourceManager.resources.custom -}}
+          resources:
+            limits:
+              cpu: {{ .Values.springcloudgatewayserver_jp_outer.resourceManager.resources.limits.cpu }}
+              memory: {{ .Values.springcloudgatewayserver_jp_outer.resourceManager.resources.limits.memory }}
+            requests:
+              cpu: {{ .Values.springcloudgatewayserver_jp_outer.resourceManager.resources.requests.cpu }}
+              memory: {{ .Values.springcloudgatewayserver_jp_outer.resourceManager.resources.requests.memory }}
+          {{- else }}
+          resources:
+            limits:
+              cpu: '1'
+              memory: 1Gi
+            requests:
+              cpu: 100m
+              memory: 128Mi
+          {{- end }}
+          terminationMessagePath: /dev/termination-log
+          terminationMessagePolicy: File
+          volumeMounts:
+            - mountPath: /var/log/cllog
+              name: cllog
+            - mountPath: /var/log/java
+              name: logjava
+            - mountPath: /home/nacfg.ini
+              name: base
+              subPath: nacfg.ini
+      dnsPolicy: ClusterFirstWithHostNet
+      imagePullSecrets:
+        - name: regcred
+      nodeSelector:
+        env1: common
+      restartPolicy: Always
+      schedulerName: default-scheduler
+      securityContext: {}
+      terminationGracePeriodSeconds: 5
+      {{- if .Values.hostManager.volumes.hostPath }}
+      volumes:
+        - hostPath:
+            path: {{ .Values.hostManager.volumes.hostPath }}/log/cllog
+            type: ''
+          name: cllog
+        - hostPath:
+            path: {{ .Values.hostManager.volumes.hostPath }}/log/java
+            type: ''
+          name: logjava
+        - configMap:
+            defaultMode: 420
+            name: base-config
+          name: base
+      {{- else }}
+      volumes:
+        - hostPath:
+            path: /app/log/cllog
+            type: ''
+          name: cllog
+        - hostPath:
+            path: /app/log/java
+            type: ''
+          name: logjava
+        - configMap:
+            defaultMode: 420
+            name: base-config
+          name: base
+      {{- end }}

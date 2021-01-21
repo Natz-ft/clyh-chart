@@ -1,0 +1,181 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: clonetnbuymessageconsumer
+  namespace: jp
+spec:
+  progressDeadlineSeconds: 600
+{{- if .Values.clonetnbuymessageconsumer.nodeManager.replicas }}
+  replicas: {{ .Values.clonetnbuymessageconsumer.nodeManager.replicas }}
+{{- else if eq .Values.environment "test" }}
+  replicas: 1
+{{- else if eq .Values.environment "formal" }}
+  replicas: 2
+{{- end }}
+  revisionHistoryLimit: 10
+  selector:
+    matchLabels:
+      app: clonetnbuymessageconsumer
+  strategy:
+    rollingUpdate:
+      maxSurge: 25%
+      maxUnavailable: 1
+    type: RollingUpdate
+  template:
+    metadata:
+      labels:
+        app: clonetnbuymessageconsumer
+    spec:
+      containers:
+        - env:
+            - name: MYENV_CONFIGNAME
+              value: >-
+                application,dbroute,logconfig,serviceroute
+            - name: MYENV_CONFIGPROFILE
+              value: zs
+            - name: MYENV_CONFIGLABEL
+              value: CLOneTNBuyMessageConsumer-PAL-K8S-ZS
+            - name: MYENV_CONFIGSERVICEID
+              value: spring-cloud-config-server
+            - name: MYENV_EUREKAURL
+              value: >-
+                http://eureka1:8000/eureka/,http://eureka2:8000/eureka/,http://eureka3:8000/eureka/
+            - name: MYENV_TOMCATPORT
+            {{- if .Values.clonetnbuymessageconsumer.networkManager.tomcat.port }}
+              value: {{ .Values.clonetnbuymessageconsumer.networkManager.tomcat.port | quote }}
+            {{- else }}
+              value: "12679"
+            {{- end }}
+            - name: JAVA_OPTS
+              value: {{ .Values.clonetnbuymessageconsumer.resourceManager.jvm }}
+        {{- if .Values.clonetnbuymessageconsumer.nodeManager.tag }}
+          image: {{ .Values.imageRegistry }}/clonetnbuymessageconsumer:{{ .Values.clonetnbuymessageconsumer.nodeManager.tag }}
+        {{- else }}
+          image: {{ .Values.imageRegistry }}/clonetnbuymessageconsumer:{{ .Values.dockerTag }}
+        {{- end }}
+          imagePullPolicy: IfNotPresent
+          lifecycle:
+            preStop:
+              exec:
+                {{- if .Values.clonetnbuymessageconsumer.networkManager.command.url }}
+                command:
+                  - curl
+                  - {{ .Values.clonetnbuymessageconsumer.networkManager.command.url }}
+                {{- else }}
+                command:
+                  - curl
+                  - 'http://localhost:12679/unregisterbyext'
+                {{- end }}
+          livenessProbe:
+            failureThreshold: 3
+            httpGet:
+              path: /info
+            {{- if .Values.clonetnbuymessageconsumer.networkManager.tomcat.port }}
+              port: {{ .Values.clonetnbuymessageconsumer.networkManager.tomcat.port }}
+            {{- else }}
+              port: 12679
+            {{- end }}
+              scheme: HTTP
+            initialDelaySeconds: 100
+            periodSeconds: 10
+            successThreshold: 1
+            timeoutSeconds: 10
+          name: clonetnbuymessageconsumer
+          ports:
+            {{- if .Values.clonetnbuymessageconsumer.networkManager.tomcat.port }}
+            - containerPort: {{ .Values.clonetnbuymessageconsumer.networkManager.tomcat.port }}
+              hostPort: {{ .Values.clonetnbuymessageconsumer.networkManager.tomcat.port }}
+              protocol: TCP
+            {{- else }}
+            - containerPort: 12679
+              hostPort: 12679
+              protocol: TCP
+            {{- end }}
+            {{- if .Values.clonetnbuymessageconsumer.networkManager.thrift.port }}
+            - containerPort: {{ .Values.clonetnbuymessageconsumer.networkManager.thrift.port }}
+              hostPort: {{ .Values.clonetnbuymessageconsumer.networkManager.thrift.port }}
+              protocol: TCP
+            {{- else }}
+            - containerPort: 12748
+              hostPort: 12748
+              protocol: TCP
+            {{- end }}
+          readinessProbe:
+            failureThreshold: 3
+            httpGet:
+              path: /info
+            {{- if .Values.clonetnbuymessageconsumer.networkManager.tomcat.port }}
+              port: {{ .Values.clonetnbuymessageconsumer.networkManager.tomcat.port }}
+            {{- else }}
+              port: 12679
+            {{- end }}
+              scheme: HTTP
+            initialDelaySeconds: 10
+            periodSeconds: 5
+            successThreshold: 1
+            timeoutSeconds: 10
+          {{- if .Values.clonetnbuymessageconsumer.resourceManager.resources.custom -}}
+          resources:
+            limits:
+              cpu: {{ .Values.clonetnbuymessageconsumer.resourceManager.resources.limits.cpu }}
+              memory: {{ .Values.clonetnbuymessageconsumer.resourceManager.resources.limits.memory }}
+            requests:
+              cpu: {{ .Values.clonetnbuymessageconsumer.resourceManager.resources.requests.cpu }}
+              memory: {{ .Values.clonetnbuymessageconsumer.resourceManager.resources.requests.memory }}
+          {{- else }}
+          resources:
+            limits:
+              cpu: '1'
+              memory: 1Gi
+            requests:
+              cpu: 100m
+              memory: 128Mi
+          {{- end }}
+          terminationMessagePath: /dev/termination-log
+          terminationMessagePolicy: File
+          volumeMounts:
+            - mountPath: /home/nacfg.ini
+              name: nacfg
+              subPath: nacfg.ini
+            - mountPath: /var/log/cllog
+              name: cllog
+            - mountPath: /var/log/java
+              name: logjava
+      dnsPolicy: ClusterFirstWithHostNet
+      imagePullSecrets:
+        - name: regcred
+      nodeSelector:
+        env: jp
+      restartPolicy: Always
+      schedulerName: default-scheduler
+      securityContext: {}
+      terminationGracePeriodSeconds: 15
+    {{- if .Values.hostManager.volumes.hostPath }}
+      volumes:
+        - hostPath:
+            path: {{ .Values.hostManager.volumes.hostPath }}/log/cllog
+            type: ''
+          name: cllog
+        - hostPath:
+            path: {{ .Values.hostManager.volumes.hostPath }}/log/java
+            type: ''
+          name: logjava
+        - hostPath:
+            path: /home/nacfg.ini
+            type: ''
+          name: nacfg
+    {{- else }}
+      volumes:
+        - hostPath:
+            path: /app/log/cllog
+            type: ''
+          name: cllog
+        - hostPath:
+            path: /app/log/java
+            type: ''
+          name: logjava
+        - hostPath:
+            path: /home/nacfg.ini
+            type: ''
+          name: nacfg
+    {{- end }}

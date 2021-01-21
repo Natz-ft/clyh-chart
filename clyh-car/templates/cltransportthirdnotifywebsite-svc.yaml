@@ -1,0 +1,17 @@
+apiVersion: v1
+kind: Service
+metadata:
+  name: cltransportthirdnotifywebsite
+  namespace: car
+spec:
+  externalTrafficPolicy: Cluster
+  ports:
+    - name: http
+      nodePort: 31257
+      port: 12253
+      protocol: TCP
+      targetPort: 12253
+  selector:
+    app: cltransportthirdnotifywebsite
+  sessionAffinity: None
+  type: NodePort

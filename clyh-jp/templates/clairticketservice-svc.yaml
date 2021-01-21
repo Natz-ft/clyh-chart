@@ -1,0 +1,15 @@
+apiVersion: v1
+kind: Service
+metadata:
+  name: clairticketservice-svc
+  namespace: jp
+spec:
+  ports:
+    - name: thrift
+      port: {{ .Values.clairticketservice.service.thriftport }}
+      protocol: TCP
+      targetPort: {{ .Values.clairticketservice.service.thriftport }}
+  selector:
+    app: clairticketservice
+  sessionAffinity: None
+  type: ClusterIP

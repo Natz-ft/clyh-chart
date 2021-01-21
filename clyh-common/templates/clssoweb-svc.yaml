@@ -1,0 +1,17 @@
+apiVersion: v1
+kind: Service
+metadata:
+  name: clssoweb-nodeport
+  namespace: common
+spec:
+  externalTrafficPolicy: Cluster
+  ports:
+    - name: http
+      nodePort: 30020
+      port: 13520
+      protocol: TCP
+      targetPort: 13520
+  selector:
+    app: clssoweb
+  sessionAffinity: None
+  type: NodePort

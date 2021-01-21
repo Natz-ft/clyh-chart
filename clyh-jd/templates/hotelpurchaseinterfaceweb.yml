@@ -1,0 +1,137 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: hotelpurchaseinterfaceweb
+  namespace: jd
+spec:
+  progressDeadlineSeconds: 600
+  replicas: 1
+  revisionHistoryLimit: 10
+  selector:
+    matchLabels:
+      app: hotelpurchaseinterfaceweb
+  strategy:
+    rollingUpdate:
+      maxSurge: 25%
+      maxUnavailable: 1
+    type: RollingUpdate
+  template:
+    metadata:
+      annotations:
+        redeploy-timestamp: '1600355735209'
+      labels:
+        app: hotelpurchaseinterfaceweb
+    spec:
+      containers:
+        - env:
+            - name: MYENV_CONFIGNAME
+              value: >-
+                dbroute,logconfig,serviceroute,application,ctrip,dossen,fangcang,huazhu,iman,javaMonitorGatherComponet,jielv,jinjiang,openApi,plateno,qiantao,qunar,vienna,webService,yilong,businessparamconfig
+            - name: MYENV_CONFIGPROFILE
+              value: zs
+            - name: MYENV_CONFIGLABEL
+              value: HotelPurchaseInterfaceWeb-K8s-ZS
+            - name: MYENV_CONFIGSERVICEID
+              value: spring-cloud-config-server
+            - name: MYENV_EUREKAURL
+              value: >-
+                http://eureka1:8000/eureka/,http://eureka2:8000/eureka/,http://eureka3:8000/eureka/
+            - name: MYENV_TOMCATPORT
+              value: '14313'
+            - name: JAVA_OPTS
+              value: {{ .Values.hotelpurchaseinterfaceweb.resourceManager.jvm }}
+          {{- if not .Values.commonConfig.nodeManager.tag }}
+          image: {{ .Values.imageRegistry }}/hotelpurchaseinterfaceweb:{{ .Values.hotelpurchaseinterfaceweb.nodeManager.tag }}
+          {{- else }}
+          image: {{ .Values.imageRegistry }}/hotelpurchaseinterfaceweb:{{ .Values.dockerTag }}
+          {{- end }}
+          imagePullPolicy: IfNotPresent
+          lifecycle:
+            preStop:
+              exec:
+                command:
+                  - curl
+                  - 'http://localhost:14313/unregisterbyext'
+          livenessProbe:
+            failureThreshold: 3
+            httpGet:
+              path: /info
+              port: 14313
+              scheme: HTTP
+            initialDelaySeconds: 100
+            periodSeconds: 100
+            successThreshold: 1
+            timeoutSeconds: 100
+          name: hotelpurchaseinterfaceweb
+          ports:
+            - containerPort: 14313
+              hostPort: 14313
+              protocol: TCP
+            - containerPort: 14315
+              hostPort: 14315
+              protocol: TCP
+          readinessProbe:
+            failureThreshold: 3
+            httpGet:
+              path: /info
+              port: 14313
+              scheme: HTTP
+            initialDelaySeconds: 100
+            periodSeconds: 50
+            successThreshold: 1
+            timeoutSeconds: 100
+          resources:
+            limits:
+              cpu: 500m
+              memory: 1Gi
+            requests:
+              cpu: 100m
+              memory: 128Mi
+          terminationMessagePath: /dev/termination-log
+          terminationMessagePolicy: File
+          volumeMounts:
+            - mountPath: /var/log/cllog
+              name: cllog
+            - mountPath: /var/log/java
+              name: logjava
+            - mountPath: /home/nacfg.ini
+              name: nacfg
+      dnsPolicy: ClusterFirstWithHostNet
+      hostNetwork: true
+      imagePullSecrets:
+        - name: regcred
+      nodeSelector:
+        env: jd
+      restartPolicy: Always
+      schedulerName: default-scheduler
+      securityContext: {}
+      terminationGracePeriodSeconds: 15
+      {{- if not .Values.hostManager.volumes.hostPath }}
+      volumes:
+        - hostPath:
+            path: {{ .Values.hostManager.volumes.hostPath }}/log/cllog
+            type: ''
+          name: cllog
+        - hostPath:
+            path: {{ .Values.hostManager.volumes.hostPath }}/log/java
+            type: ''
+          name: logjava
+        - hostPath:
+            path: {{ .Values.hostManager.volumes.nacfgPath }}/nacfg.ini
+            type: ''
+          name: nacfg
+      {{- else }}
+      volumes:
+        - hostPath:
+            path: /app/log/cllog
+            type: ''
+          name: cllog
+        - hostPath:
+            path: /app/log/java
+            type: ''
+          name: logjava
+        - hostPath:
+            path: /home/nacfg.ini
+            type: ''
+          name: nacfg
+      {{- end }}

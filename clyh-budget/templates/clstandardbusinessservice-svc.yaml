@@ -1,0 +1,21 @@
+apiVersion: v1
+kind: Service
+metadata:
+  name: clstandardbusinessservice-svc
+  namespace: budget
+spec:
+  ports:
+    - name: thrift
+      {{- if .Values.clstandardbusinessservice.networkManager.thrift.port }}
+      port: {{ .Values.clstandardbusinessservice.networkManager.thrift.port }}
+      protocol: TCP
+      targetPort: {{ .Values.clstandardbusinessservice.networkManager.thrift.port }}
+      {{- else }}
+      protocol: TCP
+      port: 12562
+      targetPort: 12562
+      {{- end }}
+  selector:
+    app: clstandardbusinessservice
+  sessionAffinity: None
+  type: ClusterIP

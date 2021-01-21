@@ -1,0 +1,171 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: cltransportconfigdataservice
+  namespace: car
+spec:
+  progressDeadlineSeconds: 600
+  {{- if .Values.cltransportconfigdataservice.nodeManager.replicas }}
+  replicas: {{ .Values.cltransportconfigdataservice.nodeManager.replicas }}
+  {{- else if eq .Values.environment "test" }}
+  replicas: 1
+  {{- else if eq .Values.environment "formal" }}
+  replicas: 2
+  {{- end }}
+  revisionHistoryLimit: 10
+  selector:
+    matchLabels:
+      app: cltransportconfigdataservice
+  strategy:
+    rollingUpdate:
+      maxSurge: 25%
+      maxUnavailable: 1
+    type: RollingUpdate
+  template:
+    metadata:
+      labels:
+        app: cltransportconfigdataservice
+    spec:
+      containers:
+        - env:
+            - name: MYENV_CONFIGNAME
+              value: >-
+                dbroute,jdbc,logconfig,paramjdbc,redis,serviceroute,application
+            - name: MYENV_CONFIGPROFILE
+              value: zs
+            - name: MYENV_CONFIGLABEL
+              value: CLTransportConfigDataService
+            - name: MYENV_CONFIGSERVICEID
+              value: spring-cloud-config-server
+            - name: MYENV_EUREKAURL
+              value: >-
+                http://eureka1:8000/eureka/,http://eureka2:8000/eureka/,http://eureka3:8000/eureka/
+            - name: MYENV_TOMCATPORT
+              {{- if .Values.cltransportconfigdataservice.networkManager.tomcat.port }}
+              value: {{ .Values.cltransportconfigdataservice.networkManager.tomcat.port | quote }}
+              {{- else }}
+              value: "12243"
+            {{- end }}
+            - name: JAVA_OPTS
+              value: {{ .Values.cltransportconfigdataservice.resourceManager.jvm }}
+          {{- if .Values.cltransportconfigdataservice.nodeManager.tag }}
+          image: {{ .Values.imageRegistry }}/cltransportconfigdataservice:{{ .Values.cltransportconfigdataservice.nodeManager.tag }}
+          {{- else }}
+          image: {{ .Values.imageRegistry }}/cltransportconfigdataservice:{{ .Values.dockerTag }}
+          {{- end }}
+          imagePullPolicy: Always
+          lifecycle:
+            preStop:
+              exec:
+                {{- if .Values.cltransportconfigdataservice.networkManager.command.url }}
+                command:
+                  - curl
+                  - {{ .Values.cltransportconfigdataservice.networkManager.command.url }}
+                {{- else }}
+                command:
+                  - curl
+                  - 'http://localhost:12243/unregisterbyext'
+          {{- end }}
+          livenessProbe:
+            failureThreshold: 3
+            httpGet:
+              path: /info
+              {{- if .Values.cltransportconfigdataservice.networkManager.tomcat.port }}
+              port: {{ .Values.cltransportconfigdataservice.networkManager.tomcat.port }}
+              {{- else }}
+              port: 12243
+              {{- end }}
+              scheme: HTTP
+            initialDelaySeconds: 100
+            periodSeconds: 10
+            successThreshold: 1
+            timeoutSeconds: 10
+          name: cltransportconfigdataservice
+          ports:
+            {{- if .Values.cltransportconfigdataservice.networkManager.tomcat.port }}
+            - containerPort: {{ .Values.cltransportconfigdataservice.networkManager.tomcat.port }}
+              hostPort: {{ .Values.cltransportconfigdataservice.networkManager.tomcat.port }}
+              protocol: TCP
+            {{- else }}
+            - containerPort: 12243
+              hostPort: 12243
+              protocol: TCP
+            {{- end }}
+          readinessProbe:
+            failureThreshold: 3
+            httpGet:
+              path: /info
+              {{- if .Values.cltransportconfigdataservice.networkManager.tomcat.port }}
+              port: {{ .Values.cltransportconfigdataservice.networkManager.tomcat.port }}
+              {{- else }}
+              port: 12243
+              {{- end }}
+              scheme: HTTP
+            initialDelaySeconds: 10
+            periodSeconds: 5
+            successThreshold: 1
+            timeoutSeconds: 10
+          {{- if .Values.cltransportconfigdataservice.resourceManager.resources.custom -}}
+          resources:
+            limits:
+              cpu: {{ .Values.cltransportconfigdataservice.resourceManager.resources.limits.cpu }}
+              memory: {{ .Values.cltransportconfigdataservice.resourceManager.resources.limits.memory }}
+            requests:
+              cpu: {{ .Values.cltransportconfigdataservice.resourceManager.resources.requests.cpu }}
+              memory: {{ .Values.cltransportconfigdataservice.resourceManager.resources.requests.memory }}
+          {{- else }}
+          resources:
+            limits:
+              cpu: '1'
+              memory: 1Gi
+            requests:
+              cpu: 200m
+              memory: 128Mi
+          {{- end }}
+          terminationMessagePath: /dev/termination-log
+          terminationMessagePolicy: File
+          volumeMounts:
+            - mountPath: /home/nacfg.ini
+              name: nacfg
+            - mountPath: /var/log/cllog
+              name: cllog
+            - mountPath: /var/log/java
+              name: logjava
+      dnsPolicy: ClusterFirstWithHostNet
+      imagePullSecrets:
+        - name: regcred
+      nodeSelector:
+        env: car
+      restartPolicy: Always
+      schedulerName: default-scheduler
+      securityContext: {}
+      terminationGracePeriodSeconds: 15
+      {{- if .Values.hostManager.volumes.hostPath }}
+      volumes:
+        - hostPath:
+            path: {{ .Values.hostManager.volumes.hostPath }}/log/cllog
+            type: ''
+          name: cllog
+        - hostPath:
+            path: {{ .Values.hostManager.volumes.hostPath }}/log/java
+            type: ''
+          name: logjava
+        - hostPath:
+            path: /home/nacfg.ini
+            type: ''
+          name: nacfg
+      {{- else }}
+      volumes:
+        - hostPath:
+            path: /app/log/cllog
+            type: ''
+          name: cllog
+        - hostPath:
+            path: /app/log/java
+            type: ''
+          name: logjava
+        - hostPath:
+            path: /home/nacfg.ini
+            type: ''
+          name: nacfg
+    {{- end }}

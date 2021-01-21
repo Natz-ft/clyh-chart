@@ -1,0 +1,272 @@
+# The base budget image to use for all components.
+imageRegistry:  #仓库地址值
+dockerTag: 1.0.0 #
+environment: "formal"
+environment: "formal"
+hostManager:
+  volumes:
+    hostPath: /app
+
+configMapManger:
+  db:
+    serviceroute:
+      url: jdbc:mysql://ServiceRouteDB-R.BJ01.517na.com/ServiceRouteDB
+      username: JmllLBwCJN7P5a0VXvvHkg@@
+      password: 6BPzhGiVwAPCW1LhtdUvCblGokvcMGesrY1wV/coEWg@
+    writeroute:
+      url: jdbc:mysql://DataBaseRoute-R.BJ01.517na.com:3306/DataBaseRoute
+      username: JmllLBwCJN7P5a0VXvvHkg@@
+      password: 6BPzhGiVwAPCW1LhtdUvCblGokvcMGesrY1wV/coEWg@
+    readroute:
+      url: jdbc:mysql://DataBaseRoute-R.BJ01.517na.com:3306/DataBaseRoute
+      username: JmllLBwCJN7P5a0VXvvHkg@@
+      password: 6BPzhGiVwAPCW1LhtdUvCblGokvcMGesrY1wV/coEWg@
+  redis:
+    url: jdbc:mysql://DataBaseRoute-W.BJ01.517na.com:3306/DataBaseRoute
+    username: kSRw85/S628Jd6cTkHmEgA@@
+    password: 6BPzhGiVwAPCW1LhtdUvCblGokvcMGesrY1wV/coEWg@
+    dbname: CLTradeRedisDB
+
+cltrainpaynotifywebsite:
+  networkManager:
+    tomcat:
+      port:
+    thrift:
+      port:
+    command:
+      url:
+  resourceManager:
+    resources:
+      custom: false
+    #      requests:
+    #        memory: 128Mi
+    #        cpu: '0.2'
+    #      limits:
+    #        memory: 700Mi
+    #        cpu: '1'
+    jvm: >-
+      -server -Xms128m -Xmx512m
+      -javaagent:/usr/local/soft/skywalking/agent65/skywalking-agent.jar
+      -DSW_AGENT_COLLECTOR_BACKEND_SERVICES=skywalkingadmin:31101
+      -DSW_AGENT_NAME=cltrainpaynotifywebsite -DSW_LOGGING_LEVEL=ERROR
+  nodeManager:
+    tag: 1.0.0
+#    replicas: 2
+
+
+
+
+
+cltrainticketsnotifywebsite:
+  networkManager:
+    tomcat:
+      port:
+    thrift:
+      port:
+    command:
+      url:
+  resourceManager:
+    resources:
+      custom: false
+    #      requests:
+    #        memory: 128Mi
+    #        cpu: '0.2'
+    #      limits:
+    #        memory: 700Mi
+    #        cpu: '1'
+    jvm: >-
+      -server -Xms128m -Xmx512m
+      -javaagent:/usr/local/soft/skywalking/agent65/skywalking-agent.jar
+      -DSW_AGENT_COLLECTOR_BACKEND_SERVICES=skywalkingadmin:31101
+      -DSW_AGENT_NAME=cltrainticketsnotifywebsite -DSW_LOGGING_LEVEL=ERROR
+  nodeManager:
+    tag: 1.0.0
+    #    replicas: 2
+
+
+cltrainparambilldataservice:
+  networkManager:
+    tomcat:
+      port:
+    thrift:
+      port:
+    command:
+      url:
+  resourceManager:
+    resources:
+      custom: false
+    #      requests:
+    #        memory: 128Mi
+    #        cpu: '0.2'
+    #      limits:
+    #        memory: 1024Mi
+    #        cpu: '1'
+    jvm: >-
+      -server -Xms128m -Xmx1024m
+      -javaagent:/usr/local/soft/skywalking8.1.0-es7/agent/skywalking-agent.jar
+      -DSW_AGENT_COLLECTOR_BACKEND_SERVICES=apm.517la.com:32234
+      -DSW_AGENT_NAME=差旅系统-火车票参数账单数据服务
+      -DSW_KAFKA_BOOTSTRAP_SERVERS=kafka.517la.com:9092
+  nodeManager:
+    tag: 1.0.0
+    #    replicas: 2
+
+
+cltrainbusinessdataservice:
+  networkManager:
+    tomcat:
+      port:
+    thrift:
+      port:
+    command:
+      url:
+  resourceManager:
+    resources:
+      custom: false
+    #      requests:
+    #        memory: 128Mi
+    #        cpu: '0.2'
+    #      limits:
+    #        memory: 1536Mi
+    #        cpu: '2'
+    jvm: >-
+      -server -Xms128m -Xmx1536m
+      -javaagent:/usr/local/soft/skywalking8.1.0-es7/agent/skywalking-agent.jar
+      -DSW_AGENT_COLLECTOR_BACKEND_SERVICES=apm.517la.com:32234
+      -DSW_AGENT_NAME=cltrainbusinessdataservice -DSW_KAFKA_BOOTSTRAP_SERVERS=kafka.517la.com:9092 -DSW_LOGGING_LEVEL=ERROR
+  nodeManager:
+    tag: 1.0.0
+    #    replicas: 2
+
+
+
+trainpayrefundservice:
+  networkManager:
+    tomcat:
+      port:
+    thrift:
+      port:
+    command:
+      url:
+  resourceManager:
+    resources:
+      custom: false
+    #      requests:
+    #        memory: 128Mi
+    #        cpu: '0.2'
+    #      limits:
+    #        memory: 700Mi
+    #        cpu: '1'
+    jvm: >-
+      -server -Xms128m -Xmx512m
+      -javaagent:/usr/local/soft/skywalking8.1.0-es7/agent/skywalking-agent.jar
+      -DSW_AGENT_COLLECTOR_BACKEND_SERVICES=apm.517la.com:32234
+      -DSW_AGENT_NAME=差旅系统-火车票支付退款服务
+      -DSW_KAFKA_BOOTSTRAP_SERVERS=kafka.517la.com:9092
+  nodeManager:
+    tag: 1.0.0
+    #    replicas: 2
+
+
+cltrainyihaopurchaseservice:
+  networkManager:
+    tomcat:
+      port:
+    thrift:
+      port:
+    command:
+      url:
+  resourceManager:
+    resources:
+      custom: false
+    #      requests:
+    #        memory: 128Mi
+    #        cpu: '0.2'
+    #      limits:
+    #        memory: 1024Mi
+    #        cpu: '1'
+    jvm: >-
+      -server -Xms128m -Xmx1024m
+      -javaagent:/usr/local/soft/skywalking8.1.0-es7/agent/skywalking-agent.jar
+      -DSW_AGENT_COLLECTOR_BACKEND_SERVICES=apm.517la.com:32234
+      -DSW_AGENT_NAME=差旅火车票差旅壹号采购服务
+      -DSW_KAFKA_BOOTSTRAP_SERVERS=kafka.517la.com:9092
+  nodeManager:
+    tag: 1.0.0
+    #    replicas: 2
+
+
+
+cltraintradeintegrateservice:
+  networkManager:
+    tomcat:
+      port:
+    thrift:
+      port:
+    command:
+      url:
+  resourceManager:
+    resources:
+      custom: false
+    #      requests:
+    #        memory: 128Mi
+    #        cpu: '0.2'
+    #      limits:
+    #        memory: 1536Mi
+    #        cpu: '1'
+    jvm: >-
+      -server -Xms128m -Xmx1536m
+      -javaagent:/usr/local/soft/skywalking8.1.0-es7/agent/skywalking-agent.jar
+      -DSW_AGENT_COLLECTOR_BACKEND_SERVICES=apm.517la.com:32234
+      -DSW_AGENT_NAME=差旅系统-火车票交易集成服务
+      -DSW_KAFKA_BOOTSTRAP_SERVERS=kafka.517la.com:9092
+  nodeManager:
+    tag: 1.0.0
+    #    replicas: 2
+
+cltrainticketwebspa:
+  networkManager:
+    tomcat:
+      port:
+    thrift:
+      port:
+    command:
+      url:
+  resourceManager:
+    resources:
+      custom: false
+    #      requests:
+    #        memory: 128Mi
+    #        cpu: 200m
+    #      limits:
+    #        memory: 1Gi
+    #        cpu: '1'
+    jvm: >-
+      -server -Xms128m -Xmx512m
+  nodeManager:
+    tag: 1.0.0
+    #    replicas: 2
+
+
+cltrainticketweb:
+  networkManager:
+    tomcat:
+      port:
+    thrift:
+      port:
+    command:
+      url:
+  resourceManager:
+    resources:
+      custom: false
+    #      requests:
+    #        memory: 256Mi
+    #        cpu: 400m
+    #      limits:
+    #        memory: 1Gi
+    #        cpu: '1'
+    jvm: >-
+      -server -Xms256m -Xmx1024m
+  nodeManager:
+    tag: 1.0.0
+    #    replicas: 1

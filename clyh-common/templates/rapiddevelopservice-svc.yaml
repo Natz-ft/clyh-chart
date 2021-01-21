@@ -1,0 +1,17 @@
+apiVersion: v1
+kind: Service
+metadata:
+  name: rapiddevelopservice-nodeport
+  namespace: common
+spec:
+  externalTrafficPolicy: Cluster
+  ports:
+    - name: http
+      nodePort: 30014
+      port: 13927
+      protocol: TCP
+      targetPort: 13927
+  selector:
+    app: rapiddevelopservice
+  sessionAffinity: None
+  type: NodePort

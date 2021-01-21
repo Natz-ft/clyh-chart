@@ -1,0 +1,17 @@
+apiVersion: v1
+kind: Service
+metadata:
+  name: clbussairticketh5-nodeport
+  namespace: jp
+spec:
+  externalTrafficPolicy: Cluster
+  ports:
+    - name: http
+      nodePort: 30004
+      port: {{ .Values.clbussairticketh5.service.port }}
+      protocol: TCP
+      targetPort: {{ .Values.clbussairticketh5.service.port }}
+  selector:
+    app: clbussairticketh5
+  sessionAffinity: None
+  type: NodePort

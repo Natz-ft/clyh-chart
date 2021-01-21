@@ -1,0 +1,15 @@
+apiVersion: v1
+kind: Service
+metadata:
+  name: clreportdataservice-service
+  namespace: settlement
+spec:
+  ports:
+    - name: thrift
+      port: 14412
+      protocol: TCP
+      targetPort: 14412
+  selector:
+    app: clreportdataservice
+  sessionAffinity: None
+  type: ClusterIP

@@ -1,0 +1,17 @@
+#nodeport方式
+apiVersion: v1
+kind: Service
+metadata:
+  name: hotelnewbaseinfodataservice-svc
+  namespace: jd
+spec:
+  ports:
+    - name: http
+      nodePort: 30622
+      port: 30622
+      protocol: TCP
+      targetPort: 14316
+  selector:
+    app: hotelnewbaseinfodataservice
+  sessionAffinity: None
+  type: NodePort

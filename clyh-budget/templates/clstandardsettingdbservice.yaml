@@ -1,0 +1,141 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: clstandardsettingdbservice
+  namespace: budget
+spec:
+  progressDeadlineSeconds: 600
+  {{- if .Values.clstandardsettingdbservice.nodeManager.replicas }}
+  replicas: {{ .Values.clstandardsettingdbservice.nodeManager.replicas }}
+  {{- else if eq .Values.environment "test" }}
+  replicas: 1
+  {{- else if eq .Values.environment "formal" }}
+  replicas: 2
+  {{- end }}
+  revisionHistoryLimit: 10
+  selector:
+    matchLabels:
+      app: clstandardsettingdbservice
+  strategy:
+    rollingUpdate:
+      maxSurge: 25%
+      maxUnavailable: 1
+    type: RollingUpdate
+  template:
+    metadata:
+      annotations:
+        armsPilotAutoEnable: 'on'
+        armsPilotCreateAppName: clstandardsettingdbservice
+        redeploy-timestamp: '1610538244550'
+      labels:
+        app: clstandardsettingdbservice
+    spec:
+      containers:
+        - env:
+            - name: MYENV_TOMCATPORT
+              {{- if .Values.clstandardsettingdbservice.networkManager.tomcat.port }}
+              value: {{ .Values.clstandardsettingdbservice.networkManager.tomcat.port | quote }}
+              {{- else }}
+              value: "12960"
+              {{- end }}
+            - name: JAVA_OPTS
+              value: >-
+                {{ .Values.clstandardsettingdbservice.resourceManager.jvm }}
+          {{- if .Values.clstandardsettingdbservice.nodeManager.tag }}
+          image: {{ .Values.imageRegistry }}/clstandardsettingdbservice:{{ .Values.clstandardsettingdbservice.nodeManager.tag }}
+          {{- else }}
+          image: {{ .Values.imageRegistry }}/clstandardsettingdbservice:{{ .Values.dockerTag }}
+          {{- end }}
+          imagePullPolicy: IfNotPresent
+          livenessProbe:
+            failureThreshold: 3
+            periodSeconds: 10
+            successThreshold: 1
+            tcpSocket:
+              port: 12960
+            timeoutSeconds: 1
+          name: clstandardsettingdbservice
+          ports:
+            - containerPort: 12960
+              hostPort: 12960
+              protocol: TCP
+            - containerPort: 12962
+              hostPort: 12962
+              protocol: TCP
+            - containerPort: 16541
+              hostPort: 16541
+              protocol: TCP
+            - containerPort: 16543
+              hostPort: 16543
+              protocol: TCP
+          resources:
+            limits:
+              cpu: '1'
+              memory: 2Gi
+            requests:
+              cpu: 100m
+              memory: 128Mi
+          terminationMessagePath: /dev/termination-log
+          terminationMessagePolicy: File
+          volumeMounts:
+            - mountPath: /var/log/cllog
+              name: cllog
+            - mountPath: /var/log/java
+              name: logjava
+            - mountPath: /home/nacfg.ini
+              name: nacfg
+            - mountPath: >-
+                /usr/local/soft/tomcat/webapps/ROOT/WEB-INF/classes/application.properties
+              name: config
+              subPath: application.properties
+            - mountPath: >-
+                /usr/local/soft/tomcat/webapps/ROOT/WEB-INF/config/DBRoute.properties
+              name: config
+              subPath: DBRoute.properties
+      dnsPolicy: ClusterFirstWithHostNet
+      hostNetwork: true
+      imagePullSecrets:
+        - name: regcred
+      nodeSelector:
+        env: common
+      restartPolicy: Always
+      schedulerName: default-scheduler
+      securityContext: {}
+      terminationGracePeriodSeconds: 15
+      {{- if .Values.hostManager.volumes.hostPath }}
+      volumes:
+        - hostPath:
+            path: {{ .Values.hostManager.volumes.hostPath }}/log/cllog
+            type: ''
+          name: cllog
+        - hostPath:
+            path: {{ .Values.hostManager.volumes.hostPath }}/log/java
+            type: ''
+          name: logjava
+        - hostPath:
+            path: /home/nacfg.ini
+            type: ''
+            name: nacfg
+        - configMap:
+            defaultMode: 420
+            name: clstandardsettingdbservice-config
+          name: config
+      {{- else }}
+      volumes:
+        - hostPath:
+            path: /app/log/cllog
+            type: ''
+          name: cllog
+        - hostPath:
+            path: /app/log/java
+            type: ''
+          name: logjava
+        - hostPath:
+            path: /home/nacfg.ini
+            type: ''
+          name: nacfg
+        - configMap:
+            defaultMode: 420
+            name: clstandardsettingdbservice-config
+          name: config
+      {{- end }}

@@ -1,0 +1,16 @@
+apiVersion: v1
+kind: Service
+metadata:
+  name: hotelorderhandlewebnew-svc
+  namespace: jd
+spec:
+  ports:
+    - name: http
+      nodePort: 30621
+      port: 30621
+      protocol: TCP
+      targetPort: 14228
+  selector:
+    app: hotelorderhandlewebnew
+  sessionAffinity: None
+  type: NodePort

@@ -1,0 +1,266 @@
+apiVersion: v1
+data:
+  DBRoute.properties: |-
+    driver=com.mysql.jdbc.Driver
+    #############read#############
+    readurl={{ .Values.configMapManger.db.dbroute.readurl }}
+    readusername={{ .Values.configMapManger.db.dbroute.readusername }}
+    readpassword={{ .Values.configMapManger.db.dbroute.readpassword }}
+    ############write#############
+    writeurl={{ .Values.configMapManger.db.dbroute.writeurl }}
+    writeusername={{ .Values.configMapManger.db.dbroute.writeusername }}
+    writepassword={{ .Values.configMapManger.db.dbroute.writepassword }}
+  KeyIDGenerator.config: |-
+    <?xml version="1.0" encoding="utf-8" ?>
+    <configuration>
+        <appSettings>
+            <add key="nacfg" value="/home/nacfg.ini"/>
+        </appSettings>
+    </configuration>
+  ServiceRoute.properties: >-
+    uniqueSign=Jav-CLYPG-187
+
+    ########## JDBC ##########################
+
+    driver=com.mysql.jdbc.Driver
+
+    url={{ .Values.configMapManger.db.serviceroute.url }}
+
+    username={{ .Values.configMapManger.db.serviceroute.username }}
+
+    password={{ .Values.configMapManger.db.serviceroute.password }}
+
+    ###########cxf timeOut###########################
+
+    cxf.connectionTimeout = 20000
+
+    cxf.readtimeout = 600000
+
+    ##################1、debug模式  2、release模式##################
+
+    debug.model = 1
+
+    ###################acc日志记录总控 1、默认值，记录acc日志
+    2、不记录acc日志(包括客户端和服务端)##################################
+
+    acclog.switch = 1
+
+    ###################################记录acc日志的方法名，逗号分隔开。在acclog.switch =
+    2(只要不等于1) 时起效###########################################
+
+    acclog.method.writelog = a,b
+
+    ###################################不记录acc日志的方法名，逗号分隔开。在acclog.switch = 1
+    时起效###########################################
+
+    acclog.method.nolog = c,d
+
+
+    ###################调用失败重试次数 默认2次#######################
+
+    retrynum =2
+
+    ###################thrift路由暴露端口##########################
+
+    thrift.port={{ .Values.clairticketruledataservice.configMap.networkManager.thriftport }}
+  jdbc.properties: >-
+    ########## JDBC ##########################
+
+    applicationName = default
+
+    databaseName = CLTradeRuleSetting
+
+    isRead = true
+
+    bizTime = 2014-12-19
+
+    dataSourceTimeout=3600
+
+    showSql=true
+
+    #\u521D\u59CB\u8FDE\u63A5\u6570
+
+    pool.initialSize=10
+
+    #\u6700\u5927\u8FDE\u63A5\u6570
+
+    pool.maxActive=100
+
+    #\u6700\u5927\u7A7A\u95F2\u8FDE\u63A5\u6570,\u8D85\u8FC7\u8FD9\u4E2A\u6570\u5C06\u91CA\u653E\u591A\u4F59\u7684,\u5982\u679C\u662F\u8D1F\u6570\u5C31\u4E0D\u9650\u5236
+
+    pool.maxIdle=10
+
+    #\u83B7\u53D6\u8FDE\u63A5\u7B49\u5F85\u65F6\u95F4
+
+    pool.maxWait=-1
+
+    pool.poolPreparedStatements=true
+
+    pool.defaultAutoCommit=true
+
+    #\u8FDE\u63A5\u5728\u6C60\u4E2D\u4FDD\u6301\u7A7A\u95F2\u800C\u4E0D\u88AB\u7A7A\u95F2\u8FDE\u63A5\u56DE\u6536\u5668\u7EBF\u7A0B(\u5982\u679C\u6709)\u56DE\u6536\u7684\u6700\u5C0F\u65F6\u95F4\u503C\uFF0C
+    \u5355\u4F4D\u6BEB\u79D2  \u9ED8\u8BA4\u503C:1000 * 60 * 30
+
+    routeTimeout= 0
+
+    keyIdConfigPath=/home/nacfg.ini
+
+    ###################thrift路由暴露端口##########################
+
+    thrift.port={{ .Values.clairticketruledataservice.configMap.networkManager.thriftport }}
+  log4j.properties: >-
+    ### 设置Logger输出级别和输出目的地 ###
+
+    #log4j.rootLogger=debug,stdout,logfile
+     
+     
+    ### 把日志信息输出到控制台 ###
+
+    log4j.appender.stdout=org.apache.log4j.ConsoleAppender
+
+    #log4j.appender.stdout.Target=System.err
+
+    #log4j.appender.stdout=org.apache.log4j
+
+    log4j.appender.stdout.layout=org.apache.log4j.PatternLayout
+     
+     
+    ### 把日志信息输出到文件：jbit.log ###
+
+    #log4j.appender.logfile=org.apache.log4j.FileAppender
+
+    log4j.appender.logfile=org.apache.log4j.DailyRollingFileAppender
+
+    log4j.appender.logfile.DatePattern='_'yyyy-MM-dd'.log'
+
+    log4j.appender.logfile.File=${catalina.home}/webapps/517Log/CLAirTicketRuleDataServiceCS.log
+
+    log4j.appender.logfile.layout=org.apache.log4j.PatternLayout
+
+    log4j.appender.logfile.layout.ConversionPattern=%d{yyyy-MM-dd HH:mm:ss} %F
+    %p %m%n
+     
+     
+    ###显示SQL语句部分 正式环境注释以下部分
+
+    log4j.logger.com.ibatis=DEBUG 
+
+    log4j.logger.com.ibatis.common.jdbc.SimpleDataSource=DEBUG 
+
+    log4j.logger.com.ibatis.common.jdbc.ScriptRunner=DEBUG 
+
+    log4j.logger.com.ibatis.sqlmap.engine.impl.SqlMapClientDelegate=DEBUG 
+
+    log4j.logger.java.sql.Connection=DEBUG 
+
+    log4j.logger.java.sql.Statement=DEBUG 
+
+    log4j.logger.java.sql.PreparedStatement=DEBUG
+  log_config.properties: >-
+    #####################   日志组件配置文件        ###########################
+
+    ##################################################################
+
+    #说明：所有属性均采用? key = value 的方式，只有value的值可以修改，现有的key不可修改；密码域账户均加密不是乱码?
+
+    #AppName 应用程序名??
+
+    log.AppName = CLAirTicketRuleDataService
+
+
+    #AppRecord App日志记录开关 true：开     false：关
+
+    log.AppRecord = true
+
+
+    #DebugRecord Debug日志记录开关 true：开     false：关
+
+    log.DebugRecord = false
+
+
+    #Driver 数据库驱动
+
+    log.jdbc.driver = com.mysql.jdbc.Driver
+
+
+    #Url 数据库链接  jdbc:mysql://ip：port/数据库名称
+
+    log.acc.jdbc.url = jdbc:mysql://172.17.51.252:3306/InterLogAcc
+
+    log.acc.jdbc.username=vxSs4i7BS58@
+
+    log.acc.jdbc.password=6BPzhGiVwAPCW1LhtdUvCblGokvcMGesrY1wV/coEWg@
+
+
+    log.app.jdbc.url = jdbc:mysql://172.17.51.252:3306/InterLogApp
+
+    log.app.jdbc.username=vxSs4i7BS58@
+
+    log.app.jdbc.password=6BPzhGiVwAPCW1LhtdUvCblGokvcMGesrY1wV/coEWg@
+
+
+    log.cachehit.jdbc.url = jdbc:mysql://172.17.51.252:3306/InterLogCacheHit
+
+    log.cachehit.jdbc.username=vxSs4i7BS58@
+
+    log.cachehit.jdbc.password=6BPzhGiVwAPCW1LhtdUvCblGokvcMGesrY1wV/coEWg@
+
+
+    log.debug.jdbc.url = jdbc:mysql://172.17.51.252:3306/InterLogDebug
+
+    log.debug.jdbc.username=vxSs4i7BS58@
+
+    log.debug.jdbc.password=6BPzhGiVwAPCW1LhtdUvCblGokvcMGesrY1wV/coEWg@
+
+
+    log.exception.jdbc.url = jdbc:mysql://172.17.51.252:3306/InterLogException
+
+    log.exception.jdbc.username=vxSs4i7BS58@
+
+    log.exception.jdbc.password=6BPzhGiVwAPCW1LhtdUvCblGokvcMGesrY1wV/coEWg@
+
+
+    log.interaction.jdbc.url =
+    jdbc:mysql://172.17.51.252:3306/InterLogInteraction
+
+    log.interaction.jdbc.username=vxSs4i7BS58@
+
+    log.interaction.jdbc.password=6BPzhGiVwAPCW1LhtdUvCblGokvcMGesrY1wV/coEWg@
+
+
+    log.slowcall.jdbc.url = jdbc:mysql://172.17.51.252:3306/InterLogSlowCall
+
+    log.slowcall.jdbc.username=vxSs4i7BS58@
+
+    log.slowcall.jdbc.password=6BPzhGiVwAPCW1LhtdUvCblGokvcMGesrY1wV/coEWg@
+
+
+    log.uiacc.jdbc.url = jdbc:mysql://172.17.51.252:3306/InterLogUiacc
+
+    log.uiacc.jdbc.username=vxSs4i7BS58@
+
+    log.uiacc.jdbc.password=6BPzhGiVwAPCW1LhtdUvCblGokvcMGesrY1wV/coEWg@
+
+
+    #Directory linux下日志记录路径?
+
+    log.Directory = /var/log/cllog
+
+
+    #DivisionFileSize （单位：兆） 日志在某一时间段内超过文件大小已2M划分
+
+    log.DivisionFileSize = 2
+
+
+    #DivisionFileTime （单位：分钟） 日志在某一时间段内不足2M文件按2min划分
+
+    log.DivisionFileTime = 1
+
+
+    #windows下载文件目录,windows服务的配置成Logs，linux服务一般配置成 JavaLogs
+
+    log.download.Directory=JavaLogs
+kind: ConfigMap
+metadata:
+  name: clairticketruledataservice-config
+  namespace: jp

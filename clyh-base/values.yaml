@@ -1,0 +1,89 @@
+# The base hadoop image to use for all components.
+# See this repo for image build details: https://github.com/Comcast/kube-yarn/tree/master/image
+imageRegistry:
+
+dockerTag: 1.0.0
+
+environment: "formal"
+
+hostManager:
+  volumes:
+    hostPath: /app
+
+configMapManger:
+  db:
+    serviceroute:
+      url: jdbc:mysql://ServiceRouteDB-R.BJ01.517na.com/ServiceRouteDB
+      username: JmllLBwCJN7P5a0VXvvHkg@@
+      password: 6BPzhGiVwAPCW1LhtdUvCblGokvcMGesrY1wV/coEWg@
+    writeroute:
+      url: jdbc:mysql://DataBaseRoute-R.BJ01.517na.com:3306/DataBaseRoute
+      username: JmllLBwCJN7P5a0VXvvHkg@@
+      password: 6BPzhGiVwAPCW1LhtdUvCblGokvcMGesrY1wV/coEWg@
+    readroute:
+      url: jdbc:mysql://DataBaseRoute-R.BJ01.517na.com:3306/DataBaseRoute
+      username: JmllLBwCJN7P5a0VXvvHkg@@
+      password: 6BPzhGiVwAPCW1LhtdUvCblGokvcMGesrY1wV/coEWg@
+  redis:
+    url: jdbc:mysql://DataBaseRoute-W.BJ01.517na.com:3306/DataBaseRoute
+    username: kSRw85/S628Jd6cTkHmEgA@@
+    password: 6BPzhGiVwAPCW1LhtdUvCblGokvcMGesrY1wV/coEWg@
+    dbname: CLTradeRedisDB
+  xxjob:
+    db:
+      url: jdbc:mysql://rm-2zer4gx7otl4s391e.mysql.rds.aliyuncs.com:3306/xxl-job?useUnicode=true&characterEncoding=UTF-8
+      username: xxljob
+      password: Aa123@321Bb
+    email:
+      host: smtp.163.com
+      port: 25
+      username: yangxilong@517na.com
+      password: asdfzxcv
+      sendNick: 《任务调度平台XXL-JOB》
+    login:
+      username: admin
+      password: 123456
+    ldap:
+      host: 172.17.3.28
+      port: 389
+      domain: 517na.com
+
+
+xxljobadmincommon:
+  resourceManager:
+    resources:
+      custom: false
+    jvm: '-server -Xms128m -Xmx1024m'
+  nodeManager:
+    tag: 1.0.0
+
+xxljobadminjp:
+  resourceManager:
+    resources:
+      custom: false
+    jvm: '-server -Xms128m -Xmx1024m'
+  nodeManager:
+    tag: 1.0.0
+
+eureka:
+  resourceManager:
+    resources:
+      custom: false
+    jvm:
+  nodeManager:
+    tag: 1.0.0
+
+springcloudconfig:
+  svn:
+    url: https://10.10.70.70:1105/svn/configrepo
+    username: guest
+    password: 517na.com
+    basedir: configRepo
+  eureka:
+    serviceUrl: http://10.10.80.239:8000/eureka/,http://10.10.80.240:8000/eureka/,http://10.10.70.216:8000/eureka/
+  resourceManager:
+    resources:
+      custom: false
+    jvm:
+  nodeManager:
+    tag: 1.0.0

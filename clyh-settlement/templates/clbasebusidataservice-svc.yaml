@@ -1,0 +1,15 @@
+apiVersion: v1
+kind: Service
+metadata:
+  name: clbasebusidataservice-thrift
+  namespace: common
+spec:
+  ports:
+    - name: thrift
+      port: 12600
+      protocol: TCP
+      targetPort: 12600
+  selector:
+    app: clbasebusidataservice
+  sessionAffinity: None
+  type: ClusterIP

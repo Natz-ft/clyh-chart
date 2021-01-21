@@ -1,0 +1,15 @@
+apiVersion: v1
+kind: Service
+metadata:
+  name: clappsystemdataservice-svc
+  namespace: jp
+spec:
+  ports:
+    - name: thrift
+      port: {{ .Values.clappsystemdataservice.service.thriftport }}
+      protocol: TCP
+      targetPort: {{ .Values.clappsystemdataservice.service.thriftport }}
+  selector:
+    app: clappsystemdataservice
+  sessionAffinity: None
+  type: ClusterIP

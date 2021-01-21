@@ -1,0 +1,187 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: unifieduserjavadataservice
+  namespace: user
+spec:
+  progressDeadlineSeconds: 600
+  {{- if .Values.unifieduserjavadataservice.nodeManager.replicas }}
+  replicas: {{ .Values.unifieduserjavadataservice.nodeManager.replicas }}
+  {{- else if eq .Values.environment "test" }}
+  replicas: 1
+  {{- else if eq .Values.environment "formal" }}
+  replicas: 2
+  {{- end }}
+  revisionHistoryLimit: 10
+  selector:
+    matchLabels:
+      app: unifieduserjavadataservice
+  strategy:
+    rollingUpdate:
+      maxSurge: 25%
+      maxUnavailable: 1
+    type: RollingUpdate
+  template:
+    metadata:
+      annotations:
+        armsPilotAutoEnable: "on"
+        armsPilotCreateAppName: unifieduserjavadataservice
+      creationTimestamp: null
+      labels:
+        app: unifieduserjavadataservice
+    spec:
+      containers:
+        - env:
+            - name: MYENV_CONFIGNAME
+              value: dbroute,jdbc,logconfig,paramjdbc,serviceroute,redis,mqhelper,application,myconfig,systemparam
+            - name: MYENV_CONFIGPROFILE
+              value: zs
+            - name: MYENV_CONFIGLABEL
+              value: UnifiedUserJavaDataService-k8s
+            - name: MYENV_CONFIGSERVICEID
+              value: spring-cloud-config-server
+            - name: MYENV_EUREKAURL
+              value: http://eureka1:8000/eureka/,http://eureka2:8000/eureka/,http://eureka3:8000/eureka/
+            - name: MYENV_TOMCATPORT
+              {{- if .Values.unifieduserjavadataservice.networkManager.tomcat.port }}
+              value: {{ .Values.unifieduserjavadataservice.networkManager.tomcat.port | quote }}
+              {{- else }}
+              value: "13756"
+              {{- end }}
+            - name: JAVA_OPTS
+              value: {{ .Values.unifieduserjavadataservice.resourceManager.jvm }}
+        {{- if .Values.unifieduserjavadataservice.nodeManager.tag }}
+          image: {{ .Values.imageRegistry }}/unifieduserjavadataservice:{{ .Values.unifieduserjavadataservice.nodeManager.tag }}
+       {{- else }}
+          image: {{ .Values.imageRegistry }}/unifieduserjavadataservice:{{ .Values.dockerTag }}
+       {{- end }}
+          imagePullPolicy: IfNotPresent
+          lifecycle:
+            preStop:
+              exec:
+                {{- if .Values.unifieduserjavadataservice.networkManager.command.url }}
+                command:
+                  - curl
+                  {{ .Values.unifieduserjavadataservice.networkManager.command.url }}
+                {{- else }}
+                command:
+                  - curl
+                  - 'http://localhost:13756/unregisterbyext'
+                {{- end }}
+          livenessProbe:
+            failureThreshold: 3
+            httpGet:
+              path: /info
+              {{- if .Values.unifieduserjavadataservice.networkManager.tomcat.port }}
+              port: {{ .Values.unifieduserjavadataservice.networkManager.tomcat.port }}
+              {{- else }}
+              port: 13756
+              {{- end }}
+              scheme: HTTP
+            initialDelaySeconds: 100
+            periodSeconds: 10
+            successThreshold: 1
+            timeoutSeconds: 10
+          name: unifieduserjavadataservice
+          ports:
+            {{- if .Values.unifieduserjavadataservice.networkManager.tomcat.port }}
+            - containerPort: {{ .Values.unifieduserjavadataservice.networkManager.tomcat.port }}
+              hostPort: {{ .Values.unifieduserjavadataservice.networkManager.tomcat.port }}
+              protocol: TCP
+            {{- else }}
+            - containerPort: 13756
+              hostPort: 13756
+              protocol: TCP
+            {{- end }}
+            {{- if .Values.unifieduserjavadataservice.networkManager.thrift.port }}
+            - containerPort: {{ .Values.unifieduserjavadataservice.networkManager.thrift.port }}
+              hostPort: {{ .Values.unifieduserjavadataservice.networkManager.thrift.port }}
+              protocol: TCP
+            {{- else }}
+            - containerPort: 13758
+              hostPort: 13758
+              protocol: TCP
+            {{- end }}
+          readinessProbe:
+            failureThreshold: 3
+            httpGet:
+              path: /info
+              {{- if .Values.unifieduserjavadataservice.networkManager.tomcat.port }}
+              port: {{ .Values.unifieduserjavadataservice.networkManager.tomcat.port }}
+              {{- else }}
+              port: 13756
+              {{- end }}
+              scheme: HTTP
+            initialDelaySeconds: 10
+            periodSeconds: 5
+            successThreshold: 1
+            timeoutSeconds: 10
+          {{- if .Values.unifieduserjavadataservice.resourceManager.resources.custom -}}
+          resources:
+            limits:
+              cpu: {{ .Values.unifieduserjavadataservice.resourceManager.resources.limits.cpu }}
+              memory: {{ .Values.unifieduserjavadataservice.resourceManager.resources.limits.memory }}
+            requests:
+              cpu: {{ .Values.unifieduserjavadataservice.resourceManager.resources.requests.cpu }}
+              memory: {{ .Values.unifieduserjavadataservice.resourceManager.resources.requests.memory }}
+          {{- else }}
+          resources:
+            limits:
+              cpu: '1'
+              memory: 1Gi
+            requests:
+              cpu: 200m
+              memory: 128Mi
+          {{- end }}
+          terminationMessagePath: /dev/termination-log
+          terminationMessagePolicy: File
+          volumeMounts:
+            - mountPath: /srv/access/hz.dat
+              name: base
+              subPath: hz.dat
+            - mountPath: /srv/access/resPinYin.dat
+              name: base
+              subPath: resPinYin.dat
+            - mountPath: /var/log/java
+              name: logjava
+            - mountPath: /home/nacfg.ini
+              name: base
+              subPath: nacfg.ini
+      dnsPolicy: ClusterFirstWithHostNet
+      imagePullSecrets:
+        - name: regcred
+      nodeSelector:
+        env2: user
+      restartPolicy: Always
+      schedulerName: default-scheduler
+      securityContext: {}
+      terminationGracePeriodSeconds: 15
+      {{- if .Values.hostManager.volumes.hostPath }}
+      volumes:
+        - hostPath:
+            path: {{ .Values.hostManager.volumes.hostPath }}/log/cllog
+            type: ''
+          name: cllog
+        - hostPath:
+            path: {{ .Values.hostManager.volumes.hostPath }}/log/java
+            type: ''
+          name: logjava
+        - configMap:
+            defaultMode: 420
+            name: base-config
+          name: base
+      {{- else }}
+      volumes:
+        - hostPath:
+            path: /app/log/cllog
+            type: ''
+          name: cllog
+        - hostPath:
+            path: /app/log/java
+            type: ''
+          name: logjava
+        - configMap:
+            defaultMode: 420
+            name: base-config
+          name: base
+      {{- end }}

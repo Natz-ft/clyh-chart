@@ -1,0 +1,17 @@
+apiVersion: v1
+kind: Service
+metadata:
+  name: commonpagerservicecloudnodeport
+  namespace: common
+spec:
+  externalTrafficPolicy: Cluster
+  ports:
+    - name: http
+      nodePort: 30015
+      port: 30015
+      protocol: TCP
+      targetPort: 12111
+  selector:
+    app: commonpagerservicecloud
+  sessionAffinity: None
+  type: NodePort

@@ -1,0 +1,15 @@
+apiVersion: v1
+kind: Service
+metadata:
+  name: clairticketstandardservice
+  namespace: jp
+spec:
+  ports:
+    - name: http
+      port: {{ .Values.clairticketstandardservice.service.port }}
+      protocol: TCP
+      targetPort: {{ .Values.clairticketstandardservice.service.port }}
+  selector:
+    app: clairticketstandardservice
+  sessionAffinity: None
+  type: ClusterIP

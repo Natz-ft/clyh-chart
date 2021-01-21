@@ -1,0 +1,15 @@
+apiVersion: v1
+kind: Service
+metadata:
+  name: clconfigurebussservice-svc
+  namespace: common
+spec:
+  ports:
+    - name: thrift
+      port: 13674
+      protocol: TCP
+      targetPort: 13674
+  selector:
+    app: clconfigurebussservice
+  sessionAffinity: None
+  type: ClusterIP

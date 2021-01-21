@@ -1,0 +1,163 @@
+# The base budget image to use for all components.
+imageRegistry: #镜像地址
+dockerTag: 1.0.0  #全局标签
+environment: "formal"
+hostManager:
+  volumes:
+    hostPath: /app
+configMapManger:
+  db:
+    serviceroute:
+      url: jdbc:mysql://ServiceRouteDB-R.BJ01.517na.com/ServiceRouteDB
+      username: JmllLBwCJN7P5a0VXvvHkg@@
+      password: 6BPzhGiVwAPCW1LhtdUvCblGokvcMGesrY1wV/coEWg@
+    databaseroute:
+      readurl: jdbc:mysql://DataBaseRoute-R.BJ01.517na.com:3306/DataBaseRoute
+      readusername: JmllLBwCJN7P5a0VXvvHkg@@
+      readpassword: 6BPzhGiVwAPCW1LhtdUvCblGokvcMGesrY1wV/coEWg@
+      writeurl: jdbc:mysql://DataBaseRoute-W.BJ01.517na.com:3306/DataBaseRoute
+      writeusername: JmllLBwCJN7P5a0VXvvHkg@@
+      writepassword: 6BPzhGiVwAPCW1LhtdUvCblGokvcMGesrY1wV/coEWg@
+  redis:
+
+
+
+clbasebusidataservice:
+  networkManager:
+    tomcat:
+      port:
+    thrift:
+      port:
+    command:
+      url:
+  resourceManager:
+    resources:
+      custom: false
+    jvm: '-server -Xms128m -Xmx512m
+          -javaagent:/usr/local/soft/skywalking/agent65/skywalking-agent.jar
+          -DSW_AGENT_COLLECTOR_BACKEND_SERVICES=skywalkingadmin:31101
+          -DSW_AGENT_NAME=clbasebusidataservice -DSW_LOGGING_LEVEL=ERROR'
+  nodeManager:
+    tag: 1.0.0
+
+clconspdetailcreatepro:
+  networkManager:
+    tomcat:
+      port:
+    thrift:
+      port:
+    command:
+      url:
+  resourceManager:
+    resources:
+      custom: false
+    jvm: '-server -Xms128m -Xmx1g'
+  nodeManager:
+    tag: 1.0.0
+
+clconspdetaildataservice:
+  networkManager:
+    tomcat:
+      port:
+    thrift:
+      port:
+    command:
+      url:
+  resourceManager:
+    resources:
+      custom: false
+    jvm: '-server -Xms512m -Xmx1024m
+          -javaagent:/usr/local/soft/skywalking/agent65/skywalking-agent.jar
+          -DSW_AGENT_COLLECTOR_BACKEND_SERVICES=10.10.80.240:31101
+          -DSW_AGENT_NAME=clconspdetaildataservice
+          -DSW_LOGGING_LEVEL=ERROR'
+  nodeManager:
+    tag: 1.0.0
+
+clconspdetailrepairservice:
+  networkManager:
+    tomcat:
+      port:
+    thrift:
+      port:
+    command:
+      url:
+  resourceManager:
+    resources:
+      custom: false
+    jvm: '-server -Xms128m -Xmx1024m'
+  nodeManager:
+    tag: 1.0.0
+
+
+clreportdataservice:
+  networkManager:
+    tomcat:
+      port:
+    thrift:
+      port:
+    command:
+      url:
+  resourceManager:
+    resources:
+      custom: false
+    jvm: '-server -Xms128m -Xmx1024m'
+  nodeManager:
+    tag: 1.0.0
+
+clreportservice:
+  networkManager:
+    tomcat:
+      port:
+    thrift:
+      port:
+    command:
+      url:
+  resourceManager:
+    resources:
+      custom: false
+    jvm: '-server -Xms512m -Xmx2g
+          -javaagent:/usr/local/soft/skywalking/agent65/skywalking-agent.jar
+          -DSW_AGENT_COLLECTOR_BACKEND_SERVICES=10.10.80.240:31101
+          -DSW_AGENT_NAME=clreportservice -DSW_LOGGING_LEVEL=ERROR
+          -XX:+PrintGC -XX:+HeapDumpOnOutOfMemoryError
+          -XX:HeapDumpPath=/var/log/cllog'
+  nodeManager:
+    tag: 1.0.0
+
+clsettlementjobexecutor:
+  networkManager:
+    tomcat:
+      port:
+    thrift:
+      port:
+    command:
+      url:
+  resourceManager:
+    resources:
+      custom: false
+    jvm: '-server -Xms128m -Xmx1g
+          -javaagent:/usr/local/soft/skywalking/agent65/skywalking-agent.jar
+          -DSW_AGENT_COLLECTOR_BACKEND_SERVICES=10.10.80.240:31101
+          -DSW_AGENT_NAME=clsettlementjobexecutor -DSW_LOGGING_LEVEL=ERROR'
+  nodeManager:
+    tag: 1.0.0
+
+settlementesinterfaceservice:
+  networkManager:
+    tomcat:
+      port:
+    thrift:
+      port:
+    command:
+      url:
+  resourceManager:
+    resources:
+      custom: false
+    jvm: '-server -Xms128m -Xmx2g
+          -javaagent:/usr/local/soft/skywalking/agent65/skywalking-agent.jar
+          -DSW_AGENT_COLLECTOR_BACKEND_SERVICES=10.10.80.240:31101
+          -DSW_AGENT_NAME=settlementESInterfaceService
+          -DSW_LOGGING_LEVEL=ERROR'
+  nodeManager:
+    tag: 1.0.0

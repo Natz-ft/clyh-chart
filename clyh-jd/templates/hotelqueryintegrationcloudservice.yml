@@ -1,0 +1,140 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: hotelqueryintegrationcloudservice
+  namespace: jd
+spec:
+  progressDeadlineSeconds: 600
+  {{- if not .Values.commonConfig.nodeManager.replicas }}
+  replicas: {{ .Values.commonConfig.nodeManager.replicas }}
+  {{- else if eq .Values.environment "test" }}
+  replicas: 1
+  {{- else if eq .Values.antiAffinity "formal" }}
+  replicas: 2
+  {{- end }}
+  revisionHistoryLimit: 10
+  selector:
+    matchLabels:
+      app: hotelqueryintegrationcloudservice
+  strategy:
+    rollingUpdate:
+      maxSurge: 25%
+      maxUnavailable: 1
+    type: RollingUpdate
+  template:
+    metadata:
+      annotations:
+        redeploy-timestamp: '1598277431108'
+      labels:
+        app: hotelqueryintegrationcloudservice
+    spec:
+      containers:
+        - env:
+            - name: MYENV_CONFIGNAME
+              value: >-
+                dbroute,logconfig,serviceroute,application,javaMonitorGatherComponet,businessparamconfig
+            - name: MYENV_CONFIGPROFILE
+              value: zs
+            - name: MYENV_CONFIGLABEL
+              value: HotelQueryIntegrationCloudService-K8s-ZS
+            - name: MYENV_CONFIGSERVICEID
+              value: spring-cloud-config-server
+            - name: MYENV_EUREKAURL
+              value: >-
+                http://eureka1:8000/eureka/,http://eureka2:8000/eureka/,http://eureka3:8000/eureka/
+            - name: MYENV_TOMCATPORT
+              value: '14571'
+            - name: JAVA_OPTS
+              value: {{ .Values.hotelqueryintegrationcloudservice.resourceManager.jvm }}
+          {{- if not .Values.commonConfig.nodeManager.tag }}
+          image: {{ .Values.imageRegistry }}/hotelqueryintegrationcloudservice:{{ .Values.hotelqueryintegrationcloudservice.nodeManager.tag }}
+          {{- else }}
+          image: {{ .Values.imageRegistry }}/hotelqueryintegrationcloudservice:{{ .Values.dockerTag }}
+          {{- end }}
+          imagePullPolicy: IfNotPresent
+          lifecycle:
+            preStop:
+              exec:
+                command:
+                  - curl
+                  - 'http://localhost:14571/unregisterbyext'
+          livenessProbe:
+            failureThreshold: 3
+            httpGet:
+              path: /info
+              port: 14571
+              scheme: HTTP
+            initialDelaySeconds: 100
+            periodSeconds: 10
+            successThreshold: 1
+            timeoutSeconds: 10
+          name: hotelqueryintegrationcloudservice
+          ports:
+            - containerPort: 14571
+              hostPort: 14571
+              protocol: TCP
+          readinessProbe:
+            failureThreshold: 3
+            httpGet:
+              path: /info
+              port: 14571
+              scheme: HTTP
+            initialDelaySeconds: 10
+            periodSeconds: 5
+            successThreshold: 1
+            timeoutSeconds: 10
+          resources:
+            limits:
+              cpu: '1'
+              memory: 2Gi
+            requests:
+              cpu: 200m
+              memory: 128Mi
+          terminationMessagePath: /dev/termination-log
+          terminationMessagePolicy: File
+          volumeMounts:
+            - mountPath: /var/log/cllog
+              name: cllog
+            - mountPath: /var/log/java
+              name: logjava
+            - mountPath: /home/nacfg.ini
+              name: nacfg
+      dnsPolicy: ClusterFirstWithHostNet
+      hostNetwork: true
+      imagePullSecrets:
+        - name: regcred
+      nodeSelector:
+        env: jd
+      restartPolicy: Always
+      schedulerName: default-scheduler
+      securityContext: {}
+      terminationGracePeriodSeconds: 15
+      {{- if not .Values.hostManager.volumes.hostPath }}
+      volumes:
+        - hostPath:
+            path: {{ .Values.hostManager.volumes.hostPath }}/log/cllog
+            type: ''
+          name: cllog
+        - hostPath:
+            path: {{ .Values.hostManager.volumes.hostPath }}/log/java
+            type: ''
+          name: logjava
+        - hostPath:
+            path: {{ .Values.hostManager.volumes.nacfgPath }}/nacfg.ini
+            type: ''
+          name: nacfg
+      {{- else }}
+      volumes:
+        - hostPath:
+            path: /app/log/cllog
+            type: ''
+          name: cllog
+        - hostPath:
+            path: /app/log/java
+            type: ''
+          name: logjava
+        - hostPath:
+            path: /home/nacfg.ini
+            type: ''
+          name: nacfg
+      {{- end }}

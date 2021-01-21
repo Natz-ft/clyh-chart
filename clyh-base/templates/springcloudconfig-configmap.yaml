@@ -1,0 +1,41 @@
+apiVersion: v1
+data:
+  application.yml: |-
+    server:
+      port: 8094
+    spring:
+      application:
+        name: spring-cloud-config-server
+      cloud:
+        config:
+          server:
+            svn:
+              uri: {{ .Values.springcloudconfig.svn.url }}
+              username: {{ .Values.springcloudconfig.svn.url }}
+              password: {{ .Values.springcloudconfig.svn.password }}
+              default-label: trunk
+              force-pull: true
+              basedir: {{ .Values.springcloudconfig.svn.basedir }}
+      profiles:
+        active: subversion
+      rabbitmq:
+        addresses: mq1.517la.com:5672,mq2.517la.com:5672,mq3.517la.com:5672
+        username: programUse
+        password: programUse
+        virtual-host: springcloudconfig
+
+    eureka:
+      client:
+        serviceUrl:
+          defaultZone: {{ .Values.springcloudconfig.eureka.serviceUrl }}
+      instance:
+        prefer-ip-address: true
+        instance-id: ${spring.cloud.client.ipAddress}:${server.port}
+
+    management:
+      security:
+         enabled: false
+kind: ConfigMap
+metadata:
+  name: springcloudconfig
+  namespace: base

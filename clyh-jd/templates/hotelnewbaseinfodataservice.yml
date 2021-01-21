@@ -1,0 +1,140 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: hotelnewbaseinfodataservice
+  namespace: jd
+spec:
+  progressDeadlineSeconds: 600
+  {{- if not .Values.commonConfig.nodeManager.replicas }}
+  replicas: {{ .Values.commonConfig.nodeManager.replicas }}
+  {{- else if eq .Values.environment "test" }}
+  replicas: 1
+  {{- else if eq .Values.antiAffinity "formal" }}
+  replicas: 2
+  {{- end }}
+  revisionHistoryLimit: 10
+  selector:
+    matchLabels:
+      app: hotelnewbaseinfodataservice
+  strategy:
+    rollingUpdate:
+      maxSurge: 25%
+      maxUnavailable: 1
+    type: RollingUpdate
+  template:
+    metadata:
+      labels:
+        app: hotelnewbaseinfodataservice
+    spec:
+      containers:
+        - env:
+            - name: MYENV_CONFIGNAME
+              value: 'application,businessparamconfig,dbroute,logconfig,serviceroute'
+            - name: MYENV_CONFIGPROFILE
+              value: zs
+            - name: MYENV_CONFIGLABEL
+              value: HotelNewBaseInfoDataService-K8s-ZS
+            - name: MYENV_CONFIGSERVICEID
+              value: spring-cloud-config-server
+            - name: MYENV_EUREKAURL
+              value: >-
+                http://eureka1:8000/eureka/,http://eureka2:8000/eureka/,http://eureka3:8000/eureka/
+            - name: MYENV_TOMCATPORT
+              value: '14316'
+            - name: JAVA_OPTS
+              value: {{ .Values.hotelnewbaseinfodataservice.resourceManager.jvm }}
+          {{- if not .Values.commonConfig.nodeManager.tag }}
+          image: {{ .Values.imageRegistry }}/hotelnewbaseinfodataservice:{{ .Values.hotelnewbaseinfodataservice.nodeManager.tag }}
+          {{- else }}
+          image: {{ .Values.imageRegistry }}/hotelnewbaseinfodataservice:{{ .Values.dockerTag }}
+          {{- end }}
+          imagePullPolicy: IfNotPresent
+          lifecycle:
+            preStop:
+              exec:
+                command:
+                  - curl
+                  - 'http://localhost:14316/unregisterbyext'
+          livenessProbe:
+            failureThreshold: 3
+            httpGet:
+              path: /info
+              port: 14316
+              scheme: HTTP
+            initialDelaySeconds: 1001
+            periodSeconds: 10
+            successThreshold: 1
+            timeoutSeconds: 10
+          name: hotelnewbaseinfodataservice
+          ports:
+            - containerPort: 14316
+              hostPort: 14316
+              protocol: TCP
+            - containerPort: 14317
+              hostPort: 14317
+              protocol: TCP
+          readinessProbe:
+            failureThreshold: 3
+            httpGet:
+              path: /info
+              port: 14316
+              scheme: HTTP
+            initialDelaySeconds: 10
+            periodSeconds: 5
+            successThreshold: 1
+            timeoutSeconds: 10
+          resources:
+            limits:
+              cpu: '1'
+              memory: 2Gi
+            requests:
+              cpu: 200m
+              memory: 256Mi
+          terminationMessagePath: /dev/termination-log
+          terminationMessagePolicy: File
+          volumeMounts:
+            - mountPath: /var/log/cllog
+              name: cllog
+            - mountPath: /var/log/java
+              name: logjava
+            - mountPath: /home/nacfg.ini
+              name: nacfg
+      dnsPolicy: ClusterFirstWithHostNet
+      hostNetwork: true
+      imagePullSecrets:
+        - name: regcred
+      nodeSelector:
+        env: jd
+      restartPolicy: Always
+      schedulerName: default-scheduler
+      securityContext: {}
+      terminationGracePeriodSeconds: 15
+      {{- if not .Values.hostManager.volumes.hostPath }}
+      volumes:
+        - hostPath:
+            path: {{ .Values.hostManager.volumes.hostPath }}/log/cllog
+            type: ''
+          name: cllog
+        - hostPath:
+            path: {{ .Values.hostManager.volumes.hostPath }}/log/java
+            type: ''
+          name: logjava
+        - hostPath:
+            path: {{ .Values.hostManager.volumes.nacfgPath }}/nacfg.ini
+            type: ''
+          name: nacfg
+      {{- else }}
+      volumes:
+        - hostPath:
+            path: /app/log/cllog
+            type: ''
+          name: cllog
+        - hostPath:
+            path: /app/log/java
+            type: ''
+          name: logjava
+        - hostPath:
+            path: /home/nacfg.ini
+            type: ''
+          name: nacfg
+      {{- end }}

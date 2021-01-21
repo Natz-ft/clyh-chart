@@ -1,0 +1,355 @@
+apiVersion: v1
+data:
+  CLShopInterfaceWeb.properties: |-
+    ###########\u767B\u5F55\u6709\u8D5EAPI#############
+    youzanlogin.url = https://uic.youzan.com/sso/open/login
+    #redis\u914D\u7F6E\u5931\u6548\u65F6\u95F4
+    expireTime = 518400
+    # \u6709\u8D5E\u4E91\u5206\u914D\u7684\u5E94\u7528client_id
+    clientid = fc2f593ef8900826cd
+    #\u6709\u8D5E\u4E91\u5206\u914D\u7684\u5E94\u7528client_secret
+    clientSecret = a02399743859943702e4a72647375a7f
+  DBRoute.properties: |-
+    driver=com.mysql.jdbc.Driver
+    readurl={{ .Values.configMapManger.db.databaserouteR.url }}
+    readusername={{ .Values.configMapManger.db.databaserouteR.username }}
+    readpassword={{ .Values.configMapManger.db.databaserouteR.username }}
+    writeurl={{ .Values.configMapManger.db.databaserouteW.url }}
+    writeusername={{ .Values.configMapManger.db.databaserouteW.username }}
+    writepassword={{ .Values.configMapManger.db.databaserouteW.username }}
+  ServiceRoute.properties: |-
+    uniqueSign=Jav-CLYPG-43
+    ########## JDBC ##########################
+    driver=com.mysql.jdbc.Driver
+    url={{ .Values.configMapManger.db.serviceroute.url }}
+    username={{ .Values.configMapManger.db.serviceroute.username }}
+    password={{ .Values.configMapManger.db.serviceroute.password }}
+    ###########cxf timeOut###########################
+    cxf.connectionTimeout = 120000
+    cxf.readtimeout = 120000
+
+    thrift.connectionPool.conTimeOut=300000
+    thrift.connectionPool.maxWait=300000
+
+    debug.model = 1
+    retrynum = 0
+  javaMonitorGatherComponet.properties: |-
+    ######程序监控采集配置节点#######
+
+    #*程序名称(用于监控时方便查询，请按如下规则填写)
+    #格式：程序名-机房-环境-服务集区分关键字
+    #如：差旅系统用户网站-NW-测试
+    #如：差旅系统交易集成服务-SYQ-机票
+    monitor.programName=差旅集成服务接口-SYQ-正式
+
+    #*kafka地址
+    monitor.kafkaServer=kafka.zabbix.517na.com:9092
+  jdbc.properties: |-
+    keyIdConfigPath=/home/nacfg.ini
+    #####################后台参数配置  开始#######################
+    applicationName = CLIntegrationInterface
+    databaseName = 
+    isRead = true
+    bizTime = 2014-12-19
+    dataSourceTimeout=3600
+    showSql=true
+
+    routeTimeout= 0
+    #####################后台参数配置  结束#######################
+    #是否需要验证签名
+    isSign=true
+    #是否需要验证sessionID
+    isNeedSession=true
+    #发送邮件的签名字符串
+    emailSign=e6e66b8981c1030d5650da159e79539a
+    #错误登陆次数
+    errorLoginCount=5
+
+    #成功时返回的提示信息
+    success=操作成功
+    #设备类型缓存时间
+    sessionCacheTime =60
+    #用户账号关系缓存时间
+    userLoginMappingCacheTime=60
+    #用户账号关系缓存库
+    userLoginMappingCacheTimeDB= pcScanCodeDBName
+    #用户信息缓存时间
+    userInfoCacheTime=60
+    #用户信息缓存库
+    userInfoCacheTimeDB= pcScanCodeDBName
+    #Session缓存
+    sessionCacheDB = pcScanCodeDBName
+
+    #登录映射缓存信息
+    redisUserLoginMappingDB=redisSMSDBName
+    redisUserLoginMappingEffectiveTime=300
+    redisUserLoginMappingPrefix=a
+
+    #用户缓存信息
+    redisUserDB=UnifiedUserCacheDB
+    redisUserEffectiveTime=300
+    redisUserPrefix=b
+    #用户登录失败标记
+    redisUserLoginPrefix=bb
+    redisUserLoginTime=300
+
+    #session缓存信息
+    redisUserSessionDB=redisSMSDBName
+    #1、pc端，2、androidApp，3、android平板，4、iosApp，5、ios平板.
+    redisUserSessionEffectiveTime1=60
+    redisUserSessionEffectiveTime2=60
+    redisUserSessionEffectiveTime3=60
+    redisUserSessionEffectiveTime4=60
+    redisUserSessionEffectiveTime5=60
+    redisUserSessionEffectiveTime=60
+    redisUserSerialNumberEffectiveTime=60
+    redisUserSessionPrefix=c
+
+    #验证码缓存信息
+    redisUserAuthDB=redisSMSDBName
+    redisUserAuthPrefix=d
+    #tmcNO缓存时间（毫秒）
+    tmcNoSaveTime=60000
+    cLAddressBusinessDomin=http://ycaddress.517la.com
+    cLTransportUserServiceDomin=http://ycuser.517la.com
+    cLTransportOrderServiceDomin=http://ycorder.517la.com
+    #测试机房的机票差标管控服务地址
+    clairticketStandardServiceURL=http://172.26.0.195:13589
+    clapproveintegrateservice.url=http://10.10.80.200:10299
+
+    trainTradeIntegrateServiceDomain=http://traintrade.517la.com
+
+    uniquesign=PAL
+  log4j.properties: >-
+    ### 设置Logger输出级别和输出目的地 ###
+
+    log4j.rootLogger=error,stdout,logfile
+     
+     
+    ### 把日志信息输出到控制台 ###
+
+    log4j.appender.stdout=org.apache.log4j.ConsoleAppender
+
+    #log4j.appender.stdout.Target=System.err
+
+    #log4j.appender.stdout=org.apache.log4j
+
+    log4j.appender.stdout.layout=org.apache.log4j.PatternLayout
+     
+     
+    ### 把日志信息输出到文件：jbit.log ###
+
+    #log4j.appender.logfile=org.apache.log4j.FileAppender
+
+    log4j.appender.logfile=org.apache.log4j.DailyRollingFileAppender
+
+    log4j.appender.logfile.DatePattern='_'yyyy-MM-dd'.log'
+
+    log4j.appender.logfile.File=${catalina.home}/webapps/517Log/CLIntegrationInterfaceService.log
+
+    log4j.appender.logfile.layout=org.apache.log4j.PatternLayout
+
+    log4j.appender.logfile.layout.ConversionPattern=%d{yyyy-MM-dd HH:mm:ss} %F
+    %p %m%n
+     
+     
+    ###显示SQL语句部分 正式环境注释以下部分
+
+    log4j.logger.com.ibatis=error 
+
+    log4j.logger.com.ibatis.common.jdbc.SimpleDataSource=error 
+
+    log4j.logger.com.ibatis.common.jdbc.ScriptRunner=error 
+
+    log4j.logger.com.ibatis.sqlmap.engine.impl.SqlMapClientDelegate=error 
+
+    log4j.logger.java.sql.Connection=error 
+
+    log4j.logger.java.sql.Statement=error 
+
+    log4j.logger.java.sql.PreparedStatement=error
+  log_config.properties: >-
+    #####################   日志组件配置文件        ###########################
+
+    ##################################################################
+
+    #说明：所有属性均采用? key = value 的方式，只有value的值可以修改，现有的key不可修改；密码域账户均加密不是乱码?
+
+    #AppName 应用程序名??
+
+    log.AppName = CLIntegrationInterface
+
+
+    #AppRecord App日志记录开关 true：开     false：关
+
+    log.AppRecord = true
+
+
+    #DebugRecord Debug日志记录开关 true：开     false：关
+
+    log.DebugRecord = false
+
+
+    #Driver 数据库驱动
+
+    log.jdbc.driver = com.mysql.jdbc.Driver
+
+
+    #Url 数据库链接  jdbc:mysql://ip：port/数据库名称
+
+    log.acc.jdbc.url =
+    jdbc:mysql://BJLogDBALL003-W.BJ01.517na.com:3306/LogAccJKCL
+
+    log.acc.jdbc.username=vxSs4i7BS58@
+
+    log.acc.jdbc.password=6BPzhGiVwAPCW1LhtdUvCblGokvcMGesrY1wV/coEWg@
+
+
+    log.app.jdbc.url =
+    jdbc:mysql://BJLogDBALL003-W.BJ01.517na.com:3306/LogAppJKCL
+
+    log.app.jdbc.username=vxSs4i7BS58@
+
+    log.app.jdbc.password=6BPzhGiVwAPCW1LhtdUvCblGokvcMGesrY1wV/coEWg@
+
+
+    log.cachehit.jdbc.url =
+    jdbc:mysql://BJLogDBALL003-W.BJ01.517na.com:3306/LogCacheHitJKCL
+
+    log.cachehit.jdbc.username=vxSs4i7BS58@
+
+    log.cachehit.jdbc.password=6BPzhGiVwAPCW1LhtdUvCblGokvcMGesrY1wV/coEWg@
+
+
+    log.debug.jdbc.url =
+    jdbc:mysql://BJLogDBALL003-W.BJ01.517na.com:3306/LogDebugJKCL
+
+    log.debug.jdbc.username=vxSs4i7BS58@
+
+    log.debug.jdbc.password=6BPzhGiVwAPCW1LhtdUvCblGokvcMGesrY1wV/coEWg@
+
+
+    log.exception.jdbc.url =
+    jdbc:mysql://BJLogDBALL003-W.BJ01.517na.com:3306/LogExceptionJKCL
+
+    log.exception.jdbc.username=vxSs4i7BS58@
+
+    log.exception.jdbc.password=6BPzhGiVwAPCW1LhtdUvCblGokvcMGesrY1wV/coEWg@
+
+
+    log.interaction.jdbc.url =
+    jdbc:mysql://BJLogDBALL003-W.BJ01.517na.com:3306/LogInteractionJKCL
+
+    log.interaction.jdbc.username=vxSs4i7BS58@
+
+    log.interaction.jdbc.password=6BPzhGiVwAPCW1LhtdUvCblGokvcMGesrY1wV/coEWg@
+
+
+    log.slowcall.jdbc.url =
+    jdbc:mysql://BJLogDBALL003-W.BJ01.517na.com:3306/LogSlowCallJKCL
+
+    log.slowcall.jdbc.username=vxSs4i7BS58@
+
+    log.slowcall.jdbc.password=6BPzhGiVwAPCW1LhtdUvCblGokvcMGesrY1wV/coEWg@
+
+
+    log.uiacc.jdbc.url =
+    jdbc:mysql://BJLogDBALL003-W.BJ01.517na.com:3306/LogUiaccJKCL
+
+    log.uiacc.jdbc.username=vxSs4i7BS58@
+
+    log.uiacc.jdbc.password=6BPzhGiVwAPCW1LhtdUvCblGokvcMGesrY1wV/coEWg@
+
+
+    #Directory linux下日志记录路径?
+
+    log.Directory = /var/log/cllog
+
+
+    #DivisionFileSize （单位：兆） 日志在某一时间段内超过文件大小已2M划分
+
+    log.DivisionFileSize = 2
+
+
+    #DivisionFileTime （单位：分钟） 日志在某一时间段内不足2M文件按2min划分
+
+    log.DivisionFileTime = 1
+
+
+    #windows下载文件目录,windows服务的配置成Logs，linux服务一般配置成 JavaLogs
+
+    log.download.Directory=JavaLogs
+
+
+    log.kafka.iswritetokafka=1
+
+    log.kafka.addresses=kafkalog1.517la.com:9092,kafkalog2.517la.com:9092,kafkalog3.517la.com:9092
+  param-jdbc.properties: >-
+    ########## JDBC ##########################
+
+    param.applicationName = AdsManageDataService(20150120_V3809)
+
+    param.databaseName = SysParamDB
+
+    param.isRead = true
+
+    param.bizTime = 2014-12-19
+
+
+    pool.initialSize=5
+
+    pool.maxActive=100
+
+    pool.maxIdle=5
+
+    pool.maxWait=10000000
+
+    pool.poolPreparedStatements=true
+
+    pool.defaultAutoCommit=false
+
+
+    #################\u4E3B\u952E\u751F\u6210\u7B56\u7565\u6587\u4EF6############################
+
+
+    param.DictionaryTimeOut=5
+
+
+    param.SysParamTimeOut=5
+
+
+    param.UserParamTimeOut=5
+
+
+    param.AppName=test
+
+    httpRequestAPI.hotel=http://mcjk_hotel.517la.com/hotel/api
+
+
+    sellTradeIntegrationDomin=http://172.26.8.188:12641
+
+    airTicketInfoDataServiceUrl=https://buyticketdata.517la.com
+
+    clproductcenterserviceDomin=http://procenter.517la.com
+
+    httpRequestAPI.serviceFeeInfo=http://cltraderuleservice.517la.com/api/getServiceFee
+  redis.properties: |-
+    redis.maxActive=200
+    redis.maxIdle=60
+    redis.maxWait=100000
+    redis.sleepTime=60000
+    redis.url= jdbc:mysql://DataBaseRoute-W.BJ01.517na.com:3306/DataBaseRoute
+    redis.userName=kSRw85/S628Jd6cTkHmEgA@@
+    redis.password=6BPzhGiVwAPCW1LhtdUvCblGokvcMGesrY1wV/coEWg@
+    redis.DBName=UnifiedUserCacheDB
+    redis.driverClassName=com.mysql.jdbc.Driver
+    redis.initialSize=4
+    redis.maxActive=300
+    redis.maxIdle=60
+    redis.maxWait=10000
+    redis.appName=default
+    redis.nacfgFile=/home/nacfg.ini
+kind: ConfigMap
+metadata:
+  name: clintegrationinterfaceservice-config
+  namespace: common

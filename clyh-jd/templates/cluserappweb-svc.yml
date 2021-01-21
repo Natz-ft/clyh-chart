@@ -1,0 +1,16 @@
+apiVersion: v1
+kind: Service
+metadata:
+  name: cluserappweb-svc
+  namespace: jd
+spec:
+  ports:
+    - name: http
+      nodePort: 30611
+      port: 30611
+      protocol: TCP
+      targetPort: 5326
+  selector:
+    app: cluserappweb
+  sessionAffinity: None
+  type: NodePort

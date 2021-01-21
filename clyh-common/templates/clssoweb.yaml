@@ -1,0 +1,141 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: clssoweb
+  namespace: common
+spec:
+  progressDeadlineSeconds: 600
+  replicas: 1
+  revisionHistoryLimit: 10
+  selector:
+    matchLabels:
+      app: clssoweb
+  strategy:
+    rollingUpdate:
+      maxSurge: 25%
+      maxUnavailable: 1
+    type: RollingUpdate
+  template:
+    metadata:
+      labels:
+        app: clssoweb
+    spec:
+      containers:
+        - env:
+            - name: MYENV_TOMCATPORT
+              {{- if .Values.clssoweb.networkManager.tomcat.port }}
+              value: {{ .Values.clssoweb.networkManager.tomcat.port | quote }}
+              {{- else }}
+              value: '13520'
+              {{- end }}
+            - name: JAVA_OPTS
+              value: {{ .Values.clssoweb.resourceManager.jvm }}
+          {{- if .Values.clssoweb.nodeManager.tag }}
+          image: {{ .Values.imageRegistry }}/clssoweb:{{ .Values.clssoweb.nodeManager.tag }}
+          {{- else }}
+          image: {{ .Values.imageRegistry }}/clssoweb:{{ .Values.dockerTag }}
+          {{- end }}
+          imagePullPolicy: IfNotPresent
+          name: clssoweb
+          ports:
+            {{- if .Values.clssoweb.networkManager.tomcat.port }}
+            - containerPort: {{ .Values.clssoweb.networkManager.tomcat.port }}
+              hostPort: {{ .Values.clssoweb.networkManager.tomcat.port }}
+              protocol: TCP
+              {{- else }}
+            - containerPort: 13520
+              hostPort: 13520
+              protocol: TCP
+              {{- end }}
+          {{- if .Values.clssoweb.resourceManager.resources.custom -}}
+          resources:
+            limits:
+              cpu: {{ .Values.clssoweb.resourceManager.resources.limits.cpu }}
+              memory: {{ .Values.clssoweb.resourceManager.resources.limits.memory }}
+            requests:
+              cpu: {{ .Values.clssoweb.resourceManager.resources.requests.cpu }}
+              memory: {{ .Values.clssoweb.resourceManager.resources.requests.memory }}
+          {{- else }}
+          resources:
+            limits:
+              cpu: '1'
+              memory: 1Gi
+            requests:
+              cpu: 100m
+              memory: 128Mi
+          {{- end }}
+          terminationMessagePath: /dev/termination-log
+          terminationMessagePolicy: File
+          volumeMounts:
+            - mountPath: /var/log/cllog
+              name: cllog
+            - mountPath: /var/log/java
+              name: logjava
+            - mountPath: /home/nacfg.ini
+              name: nacfg
+            - mountPath: /usr/local/soft/tomcat/webapps/ROOT/WEB-INF/config
+              name: config
+            - mountPath: /usr/local/soft/tomcat/conf/server.xml
+              name: config
+              subPath: server.xml
+            - mountPath: >-
+                /usr/local/soft/tomcat/webapps/ROOT/common/i18n/strings_20190115103551737113.properties
+              name: config
+              subPath: strings_20190115103551737113.properties
+      dnsPolicy: ClusterFirstWithHostNet
+      hostNetwork: true
+      imagePullSecrets:
+        - name: regcred
+      nodeSelector:
+        env: common
+      restartPolicy: Always
+      schedulerName: default-scheduler
+      securityContext: {}
+      terminationGracePeriodSeconds: 15
+      {{- if .Values.hostManager.volumes.hostPath }}
+      volumes:
+        - hostPath:
+            path: {{ .Values.hostManager.volumes.hostPath }}/log/cllog
+            type: ''
+          name: cllog
+        - hostPath:
+            path: {{ .Values.hostManager.volumes.hostPath }}/log/java
+            type: ''
+          name: logjava
+        - hostPath:
+            path: /home/nacfg.ini
+            type: ''
+          name: nacfg
+        - configMap:
+            defaultMode: 420
+            items:
+              - key: server.xml
+                path: server.xml
+              - key: strings_20190115103551737113.properties
+                path: strings_20190115103551737113.properties
+            name: clssoweb-config
+          name: config
+      {{- else }}
+      volumes:
+        - hostPath:
+            path: /app/log/cllog
+            type: ''
+          name: cllog
+        - hostPath:
+            path: /app/log/java
+            type: ''
+          name: logjava
+        - hostPath:
+            path: /home/nacfg.ini
+            type: ''
+          name: nacfg
+        - configMap:
+            defaultMode: 420
+            items:
+              - key: server.xml
+                path: server.xml
+              - key: strings_20190115103551737113.properties
+                path: strings_20190115103551737113.properties
+            name: clssoweb-config
+          name: config
+      {{- end }}

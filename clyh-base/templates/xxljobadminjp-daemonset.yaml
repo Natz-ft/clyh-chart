@@ -1,0 +1,94 @@
+apiVersion: apps/v1
+kind: DaemonSet
+metadata:
+  name: xxljobadminjp
+  namespace: base
+spec:
+  revisionHistoryLimit: 10
+  selector:
+    matchLabels:
+      name: xxljobadminjp
+  template:
+    metadata:
+      labels:
+        name: xxljobadminjp
+    spec:
+      containers:
+        - env:
+            - name: JAVA_OPTS
+              value: '-server -Xms128m -Xmx1g'
+            - name: MYENV_TOMCATPORT
+              value: '18430'
+          image: >-
+            {{ .Values.imageRegistry }}/xxljobadmin517la:{{ .Values.eureka.nodeManager.tag }}
+          imagePullPolicy: IfNotPresent
+          livenessProbe:
+            failureThreshold: 3
+            httpGet:
+              path: /favicon.ico
+              port: 18430
+              scheme: HTTP
+            initialDelaySeconds: 100
+            periodSeconds: 10
+            successThreshold: 1
+            timeoutSeconds: 10
+          name: xxljobadminjp
+          ports:
+            - containerPort: 18430
+              hostPort: 18430
+              protocol: TCP
+          readinessProbe:
+            failureThreshold: 3
+            httpGet:
+              path: /favicon.ico
+              port: 18430
+              scheme: HTTP
+            initialDelaySeconds: 10
+            periodSeconds: 5
+            successThreshold: 1
+            timeoutSeconds: 10
+          {{- if .Values.springcloudconfig.resourceManager.resources.custom -}}
+          resources:
+            limits:
+              cpu: {{ .Values.xxljobadminjp.resourceManager.resources.limits.cpu }}
+              memory: {{ .Values.xxljobadminjp.resourceManager.resources.limits.memory }}
+            requests:
+              cpu: {{ .Values.xxljobadminjp.resourceManager.resources.requests.cpu }}
+              memory: {{ .Values.xxljobadminjp.resourceManager.resources.requests.memory }}
+          {{- else }}
+          resources:
+            limits:
+              cpu: '1'
+              memory: 1Gi
+            requests:
+              cpu: 200m
+              memory: 128Mi
+          {{- end }}
+          terminationMessagePath: /dev/termination-log
+          terminationMessagePolicy: File
+          volumeMounts:
+            - mountPath: >-
+                /usr/local/soft/tomcat/webapps/ROOT/WEB-INF/classes/xxl-job-admin.properties
+              name: application
+              subPath: xxl-job-admin.properties
+      dnsPolicy: ClusterFirstWithHostNet
+      imagePullSecrets:
+        - name: regcred
+      nodeSelector:
+        env: base
+      restartPolicy: Always
+      schedulerName: default-scheduler
+      securityContext: {}
+      terminationGracePeriodSeconds: 15
+      volumes:
+        - configMap:
+            defaultMode: 420
+            items:
+              - key: xxl-job-admin.properties
+                path: xxl-job-admin.properties
+            name: xxljob-config
+          name: application
+  updateStrategy:
+    rollingUpdate:
+      maxUnavailable: 1
+    type: RollingUpdate

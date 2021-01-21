@@ -1,0 +1,141 @@
+ apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: clconspdetailrepairservice
+  namespace: settlement
+spec:
+  progressDeadlineSeconds: 600
+{{- if .Values.clconspdetailrepairservice.nodeManager.replicas }}
+  replicas: {{ .Values.clconspdetailrepairservice.nodeManager.replicas }}
+{{- else if eq .Values.environment "test" }}
+  replicas: 1
+{{- else if eq .Values.environment "formal" }}
+  replicas: 1
+{{- end }}
+  revisionHistoryLimit: 10
+  selector:
+    matchLabels:
+      app: clconspdetailrepairservice
+  strategy:
+    rollingUpdate:
+      maxSurge: 25%
+      maxUnavailable: 1
+    type: RollingUpdate
+  template:
+    metadata:
+      annotations:
+        redeploy-timestamp: '1596017329105'
+      labels:
+        app: clconspdetailrepairservice
+    spec:
+      containers:
+        - env:
+            - name: MYENV_CONFIGNAME
+              value: >-
+                dbroute,jdbc,logconfig,paramjdbc,serviceroute,application,log4j,messagequeuehelper,myconfig
+            - name: MYENV_CONFIGPROFILE
+              value: zs
+            - name: MYENV_CONFIGLABEL
+              value: CLConspDetailRepairService-PAL-k8s
+            - name: MYENV_CONFIGSERVICEID
+              value: spring-cloud-config-server
+            - name: MYENV_EUREKAURL
+              value: 'http://eureka2:8000/eureka/,http://eureka3:8000/eureka/'
+            - name: MYENV_TOMCATPORT
+            {{- if .Values.clconspdetailrepairservice.networkManager.tomcat.port }}
+              value: {{ .Values.clconspdetailrepairservice.networkManager.tomcat.port | quote }}
+            {{- else }}
+              value: '13121'
+            {{- end }}
+            - name: JAVA_OPTS
+              value: {{ .Values.clconspdetailrepairservice.resourceManager.jvm }}
+          {{- if .Values.clconspdetailrepairservice.nodeManager.tag }}
+          image: {{ .Values.imageRegistry }}/clconspdetailrepairservice:{{ .Values.clconspdetailrepairservice.nodeManager.tag }}
+          {{- else }}
+          image: {{ .Values.imageRegistry }}/clconspdetailrepairservice:{{ .Values.dockerTag }}
+          {{- end }}
+          imagePullPolicy: IfNotPresent
+          name: clconspdetailrepairservice
+          ports:
+            {{- if .Values.clconspdetailrepairservice.networkManager.tomcat.port }}
+            - containerPort: {{ .Values.clconspdetailrepairservice.networkManager.tomcat.port }}
+              hostPort: {{ .Values.clconspdetailrepairservice.networkManager.tomcat.port }}
+              protocol: TCP
+            {{- else }}
+            - containerPort: 13121
+              hostPort: 13121
+              protocol: TCP
+            {{- end }}
+            {{- if .Values.clconspdetailrepairservice.networkManager.thrift.port }}
+            - containerPort: {{ .Values.clconspdetailrepairservice.networkManager.thrift.port }}
+              hostPort: {{ .Values.clconspdetailrepairservice.networkManager.thrift.port }}
+              protocol: TCP
+            {{- else }}
+            - containerPort: 12569
+              hostPort: 12569
+              protocol: TCP
+            {{- end }}
+          {{- if .Values.clconspdetailrepairservice.resourceManager.resources.custom -}}
+          resources:
+            limits:
+              cpu: {{ .Values.clconspdetailrepairservice.resourceManager.resources.limits.cpu }}
+              memory: {{ .Values.clconspdetailrepairservice.resourceManager.resources.limits.memory }}
+            requests:
+              cpu: {{ .Values.clconspdetailrepairservice.resourceManager.resources.requests.cpu }}
+              memory: {{ .Values.clconspdetailrepairservice.resourceManager.resources.requests.memory }}
+          {{- else }}
+          resources:
+            limits:
+              cpu: '1'
+              memory: 1Gi
+            requests:
+              cpu: 200m
+              memory: 128Mi
+          {{- end }}
+          terminationMessagePath: /dev/termination-log
+          terminationMessagePolicy: File
+          volumeMounts:
+            - mountPath: /var/log/cllog
+              name: cllog
+            - mountPath: /var/log/java
+              name: logjava
+            - mountPath: /home/nacfg.ini
+              name: nacfg
+      dnsPolicy: ClusterFirstWithHostNet
+      imagePullSecrets:
+        - name: regcred
+      nodeSelector:
+        env: settlement
+      restartPolicy: Always
+      schedulerName: default-scheduler
+      securityContext: {}
+      terminationGracePeriodSeconds: 15
+      {{- if .Values.hostManager.volumes.hostPath }}
+      volumes:
+        - hostPath:
+            path: {{ .Values.hostManager.volumes.hostPath }}/log/cllog
+            type: ''
+          name: cllog
+        - hostPath:
+            path: {{ .Values.hostManager.volumes.hostPath }}/log/java
+            type: ''
+          name: logjava
+        - hostPath:
+            path: /home/nacfg.ini
+            type: ''
+          name: nacfg
+      {{- else }}
+      volumes:
+        - hostPath:
+            path: /app/log/cllog
+            type: ''
+          name: cllog
+        - hostPath:
+            path: /app/log/java
+            type: ''
+          name: logjava
+        - hostPath:
+            path: /home/nacfg.ini
+            type: ''
+          name: nacfg
+      {{- end }}

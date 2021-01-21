@@ -1,0 +1,121 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: clbusscarh5
+  namespace: car
+spec:
+  progressDeadlineSeconds: 600
+  replicas: 1
+  revisionHistoryLimit: 10
+  selector:
+    matchLabels:
+      app: clbusscarh5
+  strategy:
+    rollingUpdate:
+      maxSurge: 25%
+      maxUnavailable: 1
+    type: RollingUpdate
+  template:
+    metadata:
+      labels:
+        app: clbusscarh5
+    spec:
+      containers:
+        - env:
+            - name: MYENV_TOMCATPORT
+              {{- if .Values.clbusscarh5.networkManager.tomcat.port }}
+              value: {{ .Values.clbusscarh5.networkManager.tomcat.port | quote }}
+              {{- else }}
+              value: "13766"
+            {{- end }}
+            - name: JAVA_OPTS
+              value: {{ .Values.clbusscarh5.resourceManager.jvm }}
+          {{- if .Values.clbusscarh5.nodeManager.tag }}
+          image: {{ .Values.imageRegistry }}/clbusscarh5:{{ .Values.clbusscarh5.nodeManager.tag }}
+          {{- else }}
+          image: {{ .Values.imageRegistry }}/clbusscarh5:{{ .Values.dockerTag }}
+          {{- end }}
+          imagePullPolicy: Always
+          name: clbusscarh5
+          ports:
+            {{- if .Values.clbusscarh5.networkManager.tomcat.port }}
+            - containerPort: {{ .Values.clbusscarh5.networkManager.tomcat.port }}
+              hostPort: {{ .Values.clbusscarh5.networkManager.tomcat.port }}
+              protocol: TCP
+            {{- else }}
+            - containerPort: 13766
+              hostPort: 13766
+              protocol: TCP
+            {{- end }}
+          {{- if .Values.clbusscarh5.resourceManager.resources.custom -}}
+          resources:
+            limits:
+              cpu: {{ .Values.clbusscarh5.resourceManager.resources.limits.cpu }}
+              memory: {{ .Values.clbusscarh5.resourceManager.resources.limits.memory }}
+            requests:
+              cpu: {{ .Values.clbusscarh5.resourceManager.resources.requests.cpu }}
+              memory: {{ .Values.clbusscarh5.resourceManager.resources.requests.memory }}
+          {{- else }}
+          resources:
+            limits:
+              cpu: '1'
+              memory: 1Gi
+            requests:
+              cpu: 200m
+              memory: 128Mi
+          {{- end }}
+          terminationMessagePath: /dev/termination-log
+          terminationMessagePolicy: File
+          volumeMounts:
+            - mountPath: /home/nacfg.ini
+              name: nacfg
+            - mountPath: /var/log/cllog
+              name: cllog
+            - mountPath: /var/log/java
+              name: logjava
+            - mountPath: /usr/local/soft/tomcat/webapps/ROOT/WEB-INF/config
+              name: config
+            - mountPath: /usr/local/soft/tomcat/conf/server.xml
+              name: config
+              subPath: server.xml
+      dnsPolicy: ClusterFirstWithHostNet
+      imagePullSecrets:
+        - name: regcred
+      nodeSelector:
+        env: car
+      restartPolicy: Always
+      schedulerName: default-scheduler
+      securityContext: {}
+      terminationGracePeriodSeconds: 15
+      {{- if .Values.hostManager.volumes.hostPath }}
+      volumes:
+        - hostPath:
+            path: {{ .Values.hostManager.volumes.hostPath }}/log/cllog
+            type: ''
+          name: cllog
+        - hostPath:
+            path: {{ .Values.hostManager.volumes.hostPath }}/log/java
+            type: ''
+          name: logjava
+        - hostPath:
+            path: /home/nacfg.ini
+            type: ''
+          name: nacfg
+      {{- else }}
+      volumes:
+        - hostPath:
+            path: /app/log/cllog
+            type: ''
+          name: cllog
+        - hostPath:
+            path: /app/log/java
+            type: ''
+          name: logjava
+        - hostPath:
+            path: /home/nacfg.ini
+            type: ''
+          name: nacfg
+        - configMap:
+            name: clbusscarh5-config
+          name: config
+    {{- end }}

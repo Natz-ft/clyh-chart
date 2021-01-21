@@ -1,0 +1,128 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: clfilemanageservice
+  namespace: budget
+spec:
+  progressDeadlineSeconds: 2147483647
+  replicas: 1
+  revisionHistoryLimit: 10
+  selector:
+    matchLabels:
+      app: clfilemanageservice
+  strategy:
+    rollingUpdate:
+      maxSurge: 25%
+      maxUnavailable: 1
+    type: RollingUpdate
+  template:
+    metadata:
+      labels:
+        app: clfilemanageservice
+    spec:
+      containers:
+        - env:
+            - name: MYENV_CONFIGNAME
+              value: 'dbroute,jdbc,logconfig,paramjdbc,serviceroute,application,log4j'
+            - name: MYENV_CONFIGPROFILE
+              value: zs
+            - name: MYENV_CONFIGLABEL
+              value: cLFileManageService-PAL1
+            - name: MYENV_CONFIGSERVICEID
+              value: spring-cloud-config-server
+            - name: MYENV_EUREKAURL
+              value: >-
+                http://eureka1:8000/eureka/,http://eureka2:8000/eureka/,http://eureka3:8000/eureka/
+            - name: MYENV_TOMCATPORT
+              value: '22117'
+            - name: JAVA_OPTS
+              value: '-server -Xms128m -Xmx1g'
+          {{- if .Values.clfilemanageservice.nodeManager.tag }}
+          image: {{ .Values.imageRegistry }}/clfilemanageservice:{{ .Values.clfilemanageservice.nodeManager.tag }}
+          {{- else }}
+          image: {{ .Values.imageRegistry }}/clfilemanageservice:{{ .Values.dockerTag }}
+          {{- end }}
+          imagePullPolicy: IfNotPresent
+          lifecycle:
+            preStop:
+              exec:
+                command:
+                  - curl
+                  - 'http://localhost:22117/unregisterbyext'
+          livenessProbe:
+            failureThreshold: 3
+            httpGet:
+              path: /info
+              port: 22117
+              scheme: HTTP
+            initialDelaySeconds: 100
+            periodSeconds: 10
+            successThreshold: 1
+            timeoutSeconds: 10
+          name: regcred
+          ports:
+            - containerPort: 22117
+              hostPort: 22117
+              protocol: TCP
+            - containerPort: 22115
+              hostPort: 22115
+              protocol: TCP
+            - containerPort: 22219
+              hostPort: 22219
+              protocol: TCP
+          readinessProbe:
+            failureThreshold: 3
+            httpGet:
+              path: /info
+              port: 22117
+              scheme: HTTP
+            initialDelaySeconds: 10
+            periodSeconds: 5
+            successThreshold: 1
+            timeoutSeconds: 10
+          resources:
+            limits:
+              cpu: '1'
+              memory: 2560Mi
+            requests:
+              cpu: 200m
+              memory: 128Mi
+          terminationMessagePath: /dev/termination-log
+          terminationMessagePolicy: File
+          volumeMounts:
+            - mountPath: /var/log/cllog
+              name: cllog
+            - mountPath: /var/log/java
+              name: logjava
+            - mountPath: /home/nacfg.ini
+              name: nacfg
+            - mountPath: /usr/local/soft/clfile
+              name: file
+      dnsPolicy: ClusterFirstWithHostNet
+      hostNetwork: true
+      imagePullSecrets:
+        - name: regcred
+      nodeSelector:
+        env: budget
+        file: 'yes'
+      restartPolicy: Always
+      schedulerName: default-scheduler
+      securityContext: {}
+      terminationGracePeriodSeconds: 15
+      volumes:
+        - hostPath:
+            path: /app/log/cllog
+            type: ''
+          name: cllog
+        - hostPath:
+            path: /app/log/java
+            type: ''
+          name: logjava
+        - hostPath:
+            path: /home/nacfg.ini
+            type: ''
+          name: nacfg
+        - hostPath:
+            path: /tomcat/clfile
+            type: ''
+          name: file

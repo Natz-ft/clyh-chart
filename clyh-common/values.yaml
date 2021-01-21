@@ -1,0 +1,171 @@
+# The base budget image to use for all components.
+imageRegistry: //仓库地址值
+dockerTag: 1.0.0 //
+environment: "formal"
+hostManager:
+  volumes:
+    hostPath: /app
+configMapManger:
+  db:
+    serviceroute:
+      url: jdbc:mysql://ServiceRouteDB-R.BJ01.517na.com/ServiceRouteDB
+      username: JmllLBwCJN7P5a0VXvvHkg@@
+      password: 6BPzhGiVwAPCW1LhtdUvCblGokvcMGesrY1wV/coEWg@
+    writeroute:
+      url: jdbc:mysql://DataBaseRoute-R.BJ01.517na.com:3306/DataBaseRoute
+      username: JmllLBwCJN7P5a0VXvvHkg@@
+      password: 6BPzhGiVwAPCW1LhtdUvCblGokvcMGesrY1wV/coEWg@
+    readroute:
+      url: jdbc:mysql://DataBaseRoute-R.BJ01.517na.com:3306/DataBaseRoute
+      username: JmllLBwCJN7P5a0VXvvHkg@@
+      password: 6BPzhGiVwAPCW1LhtdUvCblGokvcMGesrY1wV/coEWg@
+  redis:
+    url: jdbc:mysql://DataBaseRoute-W.BJ01.517na.com:3306/DataBaseRoute
+    username: kSRw85/S628Jd6cTkHmEgA@@
+    password: 6BPzhGiVwAPCW1LhtdUvCblGokvcMGesrY1wV/coEWg@
+    dbname: CLTradeRedisDB
+
+clmidplatextendedservice:
+  resourceManager:
+    resources:
+      custom: false
+    jvm: >-
+      -server -Xms128m -Xmx1g
+      -javaagent:/usr/local/soft/skywalking/agent65/skywalking-agent.jar
+      -DSW_AGENT_COLLECTOR_BACKEND_SERVICES=10.10.80.240:31101
+      -DSW_AGENT_NAME=clmidplatextendedservice -DSW_LOGGING_LEVEL=ERROR
+  nodeManager:
+    tag: 1.0.0
+
+clrequestauthorizationservice:
+  networkManager:
+    tomcat:
+      port:
+    thrift:
+      port:
+    command:
+      url:
+  resourceManager:
+    resources:
+      custom: false
+    jvm: '-server -Xms128m -Xmx1024m'
+  nodeManager:
+    tag: 1.0.0
+
+springcloudgatewayserver_jp_outer:
+  networkManager:
+    tomcat:
+      port:
+    thrift:
+      port:
+    command:
+      url:
+  resourceManager:
+    resources:
+      custom: false
+    jvm: '-server -Xms128m -Xmx1024m'
+  nodeManager:
+    tag: 1.0.0
+
+commonpagerservicecloud:
+  networkManager:
+    tomcat:
+      port:
+    thrift:
+      port:
+    command:
+      url:
+  resourceManager:
+    resources:
+      custom: false
+    jvm: -server -Xms256m -Xmx1g
+  nodeManager:
+    tag: 1.0.0
+
+rapiddevelopservice:
+  networkManager:
+    tomcat:
+      port:
+    thrift:
+      port:
+    command:
+      url:
+  resourceManager:
+    resources:
+      custom: false
+    jvm: -server -Xms128m -Xmx1024m
+  nodeManager:
+    tag: 1.0.0
+  service:
+    nodePort: 30014
+
+synergycommentservice:
+  networkManager:
+    tomcat:
+      port:
+    thrift:
+      port:
+    command:
+      url:
+  resourceManager:
+    resources:
+      custom: false
+    jvm: -server -Xms128m -Xmx512g
+      -javaagent:/usr/local/soft/skywalking/agent65/skywalking-agent.jar
+      -DSW_AGENT_COLLECTOR_BACKEND_SERVICES=skywalkingadmin:31101
+      -DSW_AGENT_NAME=synergycommentservice -DSW_LOGGING_LEVEL=ERROR
+  nodeManager:
+    tag: 1.0.0
+
+clbusstmcweb:
+  networkManager:
+    tomcat:
+      port:
+    thrift:
+      port:
+    command:
+      url:
+  resourceManager:
+    resources:
+      custom: false
+    jvm: >-
+      -server -Xms1024m -Xmx1600m -XX:PermSize=128m
+      -XX:MaxPermSize=256m -XX:SurvivorRatio=8 -XX:NewRatio=4
+      -XX:-UseAdaptiveSizePolicy
+      -DSW_AGENT_COLLECTOR_BACKEND_SERVICES=skywalkingadmin:31101
+      -DSW_AGENT_NAME=clbusstmcweb -DSW_LOGGING_LEVEL=ERROR
+  nodeManager:
+    tag: 1.0.0
+
+clbussuserweb:
+  networkManager:
+    tomcat:
+      port:
+    thrift:
+      port:
+    command:
+      url:
+  resourceManager:
+    resources:
+      custom: false
+    jvm: >-
+      -server -Xms128m -Xmx1024m -javaagent:/usr/local/soft/skywalking/agent65/skywalking-agent.jar
+            -DSW_AGENT_COLLECTOR_BACKEND_SERVICES=10.10.80.240:31101 -DSW_AGENT_NAME=clbussuserweb
+            -DSW_LOGGING_LEVEL=ERROR
+  nodeManager:
+    tag: 1.0.0
+
+clssoweb:
+  networkManager:
+    tomcat:
+      port:
+    thrift:
+      port:
+    command:
+      url:
+  resourceManager:
+    resources:
+      custom: false
+    jvm: '-server -Xms128m -Xmx1024m'
+  nodeManager:
+    tag: 1.0.0

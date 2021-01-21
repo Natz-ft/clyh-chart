@@ -1,0 +1,138 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: clappsystemdataservice
+  namespace: jp
+spec:
+  progressDeadlineSeconds: 600
+{{- if .Values.clappsystemdataservice.nodeManager.replicas }}
+  replicas: {{ .Values.clappsystemdataservice.nodeManager.replicas }}
+{{- else if eq .Values.environment "test" }}
+  replicas: 1
+{{- else if eq .Values.environment "formal" }}
+  replicas: 2
+{{- end }}
+  revisionHistoryLimit: 10
+  selector:
+    matchLabels:
+      app: clappsystemdataservice
+  strategy:
+    rollingUpdate:
+      maxSurge: 25%
+      maxUnavailable: 1
+    type: RollingUpdate
+  template:
+    metadata:
+      labels:
+        app: clappsystemdataservice
+    spec:
+      containers:
+        - env:
+            - name: MYENV_TOMCATPORT
+            {{- if .Values.clappsystemdataservice.networkManager.tomcat.port }}
+              value: {{ .Values.clappsystemdataservice.networkManager.tomcat.port | quote }}
+            {{- else }}
+              value: "12685"
+            {{- end }}
+            - name: JAVA_OPTS
+              value: {{ .Values.clappsystemdataservice.resourceManager.jvm }}
+        {{- if .Values.clappsystemdataservice.nodeManager.tag }}
+          image: {{ .Values.imageRegistry }}/clappsystemdataservice:{{ .Values.clappsystemdataservice.nodeManager.tag }}
+        {{- else }}
+          image: {{ .Values.imageRegistry }}/clappsystemdataservice:{{ .Values.dockerTag }}
+        {{- end }}
+          imagePullPolicy: IfNotPresent
+          ports:
+            {{- if .Values.clappsystemdataservice.networkManager.tomcat.port }}
+            - containerPort: {{ .Values.clappsystemdataservice.networkManager.tomcat.port }}
+              hostPort: {{ .Values.clappsystemdataservice.networkManager.tomcat.port }}
+              protocol: TCP
+            {{- else }}
+            - containerPort: 12685
+              hostPort: 12685
+              protocol: TCP
+            {{- end }}
+            {{- if .Values.clappsystemdataservice.networkManager.thrift.port }}
+            - containerPort: {{ .Values.clappsystemdataservice.networkManager.thrift.port }}
+              hostPort: {{ .Values.clappsystemdataservice.networkManager.thrift.port }}
+              protocol: TCP
+            {{- else }}
+            - containerPort: 12687
+              hostPort: 12687
+              protocol: TCP
+            {{- end }}
+          {{- if .Values.clappsystemdataservice.resourceManager.resources.custom -}}
+          resources:
+            limits:
+              cpu: {{ .Values.clappsystemdataservice.resourceManager.resources.limits.cpu }}
+              memory: {{ .Values.clappsystemdataservice.resourceManager.resources.limits.memory }}
+            requests:
+              cpu: {{ .Values.clappsystemdataservice.resourceManager.resources.requests.cpu }}
+              memory: {{ .Values.clappsystemdataservice.resourceManager.resources.requests.memory }}
+          {{- else }}
+          resources:
+            limits:
+              cpu: '1'
+              memory: 1Gi
+            requests:
+              cpu: 200m
+              memory: 128Mi
+          {{- end }}
+          terminationMessagePath: /dev/termination-log
+          terminationMessagePolicy: File
+          volumeMounts:
+            - mountPath: /home/nacfg.ini
+              name: nacfg
+              subPath: nacfg.ini
+            - mountPath: /var/log/cllog
+              name: cllog
+            - mountPath: /var/log/java
+              name: logjava
+            - mountPath: /usr/local/soft/tomcat/webapps/ROOT/WEB-INF/config
+              name: config
+      dnsPolicy: ClusterFirstWithHostNet
+      imagePullSecrets:
+        - name: regcred
+      nodeSelector:
+        env: jp
+      restartPolicy: Always
+      schedulerName: default-scheduler
+      securityContext: {}
+      terminationGracePeriodSeconds: 15
+    {{- if .Values.hostManager.volumes.hostPath }}
+      volumes:
+        - hostPath:
+            path: {{ .Values.hostManager.volumes.hostPath }}/log/cllog
+            type: ''
+          name: cllog
+        - hostPath:
+            path: {{ .Values.hostManager.volumes.hostPath }}/log/java
+            type: ''
+          name: logjava
+        - hostPath:
+            path: /home/nacfg.ini
+            type: ''
+          name: nacfg
+        - configMap:
+            defaultMode: 420
+            name: clappsystemdataservice-config
+          name: config
+    {{- else }}
+      volumes:
+        - hostPath:
+            path: /app/log/cllog
+            type: ''
+          name: cllog
+        - hostPath:
+            path: /app/log/java
+            type: ''
+          name: logjava
+        - hostPath:
+            path: /home/nacfg.ini
+            type: ''
+          name: nacfg
+        - configMap:
+            defaultMode: 420
+            name: clappsystemdataservice-config
+          name: config
+    {{- end }}

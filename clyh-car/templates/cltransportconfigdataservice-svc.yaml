@@ -1,0 +1,15 @@
+apiVersion: v1
+kind: Service
+metadata:
+  name: cltransportconfigdataservice
+  namespace: car
+spec:
+  ports:
+    - name: cltransportconfigdataservice
+      port: 12243
+      protocol: TCP
+      targetPort: 12243
+  selector:
+    app: cltransportconfigdataservice
+  sessionAffinity: None
+  type: ClusterIP

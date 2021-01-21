@@ -1,0 +1,160 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: clbusstmcweb
+  namespace: common
+spec:
+  progressDeadlineSeconds: 600
+  replicas: 1
+  revisionHistoryLimit: 10
+  selector:
+    matchLabels:
+      app: clbusstmcweb
+  strategy:
+    rollingUpdate:
+      maxSurge: 25%
+      maxUnavailable: 1
+    type: RollingUpdate
+  template:
+    metadata:
+      annotations:
+        redeploy-timestamp: '1596198645321'
+      labels:
+        app: clbusstmcweb
+    spec:
+      containers:
+        - env:
+            - name: MYENV_TOMCATPORT
+              {{- if .Values.clbusstmcweb.networkManager.tomcat.port }}
+              value: {{ .Values.clbusstmcweb.networkManager.tomcat.port | quote }}
+              {{- else }}
+              value: "12170"
+              {{- end }}
+            - name: JAVA_OPTS
+              value: {{ .Values.clbusstmcweb.resourceManager.jvm }}
+          {{- if .Values.clbusstmcweb.nodeManager.tag }}
+          image: {{ .Values.imageRegistry }}/clbusstmcweb:{{ .Values.clbusstmcweb.nodeManager.tag }}
+          {{- else }}
+          image: {{ .Values.imageRegistry }}/clbusstmcweb:{{ .Values.dockerTag }}
+          {{- end }}
+          imagePullPolicy: IfNotPresent
+          livenessProbe:
+            failureThreshold: 3
+            httpGet:
+              path: /Content/img/back.png
+              {{- if .Values.clbusstmcweb.networkManager.tomcat.port }}
+              port: {{ .Values.clbusstmcweb.networkManager.tomcat.port }}
+              {{- else }}
+              port: 12170
+              {{- end }}
+              scheme: HTTP
+            initialDelaySeconds: 60
+            periodSeconds: 10
+            successThreshold: 1
+            timeoutSeconds: 10
+          name: clbusstmcweb
+          ports:
+              {{- if .Values.clbusstmcweb.networkManager.tomcat.port }}
+            - containerPort: {{ .Values.clbusstmcweb.networkManager.tomcat.port }}
+              hostPort: {{ .Values.clbusstmcweb.networkManager.tomcat.port }}
+              protocol: TCP
+              {{- else }}
+            - containerPort: 12170
+              hostPort: 12170
+              protocol: TCP
+              {{- end }}
+          readinessProbe:
+            failureThreshold: 3
+            httpGet:
+              path: /Content/img/back.png
+              {{- if .Values.clbusstmcweb.networkManager.tomcat.port }}
+              port: {{ .Values.clbusstmcweb.networkManager.tomcat.port }}
+              {{- else }}
+              port: 12170
+              {{- end }}
+              scheme: HTTP
+            initialDelaySeconds: 30
+            periodSeconds: 5
+            successThreshold: 1
+            timeoutSeconds: 10
+          {{- if .Values.clbusstmcweb.resourceManager.resources.custom -}}
+          resources:
+            limits:
+              cpu: {{ .Values.clbusstmcweb.resourceManager.resources.limits.cpu }}
+              memory: {{ .Values.clbusstmcweb.resourceManager.resources.limits.memory }}
+            requests:
+              cpu: {{ .Values.clbusstmcweb.resourceManager.resources.requests.cpu }}
+              memory: {{ .Values.clbusstmcweb.resourceManager.resources.requests.memory }}
+          {{- else }}
+          resources:
+            limits:
+              cpu: '2'
+              memory: 2500Mi
+            requests:
+              cpu: 100m
+              memory: 512Mi
+          {{- end }}
+          terminationMessagePath: /dev/termination-log
+          terminationMessagePolicy: File
+          volumeMounts:
+            - mountPath: /var/log/cllog
+              name: cllog
+            - mountPath: /var/log/java
+              name: logjava
+            - mountPath: /home/nacfg.ini
+              name: nacfg
+            - mountPath: /usr/local/soft/tomcat/webapps/ROOT/WEB-INF/config
+              name: config
+            - mountPath: /usr/local/soft/tomcat/conf/server.xml
+              name: config
+              subPath: server.xml
+            - mountPath: /usr/local/soft/tomcat/conf/catalina.properties
+              name: config
+              subPath: catalina.properties
+      dnsPolicy: ClusterFirstWithHostNet
+      hostNetwork: true
+      imagePullSecrets:
+        - name: regcred
+      nodeSelector:
+        env2: common
+      restartPolicy: Always
+      schedulerName: default-scheduler
+      securityContext: {}
+      terminationGracePeriodSeconds: 15
+      {{- if .Values.hostManager.volumes.hostPath }}
+      volumes:
+        - hostPath:
+            path: {{ .Values.hostManager.volumes.hostPath }}/log/cllog
+            type: ''
+          name: cllog
+        - hostPath:
+            path: {{ .Values.hostManager.volumes.hostPath }}/log/java
+            type: ''
+          name: logjava
+        - hostPath:
+            path: /home/nacfg.ini
+            type: ''
+          name: nacfg
+        - configMap:
+            defaultMode: 420
+            name: base-config
+          name: base
+      {{- else }}
+      volumes:
+        - hostPath:
+            path: /app/log/cllog
+            type: ''
+          name: cllog
+        - hostPath:
+            path: /app/log/java
+            type: ''
+          name: logjava
+        - hostPath:
+            path: /home/nacfg.ini
+            type: ''
+          name: nacfg
+        - configMap:
+            defaultMode: 420
+            name: clbusstmcweb-config
+          name: config
+      {{- end }}

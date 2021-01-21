@@ -1,0 +1,354 @@
+apiVersion: v1
+data:
+  ChinesePhoneticize.properties: |-
+    hzresourceurl = /srv/access/hz.dat
+    pinyinresourceurl = /srv/access/resPinYin.dat
+  DBRoute.properties: |-
+    driver=com.mysql.jdbc.Driver
+    readurl={{ .Values.configMapManger.db.databaserouteR.url }}
+    readusername={{ .Values.configMapManger.db.databaserouteR.username }}
+    readpassword={{ .Values.configMapManger.db.databaserouteR.username }}
+    writeurl={{ .Values.configMapManger.db.databaserouteW.url }}
+    writeusername={{ .Values.configMapManger.db.databaserouteW.username }}
+    writepassword={{ .Values.configMapManger.db.databaserouteW.username }}
+  MessageQueueHelper.properties: >-
+    ######### 应用程序名称 ##########################################
+
+    appId=差旅系统-交易集成服务  
+
+    ################# 需要连接的主机地址及端口,多台主机时，以分号隔开
+    192.168.1.117:15672;192.168.1.120:15672##############################
+
+    host=mq1.517la.com:5672;mq2.517la.com:5672
+
+    #host=172.17.41.110:5672
+
+    ################## 虚拟主机 ##############################################
+
+    vhost=cl-putting
+
+    ####################  用户名  #############################################
+
+    username=programUse
+
+    ##################### 密    码 #############################################
+
+    password=programUse
+
+    ##################### 超时时间 ############################################
+
+    timeout=600000
+
+    ##################### 心跳    ########################################
+
+    requestedHeartbeat=300
+  ServiceRoute.properties: >-
+    #\u552F\u4E00\u6807\u8BC6
+
+    uniqueSign=Jav-CLYPG-24
+
+    #uniqueSign=shaoping
+
+    ########### JDBC ##########################
+
+    driver=com.mysql.jdbc.Driver
+
+    #url=jdbc:mysql://192.168.1.60:3306/ServiceRouteDB
+
+
+    url={{ .Values.configMapManger.db.serviceroute.url }}
+
+    username={{ .Values.configMapManger.db.serviceroute.username }}
+
+    password={{ .Values.configMapManger.db.serviceroute.password }}
+
+    ###########cxf timeOut###########################
+
+    cxf.connectionTimeout = 20000000
+
+    cxf.readtimeout = 60000000
+
+    #####################debug######################
+
+    ##################1\u3001debug\u6A21\u5F0F 
+    2\u3001release\u6A21\u5F0F##################
+
+    debug.model = 1
+
+    ###################\u8C03\u7528\u5931\u8D25\u91CD\u8BD5\u6B21\u6570
+    \u9ED8\u8BA42\u6B21##################################
+
+    retrynum = 0
+
+    #service port
+
+    thrift.connectionPool.conTimeOut=1000000
+
+    thrift.connectionPool.maxWait=1000000
+
+    thrift.connectionPool.maxIdle=0
+
+    thrift.port=15664
+  javaMonitorGatherComponet.properties: |-
+    ######程序监控采集配置节点#######
+
+    #*程序名称(用于监控时方便查询，请按如下规则填写)
+    #格式：程序名-机房-环境-服务集区分关键字
+    #如：差旅系统用户网站-NW-测试
+    #如：差旅系统交易集成服务-SYQ-机票
+    monitor.programName= 交易集成服务-SYQ-正式
+
+    #*kafka地址
+    monitor.kafkaServer= kafka.zabbix.517na.com:9092
+  jdbc.properties: >-
+    ########## JDBC ##########################
+
+    applicationName = CLTradeIntegrateService
+
+    databaseName = BusinessTravelInfoDB
+
+    isRead = true
+
+    bizTime = 2014-12-19
+
+    dataSourceTimeout=36000000
+
+    showSql=true
+
+
+
+
+    #####用户缓存信息##
+
+    redisUserDB=CLTradeRedisDB
+
+    #####企业平台账号缓存时间####
+
+    ptAccountCacheTime=900
+
+    #####大客户号缓存时间####
+
+    bigClientCacheTime=600
+
+    #################\u4E3B\u952E\u751F\u6210\u7B56\u7565\u6587\u4EF6############################
+
+    keyIdConfigPath=/home/nacfg.ini
+
+    flightSortCacheTime=600
+
+    ###########517开放平台接口#############
+
+
+    openapi.url=http://cl.agentapi.jk.517na.com/openapi
+
+
+    ###########517开放平台PID#############
+
+
+    openapi.pid=0008600281603302993
+
+
+    ###########517开放平台安全码#############
+
+
+    openapi.secret=519ce362bcb04cbeae113fe5f83a2b31
+
+    openapi.version=2.0
+
+
+
+    ##通知系统的webservice地址##
+
+    notify_url=http://wsjk.notify.517na.com/Better517Na.YWWebServicesNotify.WebService/YWWebServiceNotify.asmx?WSDL
+
+
+    #服务环境标识
+
+    envsign=PAL
+
+    routeTimeout=0
+
+    needHttpToHCP=true
+
+    trainTradeIntegrateServiceDomain=http://172.26.6.59:12438
+  log4j.properties: |-
+    ### 设置Logger输出级别和输出目的地 ###
+    log4j.rootLogger=error,stdout
+     
+     
+    ### 把日志信息输出到控制台 ###
+    log4j.appender.stdout=org.apache.log4j.ConsoleAppender
+    #log4j.appender.stdout.Target=System.err
+    #log4j.appender.stdout=org.apache.log4j
+    log4j.appender.stdout.layout=org.apache.log4j.PatternLayout
+  log_config.properties: >-
+    #####################   日志组件配置文件        ###########################
+
+    ##################################################################
+
+    #说明：所有属性均采用? key = value 的方式，只有value的值可以修改，现有的key不可修改；密码域账户均加密不是乱码?
+
+    #AppName 应用程序名??
+
+    log.AppName = CLTradeIntegrateService
+
+
+    #AppRecord App日志记录开关 true：开     false：关
+
+    log.AppRecord = true
+
+
+    #DebugRecord Debug日志记录开关 true：开     false：关
+
+    log.DebugRecord = false
+
+
+    #Driver 数据库驱动
+
+    log.jdbc.driver = com.mysql.jdbc.Driver
+
+
+    #Url 数据库链接  jdbc:mysql://ip：port/数据库名称
+
+    log.acc.jdbc.url =
+    jdbc:mysql://BJLogDBALL003-W.BJ01.517na.com:3306/LogAccJKCL
+
+    log.acc.jdbc.username=vxSs4i7BS58@
+
+    log.acc.jdbc.password=6BPzhGiVwAPCW1LhtdUvCblGokvcMGesrY1wV/coEWg@
+
+
+    log.app.jdbc.url =
+    jdbc:mysql://BJLogDBALL003-W.BJ01.517na.com:3306/LogAppJKCL
+
+    log.app.jdbc.username=vxSs4i7BS58@
+
+    log.app.jdbc.password=6BPzhGiVwAPCW1LhtdUvCblGokvcMGesrY1wV/coEWg@
+
+
+    log.cachehit.jdbc.url =
+    jdbc:mysql://BJLogDBALL003-W.BJ01.517na.com:3306/LogCacheHitJKCL
+
+    log.cachehit.jdbc.username=vxSs4i7BS58@
+
+    log.cachehit.jdbc.password=6BPzhGiVwAPCW1LhtdUvCblGokvcMGesrY1wV/coEWg@
+
+
+    log.debug.jdbc.url =
+    jdbc:mysql://BJLogDBALL003-W.BJ01.517na.com:3306/LogDebugJKCL
+
+    log.debug.jdbc.username=vxSs4i7BS58@
+
+    log.debug.jdbc.password=6BPzhGiVwAPCW1LhtdUvCblGokvcMGesrY1wV/coEWg@
+
+
+    log.exception.jdbc.url =
+    jdbc:mysql://BJLogDBALL003-W.BJ01.517na.com:3306/LogExceptionJKCL
+
+    log.exception.jdbc.username=vxSs4i7BS58@
+
+    log.exception.jdbc.password=6BPzhGiVwAPCW1LhtdUvCblGokvcMGesrY1wV/coEWg@
+
+
+    log.interaction.jdbc.url =
+    jdbc:mysql://BJLogDBALL003-W.BJ01.517na.com:3306/LogInteractionJKCL
+
+    log.interaction.jdbc.username=vxSs4i7BS58@
+
+    log.interaction.jdbc.password=6BPzhGiVwAPCW1LhtdUvCblGokvcMGesrY1wV/coEWg@
+
+
+    log.slowcall.jdbc.url =
+    jdbc:mysql://BJLogDBALL003-W.BJ01.517na.com:3306/LogSlowCallJKCL
+
+    log.slowcall.jdbc.username=vxSs4i7BS58@
+
+    log.slowcall.jdbc.password=6BPzhGiVwAPCW1LhtdUvCblGokvcMGesrY1wV/coEWg@
+
+
+    log.uiacc.jdbc.url =
+    jdbc:mysql://BJLogDBALL003-W.BJ01.517na.com:3306/LogUiaccJKCL
+
+    log.uiacc.jdbc.username=vxSs4i7BS58@
+
+    log.uiacc.jdbc.password=6BPzhGiVwAPCW1LhtdUvCblGokvcMGesrY1wV/coEWg@
+
+
+    log.kafka.iswritetokafka=1
+
+    log.kafka.addresses=kafkalog1.517la.com:9092,kafkalog2.517la.com:9092,kafkalog3.517la.com:9092
+
+
+    #Directory linux下日志记录路径?
+
+    log.Directory = /var/log/cllog
+
+
+    #DivisionFileSize （单位：兆） 日志在某一时间段内超过文件大小已2M划分
+
+    log.DivisionFileSize = 2
+
+
+    #DivisionFileTime （单位：分钟） 日志在某一时间段内不足2M文件按2min划分
+
+    log.DivisionFileTime = 1
+
+
+    #windows下载文件目录,windows服务的配置成Logs，linux服务一般配置成 JavaLogs
+
+    log.download.Directory=JavaLogs
+  param-jdbc.properties: >-
+    ########## JDBC ##########################
+
+    param.applicationName = CLTradeIntegerateService_param
+
+    param.databaseName = SysParamDB
+
+    param.isRead = true
+
+    param.bizTime = 2014-12-19
+
+    param.showSql=true
+
+
+    pool.initialSize=5
+
+    pool.maxActive=100
+
+    pool.maxIdle=2
+
+    pool.maxWait= 1000000
+
+    pool.poolPreparedStatements=true
+
+    pool.defaultAutoCommit=false
+
+
+    #################\u4E3B\u952E\u751F\u6210\u7B56\u7565\u6587\u4EF6############################
+
+
+
+    param.DictionaryTimeOut=5
+
+
+    param.SysParamTimeOut=5
+
+
+    param.UserParamTimeOut=5
+  redis.properties: |-
+    redis.maxActive=100
+    redis.maxIdle=5
+    redis.maxWait=1000
+    redis.sleepTime=60000
+    redis.url= jdbc:mysql://DataBaseRoute-W.BJ01.517na.com:3306/DataBaseRoute
+    redis.userName=kSRw85/S628Jd6cTkHmEgA@@
+    redis.password=6BPzhGiVwAPCW1LhtdUvCblGokvcMGesrY1wV/coEWg@
+    redis.DBName=CLTradeRedisDB
+    redis.driverClassName=com.mysql.jdbc.Driver
+    redis.initialSize=4
+    redis.appName=default
+    redis.nacfgFile=/home/nacfg.ini
+kind: ConfigMap
+metadata:
+  name: cltradeintegrateservice-config
+  namespace: common

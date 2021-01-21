@@ -1,0 +1,158 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: clbasebusidataservice
+  namespace: settlement
+spec:
+  progressDeadlineSeconds: 600
+{{- if .Values.clbasebusidataservice.nodeManager.replicas }}
+  replicas: {{ .Values.clbasebusidataservice.nodeManager.replicas }}
+{{- else if eq .Values.environment "test" }}
+  replicas: 1
+{{- else if eq .Values.environment "formal" }}
+  replicas: 2
+{{- end }}
+  revisionHistoryLimit: 10
+  selector:
+    matchLabels:
+      app: clbasebusidataservice
+  strategy:
+    rollingUpdate:
+      maxSurge: 25%
+      maxUnavailable: 1
+    type: RollingUpdate
+  template:
+    metadata:
+      labels:
+        app: clbasebusidataservice
+    spec:
+      containers:
+        - env:
+            - name: MYENV_TOMCATPORT
+            {{- if .Values.clbasebusidataservice.networkManager.tomcat.port }}
+              value: {{ .Values.clbasebusidataservice.networkManager.tomcat.port | quote }}
+            {{- else }}
+              value: '12123'
+            {{- end }}
+            - name: JAVA_OPTS
+              value: {{ .Values.clbasebusidataservice.resourceManager.jvm }}
+        {{- if .Values.clbasebusidataservice.nodeManager.tag }}
+          image: {{ .Values.imageRegistry }}/clbasebusidataservice:{{ .Values.clbasebusidataservice.nodeManager.tag }}
+        {{- else }}
+          image: {{ .Values.imageRegistry }}/clbasebusidataservice:{{ .Values.dockerTag }}
+        {{- end }}
+          imagePullPolicy: IfNotPresent
+          livenessProbe:
+            failureThreshold: 3
+            initialDelaySeconds: 100
+            periodSeconds: 10
+            successThreshold: 1
+            tcpSocket:
+              port: 12600
+            timeoutSeconds: 10
+          name: clbasebusidataservice
+          ports:
+            {{- if .Values.clbasebusidataservice.networkManager.tomcat.port }}
+            - containerPort: {{ .Values.clbasebusidataservice.networkManager.tomcat.port }}
+              hostPort: {{ .Values.clbasebusidataservice.networkManager.tomcat.port }}
+              protocol: TCP
+            {{- else }}
+            - containerPort: 12123
+              hostPort: 12123
+              protocol: TCP
+            {{- end }}
+            {{- if .Values.clbasebusidataservice.networkManager.thrift.port }}
+            - containerPort: {{ .Values.clbasebusidataservice.networkManager.thrift.port }}
+              hostPort: {{ .Values.clbasebusidataservice.networkManager.thrift.port }}
+              protocol: TCP
+            {{- else }}
+            - containerPort: 12600
+              hostPort: 12600
+              protocol: TCP
+            {{- end }}
+          readinessProbe:
+            failureThreshold: 3
+            initialDelaySeconds: 10
+            periodSeconds: 5
+            successThreshold: 1
+            tcpSocket:
+            {{- if .Values.clbasebusidataservice.networkManager.thrift.port }}
+              port: {{ .Values.clbasebusidataservice.networkManager.thrift.port }}
+            {{- else }}
+              port: 12600
+            {{- end }}
+            timeoutSeconds: 10
+          {{- if .Values.clbasebusidataservice.resourceManager.resources.custom -}}
+          resources:
+            limits:
+              cpu: {{ .Values.clbasebusidataservice.resourceManager.resources.limits.cpu }}
+              memory: {{ .Values.clbasebusidataservice.resourceManager.resources.limits.memory }}
+            requests:
+              cpu: {{ .Values.clbasebusidataservice.resourceManager.resources.requests.cpu }}
+              memory: {{ .Values.clbasebusidataservice.resourceManager.resources.requests.memory }}
+          {{- else }}
+          resources:
+            limits:
+              cpu: '1'
+              memory: 1Gi
+            requests:
+              cpu: 100m
+              memory: 128Mi
+          {{- end }}
+          terminationMessagePath: /dev/termination-log
+          terminationMessagePolicy: File
+          volumeMounts:
+            - mountPath: /var/log/cllog
+              name: cllog
+            - mountPath: /var/log/java
+              name: logjava
+            - mountPath: /usr/local/soft/tomcat/webapps/ROOT/WEB-INF/config
+              name: config
+            - mountPath: /home/nacfg.ini
+              name: nacfg
+      dnsPolicy: ClusterFirstWithHostNet
+      imagePullSecrets:
+        - name: regcred
+      nodeSelector:
+        env: settlement
+      restartPolicy: Always
+      schedulerName: default-scheduler
+      securityContext: {}
+      terminationGracePeriodSeconds: 15
+      {{- if .Values.hostManager.volumes.hostPath }}
+      volumes:
+        - hostPath:
+            path: {{ .Values.hostManager.volumes.hostPath }}/log/cllog
+            type: ''
+          name: cllog
+        - hostPath:
+            path: {{ .Values.hostManager.volumes.hostPath }}/log/java
+            type: ''
+          name: logjava
+        - configMap:
+            defaultMode: 420
+            name: clbasebusidataservice-config
+          name: config
+        - hostPath:
+            path: /home/nacfg.ini
+            type: ''
+          name: nacfg
+      {{- else }}
+      volumes:
+        - hostPath:
+            path: /app/log/cllog
+            type: ''
+          name: cllog
+        - hostPath:
+            path: /app/log/java
+            type: ''
+          name: logjava
+        - configMap:
+            defaultMode: 420
+            name: clbasebusidataservice-config
+          name: config
+        - hostPath:
+            path: /home/nacfg.ini
+            type: ''
+          name: nacfg
+      {{- end }}

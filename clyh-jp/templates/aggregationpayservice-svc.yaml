@@ -1,0 +1,18 @@
+apiVersion: v1
+kind: Service
+metadata:
+  name: aggregationpayservice-svc
+  namespace: jp
+spec:
+  externalTrafficPolicy: Cluster
+  ports:
+    - name: aggregationpayservice
+      nodePort: 31636
+      port: {{ .Values.aggregationpayservice.service.port }}
+      protocol: TCP
+      targetPort: {{ .Values.aggregationpayservice.service.port }}
+  selector:
+    app: aggregationpayservice
+  sessionAffinity: None
+  type: NodePort
+

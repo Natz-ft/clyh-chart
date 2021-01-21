@@ -1,0 +1,113 @@
+apiVersion: apps/v1
+kind: Deployment                               # 表明这是一个deploy
+metadata:
+  name: cltrainticketweb2                 # deploy的名称,可以理解为服务集的名称
+  namespace: train        # 请选择服务集应在的业务线命名空间
+spec:
+  replicas: 1                                  # 生成的pod的数量，可以理解为发布多少个实例
+  revisionHistoryLimit: 10                     # 记录的历史版本的数量，用于回退
+  selector:
+    matchLabels:
+      app: cltrainticketweb2             # 匹配的标签，对应标签的pod会被关联到这个deploy，要求和deploy的名称一致
+  strategy:
+    type: RollingUpdate                        # 更新策略为滚动更新
+    rollingUpdate:
+      maxUnavailable: 1                        # 最大同时不可用数为1，即版本发布时会停止一个启动一个再继续，不会同时停止多个
+  template:
+    metadata:
+      labels:
+        app: cltrainticketweb2            # 要求和deploy的名称一致
+    spec:
+      dnsPolicy: ClusterFirstWithHostNet        # dns模式为使用宿主机的集群优先模式，此模式下会优先
+      terminationGracePeriodSeconds: 15         # 停止pod前容忍其优雅退出的秒数，超过这个时间之后强杀，默认30
+      containers:
+        - name: cltrainticketweb2       # 容器的基础名称，要求和deploy的名称一致
+          {{- if .Values.cltrainticketweb.nodeManager.tag }}
+          image: {{ .Values.imageRegistry }}/cltrainticketweb:{{ .Values.cltrainticketweb.nodeManager.tag }}
+          {{- else }}
+          image: {{ .Values.imageRegistry }}/cltrainticketweb:{{ .Values.dockerTag }}
+          {{- end }}
+          env:                                                                                     # 环境变量,这里通过环境变量传参到容器内
+            - name: MYENV_TOMCATPORT                                   # 对应tomcat的server.xml中的端口，使用tomcat的程序都需要
+              {{- if .Values.cltrainticketweb.networkManager.tomcat.port }}
+              value: {{ .Values.cltrainticketweb.networkManager.tomcat.port | quote }}
+              {{- else }}
+              value: "12181"
+            {{- end }}
+            - name: JAVA_OPTS                                          # java参数，请根据自己的程序进行配置，java程序都需要
+              value: {{ .Values.cltrainticketweb.resourceManager.jvm }}
+          volumeMounts:                                              # 挂载到容器中的文件或目录,地址是容器中的地址,对应的挂载有需求的才添加，没有需求不添加
+            - name: cllog
+              mountPath: /var/log/cllog
+            - name: logjava
+              mountPath: /var/log/java
+            - name: nacfg
+              mountPath: /home/nacfg.ini
+            - name: config                                          # 按文件夹挂载，此文件夹被完全覆盖，多余的文件或者文件夹会被删除
+              mountPath: /usr/local/soft/tomcat/webapps/ROOT/WEB-INF/config
+            - name: config
+              mountPath: /usr/local/soft/tomcat/conf/server.xml
+              subPath: server.xml
+          ports:                                                     # 容器端口，多个都列出来（例如同时有http端口和thrift端口）
+            {{- if .Values.cltrainticketweb.networkManager.tomcat.port }}
+            - containerPort: {{ .Values.cltrainticketweb.networkManager.tomcat.port }}
+              hostPort: {{ .Values.cltrainticketweb.networkManager.tomcat.port }}
+              protocol: TCP
+            {{- else }}
+            - containerPort: 12181
+              hostPort: 12181
+              protocol: TCP
+          {{- end }}
+          {{- if .Values.cltrainticketweb.resourceManager.resources.custom -}}
+          resources:
+            limits:
+              cpu: {{ .Values.cltrainticketweb.resourceManager.resources.limits.cpu }}
+              memory: {{ .Values.cltrainticketweb.resourceManager.resources.limits.memory }}
+            requests:
+              cpu: {{ .Values.cltrainticketweb.resourceManager.resources.requests.cpu }}
+              memory: {{ .Values.cltrainticketweb.resourceManager.resources.requests.memory }}
+          {{- else }}
+          resources:
+            limits:
+              cpu: '1'
+              memory: 1Gi
+            requests:
+              cpu: 400m
+              memory: 256Mi
+      {{- end }}
+      imagePullSecrets:                                            # 拉取镜像的secret，提前初始化在k8s的secret中
+        - name: regcred
+      nodeSelector:                                                # 节点选取标签，此deploy对应的程序只会调度在有下面标签的node（宿主机）中，示例为用户的，自己业务线请改成自己的
+        env: train
+      {{- if .Values.hostManager.volumes.hostPath }}
+      volumes:
+        - hostPath:
+            path: {{ .Values.hostManager.volumes.hostPath }}/log/cllog
+          name: cllog
+        - hostPath:
+            path: {{ .Values.hostManager.volumes.hostPath }}/log/java
+          name: logjava
+        - hostPath:
+            path: /home/nacfg.ini
+          name: nacfg
+        - configMap:
+            defaultMode: 420
+            name: cltrainticketweb-config
+          name: config
+      {{- else }}
+      volumes:
+        - hostPath:
+            path: /app/log/cllog
+          name: cllog
+        - hostPath:
+            path: /app/log/java
+          name: logjava
+        - hostPath:
+            path: /home/nacfg.ini
+          name: nacfg
+        - configMap:
+            defaultMode: 420
+            name: cltrainticketweb-config
+          name: config
+      {{- end }}
+
